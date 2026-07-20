@@ -32,6 +32,7 @@ export const GoalSetup: React.FC = () => {
   const [customGoal, setCustomGoal] = useState('')
   const [target, setTarget] = useState('')
   const [customTarget, setCustomTarget] = useState('')
+  const [activeMode, setActiveMode] = useState('Learning')
   const [dailyHours, setDailyHours] = useState(3)
   const [timelineDays, setTimelineDays] = useState(45)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -95,6 +96,7 @@ export const GoalSetup: React.FC = () => {
       await createGoalMutation.mutateAsync({
         title: finalGoal || 'Become Backend Developer',
         target: finalTarget || 'None',
+        active_mode: activeMode,
         daily_hours: dailyHours,
         timeline_days: timelineDays
       })

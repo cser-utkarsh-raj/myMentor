@@ -8,9 +8,11 @@ import {
   ShieldAlert, 
   CheckCircle,
   File,
-  Download
+  Archive,
+  RefreshCcw,
+  Tag
 } from 'lucide-react'
-import { usePDFs, useUploadPDF, useDeletePDF } from '../hooks/useApi'
+import { usePDFs, useUploadPDF, useDeletePDF, useTogglePDFArchive, useUpdatePDFTags } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const PDFs: React.FC = () => {
@@ -20,11 +22,17 @@ export const PDFs: React.FC = () => {
   const { data: pdfs, isLoading } = usePDFs()
   const uploadPDFMutation = useUploadPDF()
   const deletePDFMutation = useDeletePDF()
+  const toggleArchiveMutation = useTogglePDFArchive()
+  const updateTagsMutation = useUpdatePDFTags()
 
   // State
   const [category, setCategory] = useState('Resume')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
+  
+  // Tag editing state
+  const [editingTagId, setEditingTagId] = useState<number | null>(null)
+  const [tagValue, setTagValue] = useState('')
 
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
     switch (accentColor) {
@@ -64,9 +72,7 @@ export const PDFs: React.FC = () => {
     return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     })
   }
 
@@ -106,6 +112,25 @@ export const PDFs: React.FC = () => {
       } catch (e) {
         alert('Failed to delete file.')
       }
+    }
+  }
+
+  // Archive handler
+  const handleToggleArchive = async (pdfId: number) => {
+    try {
+      await toggleArchiveMutation.mutateAsync(pdfId)
+    } catch (e) {
+      alert('Failed to toggle archive status.')
+    }
+  }
+
+  // Tags handler
+  const handleSaveTags = async (pdfId: number) => {
+    try {
+      await updateTagsMutation.mutateAsync({ pdfId, tags: tagValue })
+      setEditingTagId(null)
+    } catch (e) {
+      alert('Failed to update tags.')
     }
   }
 
@@ -215,7 +240,7 @@ export const PDFs: React.FC = () => {
               <thead>
                 <tr className="border-b border-white/5 text-zinc-500 uppercase tracking-widest font-bold bg-zinc-950/20">
                   <th className="p-4">Document Details</th>
-                  <th className="p-4">Category</th>
+                  <th className="p-4">Category & Tags</th>
                   <th className="p-4">Size</th>
                   <th className="p-4">Uploaded</th>
                   <th className="p-4 text-center">Actions</th>
@@ -223,29 +248,68 @@ export const PDFs: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-white/5 text-zinc-300">
                 {pdfs.map((pdf) => (
-                  <tr key={pdf.id} className="hover:bg-white/5 transition-all">
+                  <tr key={pdf.id} className={`hover:bg-white/5 transition-all ${pdf.is_archived ? 'opacity-50 grayscale' : ''}`}>
                     <td className="p-4 font-semibold text-zinc-200">
                       <div className="flex items-center gap-2">
                         <File className="w-4 h-4 text-zinc-400 shrink-0" />
-                        <span className="truncate max-w-[200px]" title={pdf.filename}>
+                        <span className="truncate max-w-[150px]" title={pdf.filename}>
                           {pdf.filename}
                         </span>
+                        {pdf.is_archived && (
+                          <span className="text-[9px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded uppercase">Archived</span>
+                        )}
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className={`px-2 py-0.5 rounded font-bold uppercase tracking-wider text-[9px] ${
-                        pdf.category === 'Resume' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' :
-                        pdf.category === 'DSA' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                        pdf.category === 'SQL' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
-                        'bg-zinc-800 text-zinc-400 border border-white/5'
-                      }`}>
-                        {pdf.category}
-                      </span>
+                      <div className="flex flex-col gap-1.5 items-start">
+                        <span className={`px-2 py-0.5 rounded font-bold uppercase tracking-wider text-[9px] ${
+                          pdf.category === 'Resume' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' :
+                          pdf.category === 'DSA' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                          pdf.category === 'SQL' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                          'bg-zinc-800 text-zinc-400 border border-white/5'
+                        }`}>
+                          {pdf.category}
+                        </span>
+                        
+                        {editingTagId === pdf.id ? (
+                          <div className="flex items-center gap-1 mt-1">
+                            <input 
+                              type="text" 
+                              value={tagValue} 
+                              onChange={e => setTagValue(e.target.value)}
+                              className="bg-zinc-950 border border-white/10 rounded px-1.5 py-0.5 text-[10px] w-20 outline-none text-white"
+                              placeholder="Tags..."
+                            />
+                            <button onClick={() => handleSaveTags(pdf.id)} className="text-emerald-400">
+                              <CheckCircle className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div 
+                            className="flex items-center gap-1 text-[10px] text-zinc-500 cursor-pointer hover:text-zinc-300"
+                            onClick={() => {
+                              setEditingTagId(pdf.id)
+                              setTagValue(pdf.tags || '')
+                            }}
+                          >
+                            <Tag className="w-3 h-3" /> 
+                            <span className="truncate max-w-[100px]">{pdf.tags || 'Add tag'}</span>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 font-mono text-zinc-400">{formatBytes(pdf.size_bytes)}</td>
                     <td className="p-4 text-zinc-500">{formatDate(pdf.upload_date)}</td>
                     <td className="p-4 text-center">
                       <div className="flex gap-2 justify-center">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleArchive(pdf.id)}
+                          className="p-2 rounded-lg bg-zinc-950/40 border border-white/5 hover:border-zinc-500/20 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
+                          title={pdf.is_archived ? "Restore PDF" : "Archive PDF"}
+                        >
+                          {pdf.is_archived ? <RefreshCcw className="w-4 h-4" /> : <Archive className="w-4 h-4" />}
+                        </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(pdf.id)}

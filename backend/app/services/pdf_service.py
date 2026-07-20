@@ -84,3 +84,23 @@ class PDFService:
         db.commit()
         logger.info(f"PDF metadata record removed from database.")
         return True
+
+    @staticmethod
+    def toggle_archive(db: Session, pdf_id: int) -> Optional[PDF]:
+        db_pdf = db.query(PDF).filter(PDF.id == pdf_id).first()
+        if not db_pdf:
+            return None
+        db_pdf.is_archived = not db_pdf.is_archived
+        db.commit()
+        db.refresh(db_pdf)
+        return db_pdf
+
+    @staticmethod
+    def update_tags(db: Session, pdf_id: int, tags: str) -> Optional[PDF]:
+        db_pdf = db.query(PDF).filter(PDF.id == pdf_id).first()
+        if not db_pdf:
+            return None
+        db_pdf.tags = tags
+        db.commit()
+        db.refresh(db_pdf)
+        return db_pdf

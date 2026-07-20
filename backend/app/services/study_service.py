@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, date, timedelta
-from app.models.models import Goal, StudySession, DailyStatistic, Task, Day, Milestone, Track, Badge
+from app.models.models import Goal, StudySession, DailyStatistic, Resource, Day, Module, Track, Badge
 from app.schemas.schemas import StudySessionCreate, AnalyticsDashboard
 from app.core.logger import logger
 from typing import List, Dict, Any, Optional
@@ -11,23 +11,27 @@ class StudyService:
     def log_study_session(db: Session, session_in: StudySessionCreate) -> StudySession:
         logger.info(f"Logging study session of {session_in.duration_seconds} seconds for Goal ID {session_in.goal_id}.")
         
-        # Log study session
         db_session = StudySession(
             goal_id=session_in.goal_id,
+            resource_id=session_in.resource_id,
             started_at=session_in.started_at or datetime.utcnow(),
+            end_time=session_in.end_time or datetime.utcnow(),
             duration_seconds=session_in.duration_seconds,
-            completed=session_in.completed
+            platform=session_in.platform,
+            completion_status=session_in.completion_status,
+            difficulty_rating=session_in.difficulty_rating,
+            notes=session_in.notes
         )
         db.add(db_session)
         
-        # Log study hours to DailyStatistic
         hours = session_in.duration_seconds / 3600.0
-        from app.services.task_service import TaskService
-        TaskService._log_daily_stats(db, session_in.goal_id, hours_studied=hours)
+        from app.services.task_service import ResourceTaskService
+        # Only log completion if it was successful during the session
+        resources_completed = 1 if session_in.completion_status else 0
+        ResourceTaskService._log_daily_stats(db, session_in.goal_id, hours_studied=hours, resources_completed=resources_completed)
         
         db.commit()
         db.refresh(db_session)
-        logger.info(f"Study session logged. ID: {db_session.id}")
         return db_session
 
     @staticmethod
@@ -38,15 +42,15 @@ class StudyService:
             logger.warning(f"Goal ID {goal_id} not found for analytics.")
             return None
 
-        # 1. Tasks Completion Metrics
-        tasks_query = db.query(Task).join(Task.day).join(Day.milestone).join(Milestone.track).filter(
+        # 1. Resources Completion Metrics
+        resources_query = db.query(Resource).join(Resource.day).join(Day.module).join(Module.track).filter(
             Track.goal_id == goal_id
         )
         
-        total_tasks = tasks_query.count()
-        completed_tasks = tasks_query.filter(Task.is_completed == True).count()
+        total_resources = resources_query.count()
+        completed_resources = resources_query.filter(Resource.is_completed == True).count()
         
-        overall_progress = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0.0
+        overall_progress = (completed_resources / total_resources * 100) if total_resources > 0 else 0.0
 
         # 2. Hours Studied
         total_hours = db.query(func.sum(DailyStatistic.hours_studied)).filter(
@@ -61,24 +65,23 @@ class StudyService:
         badges_count = db.query(Badge).filter(Badge.goal_id == goal_id).count()
 
         # 5. Category completion
-        all_tasks = tasks_query.all()
+        all_resources = resources_query.all()
         category_totals: Dict[str, int] = {}
         category_completed: Dict[str, int] = {}
         category_revisions: Dict[str, int] = {}
 
-        for task in all_tasks:
-            cat = task.category
+        for res in all_resources:
+            cat = res.category
             category_totals[cat] = category_totals.get(cat, 0) + 1
-            if task.is_completed:
+            if res.is_completed:
                 category_completed[cat] = category_completed.get(cat, 0) + 1
-            category_revisions[cat] = category_revisions.get(cat, 0) + task.revision_count
+            category_revisions[cat] = category_revisions.get(cat, 0) + res.revision_count
 
         category_progress = {}
         for cat, total in category_totals.items():
             completed = category_completed.get(cat, 0)
             category_progress[cat] = round((completed / total) * 100, 1)
 
-        # 6. Weakest Topic (lowest completion rate with total > 0, excluding 100%)
         weakest = None
         min_rate = 101.0
         for cat, rate in category_progress.items():
@@ -86,7 +89,6 @@ class StudyService:
                 min_rate = rate
                 weakest = cat
 
-        # 7. Most Revised Topic
         most_revised = None
         max_revisions = -1
         for cat, revs in category_revisions.items():
@@ -94,9 +96,8 @@ class StudyService:
                 max_revisions = revs
                 most_revised = cat
 
-        # 8. Weekly hours compilation (Monday - Sunday of current week)
         today = date.today()
-        start_of_week = today - timedelta(days=today.weekday())  # Monday
+        start_of_week = today - timedelta(days=today.weekday())
         weekly_hours = []
         for i in range(7):
             day_date = start_of_week + timedelta(days=i)
@@ -106,14 +107,12 @@ class StudyService:
             ).first()
             weekly_hours.append(day_stats.hours_studied if day_stats else 0.0)
 
-        # 9. Contribution Grid Heatmap
         stats_history = db.query(DailyStatistic).filter(
             DailyStatistic.goal_id == goal_id
         ).all()
         
         heatmap_data = []
         for stat in stats_history:
-            # We map date -> tasks_completed (or XP) for contribution count
             heatmap_data.append({
                 "date": stat.date.isoformat(),
                 "count": stat.tasks_completed,
@@ -121,14 +120,30 @@ class StudyService:
                 "hours": round(stat.hours_studied, 2)
             })
 
+        # Calculate daily score for today
+        today_stats = db.query(DailyStatistic).filter(
+            DailyStatistic.goal_id == goal_id,
+            DailyStatistic.date == today
+        ).first()
+        daily_score = 0.0
+        if today_stats:
+            # Score algorithm based on study hours, completion, and XP
+            base = min(100, today_stats.hours_studied / goal.daily_hours * 50 if goal.daily_hours > 0 else 0)
+            completion_bonus = min(30, today_stats.tasks_completed * 10)
+            xp_bonus = min(20, today_stats.xp_gained / 50 * 20)
+            daily_score = round(base + completion_bonus + xp_bonus, 1)
+            today_stats.consistency_score = daily_score
+            db.commit()
+
         return AnalyticsDashboard(
             overall_progress_percent=round(overall_progress, 1),
             total_hours_studied=round(total_hours, 2),
-            total_questions_completed=completed_tasks,
+            total_resources_completed=completed_resources,
             current_streak=goal.streak,
             longest_streak=goal.longest_streak,
             days_remaining=days_remaining,
             xp=goal.xp,
+            daily_score=daily_score,
             streak_badges_count=badges_count,
             category_progress=category_progress,
             weekly_study_hours=weekly_hours,

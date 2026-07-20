@@ -1,7 +1,7 @@
 import os
 import json
 from sqlalchemy.orm import Session
-from app.models.models import Goal, Track, Milestone, Day, Task
+from app.models.models import Goal, Track, Module, Day, Resource
 from app.core.config import settings
 from app.core.logger import logger
 from typing import Dict, Any, List
@@ -12,7 +12,7 @@ class RoadmapService:
         """
         Loads the rule-based roadmap JSON matching the goal title,
         scales its content to fit `timeline_days` days, and saves it
-        to the database as a set of Tracks, Milestones, Days, and Tasks.
+        to the database as a set of Tracks, Modules, Days, and Resources.
         """
         logger.info(f"Starting roadmap generation for Goal ID: {goal.id} ({goal.title})")
         
@@ -45,17 +45,17 @@ class RoadmapService:
         # Collect all steps in a flat list with their parent structures
         flat_steps = []
         for track_idx, track_temp in enumerate(template.get("tracks", [])):
-            for milestone_idx, milestone_temp in enumerate(track_temp.get("milestones", [])):
-                for step_idx, step_temp in enumerate(milestone_temp.get("steps", [])):
+            for module_idx, module_temp in enumerate(track_temp.get("modules", track_temp.get("milestones", []))):
+                for step_idx, step_temp in enumerate(module_temp.get("steps", [])):
                     flat_steps.append({
                         "track_title": track_temp.get("title"),
                         "track_desc": track_temp.get("description"),
                         "track_order": track_temp.get("order", track_idx + 1),
-                        "milestone_title": milestone_temp.get("title"),
-                        "milestone_desc": milestone_temp.get("description"),
-                        "milestone_order": milestone_temp.get("order", milestone_idx + 1),
+                        "module_title": module_temp.get("title"),
+                        "module_desc": module_temp.get("description"),
+                        "module_order": module_temp.get("order", module_idx + 1),
                         "step_title": step_temp.get("title"),
-                        "tasks": step_temp.get("tasks", [])
+                        "resources": step_temp.get("resources", step_temp.get("tasks", []))
                     })
 
         total_steps = len(flat_steps)
@@ -67,19 +67,17 @@ class RoadmapService:
 
         # 3. Create relational database structures
         db_tracks: Dict[str, Track] = {}
-        db_milestones: Dict[str, Milestone] = {}
+        db_modules: Dict[str, Module] = {}
         
         # Calculate timeline day allocations for each step.
-        # Step i gets allocated days from day_start to day_end
         N = goal.timeline_days
         
         for i, step_info in enumerate(flat_steps):
-            # Calculate range of days for this step
             day_start = int(round(i * N / total_steps)) + 1
             day_end = int(round((i + 1) * N / total_steps))
             allocated_days_count = day_end - day_start + 1
             
-            # Get or create Track
+            # Track
             track_title = step_info["track_title"]
             if track_title not in db_tracks:
                 track = Track(
@@ -89,42 +87,39 @@ class RoadmapService:
                     order=step_info["track_order"]
                 )
                 db.add(track)
-                db.flush()  # Get track.id
+                db.flush()
                 db_tracks[track_title] = track
             track_id = db_tracks[track_title].id
 
-            # Get or create Milestone
-            milestone_key = f"{track_title}::{step_info['milestone_title']}"
-            if milestone_key not in db_milestones:
-                milestone = Milestone(
+            # Module
+            module_key = f"{track_title}::{step_info['module_title']}"
+            if module_key not in db_modules:
+                module = Module(
                     track_id=track_id,
-                    title=step_info["milestone_title"],
-                    description=step_info["milestone_desc"],
-                    order=step_info["milestone_order"]
+                    title=step_info["module_title"],
+                    description=step_info["module_desc"],
+                    order=step_info["module_order"]
                 )
-                db.add(milestone)
-                db.flush()  # Get milestone.id
-                db_milestones[milestone_key] = milestone
-            milestone_id = db_milestones[milestone_key].id
+                db.add(module)
+                db.flush()
+                db_modules[module_key] = module
+            module_id = db_modules[module_key].id
 
-            # Generate Day(s) for this step
-            tasks_list = step_info["tasks"]
-            tasks_count = len(tasks_list)
+            # Days
+            res_list = step_info["resources"]
+            res_count = len(res_list)
             
             for day_idx in range(allocated_days_count):
                 day_num = day_start + day_idx
-                
-                # Make day title descriptive
                 if allocated_days_count > 1:
                     day_title = f"{step_info['step_title']} (Part {day_idx + 1}/{allocated_days_count})"
                 else:
                     day_title = step_info["step_title"]
                 
-                # First day is unlocked, others are locked initially
                 is_unlocked = (day_num == 1)
                 
                 db_day = Day(
-                    milestone_id=milestone_id,
+                    module_id=module_id,
                     day_number=day_num,
                     title=day_title,
                     unlocked=is_unlocked,
@@ -132,43 +127,42 @@ class RoadmapService:
                     xp_rewarded=False
                 )
                 db.add(db_day)
-                db.flush()  # Get db_day.id
+                db.flush()
 
-                # Distribute tasks across the days allocated to this step
-                # Calculate sub-slice of tasks for this day
-                if tasks_count > 0:
-                    t_start = int(round(day_idx * tasks_count / allocated_days_count))
-                    t_end = int(round((day_idx + 1) * tasks_count / allocated_days_count))
-                    day_tasks = tasks_list[t_start:t_end]
+                if res_count > 0:
+                    t_start = int(round(day_idx * res_count / allocated_days_count))
+                    t_end = int(round((day_idx + 1) * res_count / allocated_days_count))
+                    day_res = res_list[t_start:t_end]
                     
-                    for t_item in day_tasks:
-                        task = Task(
+                    for r_item in day_res:
+                        resource = Resource(
                             day_id=db_day.id,
-                            title=t_item.get("title"),
-                            category=t_item.get("category"),
-                            difficulty=t_item.get("difficulty", "Medium"),
+                            title=r_item.get("title", "Resource"),
+                            category=r_item.get("category", "General"),
+                            platform=r_item.get("platform", "Internal"),
+                            difficulty=r_item.get("difficulty", "Medium"),
                             is_completed=False,
-                            notes=t_item.get("notes", ""),
+                            notes=r_item.get("notes", ""),
                             revision_count=0,
-                            estimated_time_mins=t_item.get("estimated_time_mins", 30),
-                            completed_time_mins=None
+                            estimated_duration_mins=r_item.get("estimated_time_mins", r_item.get("estimated_duration_mins", 30)),
+                            completed_at=None
                         )
-                        db.add(task)
+                        db.add(resource)
                 
-                # Fallback: if no tasks are assigned to this day, create a review/practice task
-                if tasks_count == 0 or (t_end - t_start == 0):
-                    task = Task(
+                if res_count == 0 or (t_end - t_start == 0):
+                    resource = Resource(
                         day_id=db_day.id,
-                        title=f"Review & Practice: {step_info['step_title']}",
+                        title=f"Review: {step_info['step_title']}",
                         category="Projects",
+                        platform="Internal",
                         difficulty="Medium",
                         is_completed=False,
-                        notes=f"Perform hands-on exercises and review concepts covered in {step_info['step_title']}.",
+                        notes="Perform hands-on exercises and review concepts.",
                         revision_count=0,
-                        estimated_time_mins=30,
-                        completed_time_mins=None
+                        estimated_duration_mins=30,
+                        completed_at=None
                     )
-                    db.add(task)
+                    db.add(resource)
 
         db.commit()
         logger.info(f"Roadmap generated successfully for Goal ID: {goal.id} ({N} Days).")
@@ -176,7 +170,4 @@ class RoadmapService:
 
     @staticmethod
     def get_roadmap_details(db: Session, goal_id: int) -> List[Track]:
-        """
-        Fetches the complete tracks, milestones, days, and tasks structure for a goal.
-        """
         return db.query(Track).filter(Track.goal_id == goal_id).order_by(Track.order.asc()).all()

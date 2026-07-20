@@ -7,6 +7,7 @@ class Goal(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False, index=True)
     target = Column(String, nullable=True)  # e.g., "10 LPA"
+    active_mode = Column(String, default="Learning")  # Learning, Practice, Revision, Interview
     daily_hours = Column(Float, default=3.0)
     timeline_days = Column(Integer, default=45)
     xp = Column(Integer, default=0)
@@ -31,10 +32,11 @@ class Track(Base):
 
     # Relationships
     goal = relationship("Goal", back_populates="tracks")
-    milestones = relationship("Milestone", back_populates="track", cascade="all, delete-orphan")
+    modules = relationship("Module", back_populates="track", cascade="all, delete-orphan")
 
 
-class Milestone(Base):
+class Module(Base):
+    __tablename__ = "module"
     id = Column(Integer, primary_key=True, index=True)
     track_id = Column(Integer, ForeignKey("track.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
@@ -42,13 +44,13 @@ class Milestone(Base):
     order = Column(Integer, default=0)
 
     # Relationships
-    track = relationship("Track", back_populates="milestones")
-    days = relationship("Day", back_populates="milestone", cascade="all, delete-orphan")
+    track = relationship("Track", back_populates="modules")
+    days = relationship("Day", back_populates="module", cascade="all, delete-orphan")
 
 
 class Day(Base):
     id = Column(Integer, primary_key=True, index=True)
-    milestone_id = Column(Integer, ForeignKey("milestone.id", ondelete="CASCADE"), nullable=False)
+    module_id = Column(Integer, ForeignKey("module.id", ondelete="CASCADE"), nullable=False)
     day_number = Column(Integer, nullable=False)
     title = Column(String, nullable=False)
     unlocked = Column(Boolean, default=False)
@@ -56,36 +58,49 @@ class Day(Base):
     xp_rewarded = Column(Boolean, default=False)
 
     # Relationships
-    milestone = relationship("Milestone", back_populates="days")
-    tasks = relationship("Task", back_populates="day", cascade="all, delete-orphan")
+    module = relationship("Module", back_populates="days")
+    resources = relationship("Resource", back_populates="day", cascade="all, delete-orphan")
 
 
-class Task(Base):
+class Resource(Base):
     id = Column(Integer, primary_key=True, index=True)
     day_id = Column(Integer, ForeignKey("day.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
-    category = Column(String, nullable=False)  # Python, DSA, SQL, etc.
+    description = Column(Text, nullable=True)
+    category = Column(String, nullable=False)  # Theory, Exercise, Video
+    platform = Column(String, nullable=False)  # LeetCode, YouTube, GitHub, PDF, Internal
     difficulty = Column(String, default="Medium")  # Easy, Medium, Hard
+    estimated_duration_mins = Column(Integer, default=30)
+    external_url = Column(String, nullable=True)
+    xp_reward = Column(Integer, default=10)
+    tags = Column(String, nullable=True)  # comma separated
+    
     is_completed = Column(Boolean, default=False)
     completed_at = Column(DateTime, nullable=True)
     notes = Column(Text, nullable=True)
     revision_count = Column(Integer, default=0)
-    estimated_time_mins = Column(Integer, default=30)
-    completed_time_mins = Column(Integer, nullable=True)
 
     # Relationships
-    day = relationship("Day", back_populates="tasks")
+    day = relationship("Day", back_populates="resources")
+    study_sessions = relationship("StudySession", back_populates="resource")
 
 
 class StudySession(Base):
+    __tablename__ = "studysession"
     id = Column(Integer, primary_key=True, index=True)
     goal_id = Column(Integer, ForeignKey("goal.id", ondelete="CASCADE"), nullable=False)
+    resource_id = Column(Integer, ForeignKey("resource.id", ondelete="SET NULL"), nullable=True)
     started_at = Column(DateTime, default=datetime.utcnow)
-    duration_seconds = Column(Integer, nullable=False)
-    completed = Column(Boolean, default=True)
+    end_time = Column(DateTime, nullable=True)
+    duration_seconds = Column(Integer, default=0)
+    platform = Column(String, nullable=True)
+    completion_status = Column(Boolean, default=False)
+    difficulty_rating = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
 
     # Relationships
     goal = relationship("Goal", back_populates="study_sessions")
+    resource = relationship("Resource", back_populates="study_sessions")
 
 
 class DailyStatistic(Base):
@@ -93,8 +108,9 @@ class DailyStatistic(Base):
     goal_id = Column(Integer, ForeignKey("goal.id", ondelete="CASCADE"), nullable=False)
     date = Column(Date, default=date.today, unique=True, index=True)
     hours_studied = Column(Float, default=0.0)
-    tasks_completed = Column(Integer, default=0)
+    tasks_completed = Column(Integer, default=0)  # Maps to resources completed
     xp_gained = Column(Integer, default=0)
+    consistency_score = Column(Float, default=0.0) # Daily score metric
 
     # Relationships
     goal = relationship("Goal", back_populates="daily_statistics")
@@ -105,7 +121,7 @@ class Badge(Base):
     goal_id = Column(Integer, ForeignKey("goal.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    icon_name = Column(String, nullable=False)  # Badge icon type, e.g., 'streak-7', 'complete-goal'
+    icon_name = Column(String, nullable=False)
     unlocked_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
@@ -118,4 +134,6 @@ class PDF(Base):
     file_path = Column(String, nullable=False)
     size_bytes = Column(Integer, nullable=False)
     upload_date = Column(DateTime, default=datetime.utcnow)
-    category = Column(String, nullable=False)  # Tag/Category e.g., "Resume", "DSA", "SQL"
+    category = Column(String, nullable=False)
+    tags = Column(String, nullable=True)
+    is_archived = Column(Boolean, default=False)

@@ -23,6 +23,7 @@ class GoalService:
         db_goal = Goal(
             title=goal_in.title,
             target=goal_in.target,
+            active_mode=goal_in.active_mode,
             daily_hours=goal_in.daily_hours,
             timeline_days=goal_in.timeline_days,
             xp=0,

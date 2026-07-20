@@ -12,22 +12,42 @@ import {
   HelpCircle,
   BookOpen
 } from 'lucide-react'
-import { useActiveGoal, useUpdateTask, useLogStudySession, Day, Task } from '../hooks/useApi'
+import { useActiveGoal, useUpdateResource, useLogStudySession, Day, Resource } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
+import { useSessionStore } from '../store/sessionStore'
 
 export const Today: React.FC = () => {
-  const { accentColor, timerMode, timerSecondsRemaining, timerIsRunning, setTimerMode, startTimer, pauseTimer, resetTimer, tickTimer } = useUIStore()
+  const { accentColor } = useUIStore()
+  const { 
+    isSessionActive, 
+    activeResourceId, 
+    timerMode, 
+    timerSecondsRemaining, 
+    timerIsRunning, 
+    startSession,
+    endSession,
+    setTimerMode, 
+    startTimer, 
+    pauseTimer, 
+    resetTimer, 
+    tickTimer 
+  } = useSessionStore()
   
   // Queries & Mutations
   const { data: activeGoal, isLoading } = useActiveGoal()
-  const updateTaskMutation = useUpdateTask()
+  const updateResourceMutation = useUpdateResource()
   const logSessionMutation = useLogStudySession()
 
   // State management
   const [activeDay, setActiveDay] = useState<Day | null>(null)
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null)
   const [noteContent, setNoteContent] = useState('')
   const [savingStatus, setSavingStatus] = useState<'idle' | 'typing' | 'saving' | 'saved'>('idle')
+  
+  // Modal State
+  const [showSessionModal, setShowSessionModal] = useState(false)
+  const [sessionNotes, setSessionNotes] = useState('')
+  const [sessionDifficulty, setSessionDifficulty] = useState('Medium')
   
   const timerIntervalRef = useRef<any>(null)
   const typingTimeoutRef = useRef<any>(null)
@@ -62,7 +82,7 @@ export const Today: React.FC = () => {
     if (activeGoal?.tracks) {
       const allDays: Day[] = []
       for (const track of activeGoal.tracks) {
-        for (const ms of track.milestones) {
+        for (const ms of track.modules) {
           for (const day of ms.days) {
             allDays.push(day)
           }
@@ -70,17 +90,15 @@ export const Today: React.FC = () => {
       }
       allDays.sort((a, b) => a.day_number - b.day_number)
       
-      // Active Day is the first unlocked day that is not completed
       const todayDay = allDays.find(d => d.unlocked && !d.is_completed) || allDays.find(d => d.unlocked) || allDays[0]
       setActiveDay(todayDay || null)
       
-      // Auto-select first task if none is selected
-      if (todayDay && todayDay.tasks.length > 0 && !selectedTask) {
-        setSelectedTask(todayDay.tasks[0])
-        setNoteContent(todayDay.tasks[0].notes || '')
+      if (todayDay && todayDay.resources.length > 0 && !selectedResource) {
+        setSelectedResource(todayDay.resources[0])
+        setNoteContent(todayDay.resources[0].notes || '')
       }
     }
-  }, [activeGoal, selectedTask])
+  }, [activeGoal, selectedResource])
 
   // 2. Pomodoro Timer intervals logic
   useEffect(() => {
@@ -104,16 +122,34 @@ export const Today: React.FC = () => {
     }
   }, [timerSecondsRemaining, timerIsRunning])
 
-  const handleCompleteTimer = async () => {
+  const handleCompleteTimer = () => {
+    pauseTimer()
+    setShowSessionModal(true)
+  }
+
+  const submitSession = async (completionStatus: boolean) => {
     if (activeGoal) {
       try {
         await logSessionMutation.mutateAsync({
           goal_id: activeGoal.id,
+          resource_id: activeResourceId || undefined,
           duration_seconds: timerMode * 60,
-          completed: true
+          completion_status: completionStatus,
+          platform: 'Internal',
+          notes: sessionNotes
         })
-        alert(`Great work! You completed a ${timerMode} minute Pomodoro block and logged your study hours!`)
-        resetTimer()
+        
+        if (completionStatus && activeResourceId) {
+          await updateResourceMutation.mutateAsync({
+            resourceId: activeResourceId,
+            payload: { is_completed: true, notes: sessionNotes }
+          })
+        }
+        
+        setShowSessionModal(false)
+        setSessionNotes('')
+        endSession()
+        alert(`Session logged successfully!`)
       } catch (e) {
         console.error(e)
       }
@@ -129,11 +165,11 @@ export const Today: React.FC = () => {
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     
     typingTimeoutRef.current = setTimeout(async () => {
-      if (selectedTask) {
+      if (selectedResource) {
         setSavingStatus('saving')
         try {
-          await updateTaskMutation.mutateAsync({
-            taskId: selectedTask.id,
+          await updateResourceMutation.mutateAsync({
+            resourceId: selectedResource.id,
             payload: { notes: value }
           })
           setSavingStatus('saved')
@@ -145,19 +181,17 @@ export const Today: React.FC = () => {
     }, 1000)
   }
 
-  // Handle task toggles
-  const handleToggleTask = async (task: Task) => {
+  const handleToggleResource = async (resource: Resource) => {
     try {
-      await updateTaskMutation.mutateAsync({
-        taskId: task.id,
-        payload: { is_completed: !task.is_completed }
+      await updateResourceMutation.mutateAsync({
+        resourceId: resource.id,
+        payload: { is_completed: !resource.is_completed }
       })
     } catch (e) {
       console.error(e)
     }
   }
 
-  // Format Timer string
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0')
     const s = (seconds % 60).toString().padStart(2, '0')
@@ -181,13 +215,73 @@ export const Today: React.FC = () => {
     )
   }
 
-  const completedCount = activeDay.tasks.filter(t => t.is_completed).length
-  const totalCount = activeDay.tasks.length
+  const completedCount = activeDay.resources.filter(r => r.is_completed).length
+  const totalCount = activeDay.resources.length
   const todayProgress = Math.round((completedCount / (totalCount || 1)) * 100)
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto py-4 h-[calc(100vh-140px)]">
       
+      {/* Session Modal */}
+      <AnimatePresence>
+        {showSessionModal && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-zinc-900 border border-white/10 rounded-3xl p-6 max-w-md w-full shadow-2xl"
+            >
+              <h3 className="text-xl font-bold text-white mb-2">Session Complete</h3>
+              <p className="text-sm text-zinc-400 mb-6">How was your focus session? Log your progress.</p>
+              
+              <div className="flex flex-col gap-4 mb-6">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Difficulty</label>
+                  <select 
+                    value={sessionDifficulty} 
+                    onChange={e => setSessionDifficulty(e.target.value)}
+                    className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none"
+                  >
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Session Notes (Optional)</label>
+                  <textarea 
+                    value={sessionNotes}
+                    onChange={e => setSessionNotes(e.target.value)}
+                    placeholder="Any quick insights or blockers?"
+                    className="w-full h-24 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none resize-none"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => submitSession(false)}
+                  className="flex-1 py-3 rounded-xl bg-zinc-800 text-zinc-300 text-sm font-bold hover:bg-zinc-700 transition"
+                >
+                  Log Time Only
+                </button>
+                <button 
+                  onClick={() => submitSession(true)}
+                  className={`flex-1 py-3 rounded-xl text-black text-sm font-bold transition ${getColorClass('btn')}`}
+                >
+                  Mark Completed
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* LEFT COLUMN: Mission Checklist & Pomodoro Timer */}
       <div className="w-full lg:w-[55%] flex flex-col gap-6 overflow-y-auto pr-1">
         
@@ -287,63 +381,94 @@ export const Today: React.FC = () => {
           </div>
         </div>
 
-        {/* Agenda tasks checklists */}
+        {/* Agenda resources checklists */}
         <div className="flex flex-col gap-3">
           <h4 className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-2">Checks for Today</h4>
           
           <div className="flex flex-col gap-3">
-            {activeDay.tasks.map((task) => {
-              const isSelected = selectedTask?.id === task.id
+            {activeDay.resources.map((resource) => {
+              const isSelected = selectedResource?.id === resource.id
+              const isActiveSession = isSessionActive && activeResourceId === resource.id
+              
               return (
                 <div 
-                  key={task.id}
-                  className={`p-4 rounded-2xl border flex gap-4 transition-all duration-200 cursor-pointer ${
+                  key={resource.id}
+                  className={`p-4 rounded-2xl border flex flex-col gap-3 transition-all duration-200 cursor-pointer ${
                     isSelected 
                       ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20 shadow-[0_0_12px_rgba(0,0,0,0.15)]` 
                       : 'bg-zinc-900/30 border-white/5 hover:bg-zinc-900/60'
                   }`}
                   onClick={() => {
-                    setSelectedTask(task)
-                    setNoteContent(task.notes || '')
+                    setSelectedResource(resource)
+                    setNoteContent(resource.notes || '')
                   }}
                 >
-                  <button 
-                    type="button" 
-                    className="mt-0.5 shrink-0 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleToggleTask(task)
-                    }}
-                  >
-                    {task.is_completed ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                    ) : (
-                      <div className="w-5 h-5 rounded-md border-2 border-zinc-600 hover:border-zinc-400 flex items-center justify-center transition-colors" />
-                    )}
-                  </button>
-
-                  <div className="flex flex-col gap-1 w-full">
-                    <h5 className={`text-sm font-semibold leading-snug ${task.is_completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
-                      {task.title}
-                    </h5>
-                    
-                    <div className="flex items-center justify-between w-full mt-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase">{task.category}</span>
-                        <span className="text-[10px] text-zinc-700 font-bold">•</span>
-                        <span className={`text-[10px] font-bold uppercase ${
-                          task.difficulty === 'Easy' ? 'text-emerald-400' :
-                          task.difficulty === 'Hard' ? 'text-red-400' : 'text-amber-400'
-                        }`}>{task.difficulty}</span>
-                      </div>
-                      
-                      {task.revision_count > 0 && (
-                        <span className="text-[10px] text-purple-400 font-bold uppercase">
-                          {task.revision_count} Revisions
-                        </span>
+                  <div className="flex gap-4 w-full">
+                    <button 
+                      type="button" 
+                      className="mt-0.5 shrink-0 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleToggleResource(resource)
+                      }}
+                    >
+                      {resource.is_completed ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-md border-2 border-zinc-600 hover:border-zinc-400 flex items-center justify-center transition-colors" />
                       )}
+                    </button>
+
+                    <div className="flex flex-col gap-1 w-full">
+                      <h5 className={`text-sm font-semibold leading-snug ${resource.is_completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
+                        {resource.title}
+                      </h5>
+                      
+                      <div className="flex items-center justify-between w-full mt-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-zinc-500 font-bold uppercase">{resource.category}</span>
+                          <span className="text-[10px] text-zinc-700 font-bold">•</span>
+                          <span className={`text-[10px] font-bold uppercase ${
+                            resource.difficulty === 'Easy' ? 'text-emerald-400' :
+                            resource.difficulty === 'Hard' ? 'text-red-400' : 'text-amber-400'
+                          }`}>{resource.difficulty}</span>
+                        </div>
+                        
+                        <span className="text-[10px] text-zinc-400 font-bold uppercase">
+                          {resource.estimated_duration_mins}m
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  
+                  {/* Action buttons if selected */}
+                  {isSelected && !resource.is_completed && (
+                    <div className="pt-3 mt-1 border-t border-white/10 flex justify-end">
+                      {isActiveSession ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleCompleteTimer() // open modal
+                          }}
+                          className={`text-xs font-bold px-4 py-2 rounded-lg ${getColorClass('bg')} ${getColorClass('text')}`}
+                        >
+                          Finish Session
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            startSession(resource.id)
+                            setTimerMode(resource.estimated_duration_mins || 25)
+                            startTimer()
+                          }}
+                          className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg ${getColorClass('btn')}`}
+                        >
+                          <Play className="w-3 h-3" /> Begin Mission
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -353,14 +478,14 @@ export const Today: React.FC = () => {
 
       {/* RIGHT COLUMN: Notion-Style Autosaving Notes Editor */}
       <div className="w-full lg:w-[45%] flex flex-col glass-panel rounded-3xl border border-white/10 overflow-hidden bg-zinc-950/15">
-        {selectedTask ? (
+        {selectedResource ? (
           <div className="flex flex-col h-full">
             {/* Notes Header info */}
             <div className="p-5 border-b border-white/5 flex justify-between items-center bg-zinc-900/30">
               <div className="flex items-center gap-2.5">
                 <FileEdit className={`w-4 h-4 ${getColorClass('text')}`} />
                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider truncate max-w-[180px]">
-                  Notes: {selectedTask.title}
+                  Notes: {selectedResource.title}
                 </span>
               </div>
               
@@ -400,18 +525,18 @@ export const Today: React.FC = () => {
                 <button
                   type="button"
                   onClick={async () => {
-                    const currentVal = selectedTask.revision_count
-                    await updateTaskMutation.mutateAsync({
-                      taskId: selectedTask.id,
+                    const currentVal = selectedResource.revision_count
+                    await updateResourceMutation.mutateAsync({
+                      resourceId: selectedResource.id,
                       payload: { revision_count: currentVal + 1 }
                     })
                   }}
                   className="px-2 py-0.5 rounded bg-zinc-800 border border-white/5 font-bold hover:text-zinc-200 hover:bg-zinc-750 transition-colors"
                 >
-                  + Log Revision ({selectedTask.revision_count})
+                  + Log Revision ({selectedResource.revision_count})
                 </button>
               </div>
-              <span>Est. time: {selectedTask.estimated_time_mins}m</span>
+              <span>Platform: {selectedResource.platform}</span>
             </div>
           </div>
         ) : (

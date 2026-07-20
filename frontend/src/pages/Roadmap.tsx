@@ -5,20 +5,15 @@ import {
   Unlock, 
   CheckCircle2, 
   X, 
-  CheckSquare, 
-  Square,
-  BookOpen,
-  ArrowRight,
-  Flame,
-  Award
+  BookOpen
 } from 'lucide-react'
-import { useActiveGoal, useUpdateTask, Goal, Day, Task } from '../hooks/useApi'
+import { useActiveGoal, useUpdateResource, Goal, Day, Resource } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const Roadmap: React.FC = () => {
   const { accentColor } = useUIStore()
   const { data: activeGoal, isLoading } = useActiveGoal()
-  const updateTaskMutation = useUpdateTask()
+  const updateResourceMutation = useUpdateResource()
   
   const [selectedDay, setSelectedDay] = useState<Day | null>(null)
 
@@ -64,20 +59,20 @@ export const Roadmap: React.FC = () => {
   }
 
   // Handle task toggling from within the day details modal
-  const handleToggleTask = async (task: Task) => {
+  const handleToggleResource = async (resource: Resource) => {
     try {
-      const updated = await updateTaskMutation.mutateAsync({
-        taskId: task.id,
-        payload: { is_completed: !task.is_completed }
+      const updated = await updateResourceMutation.mutateAsync({
+        resourceId: resource.id,
+        payload: { is_completed: !resource.is_completed }
       })
       
       // Update local modal state to reflect task completion immediately
       if (selectedDay) {
-        const updatedTasks = selectedDay.tasks.map(t => t.id === task.id ? updated : t)
-        const isDayDone = updatedTasks.every(t => t.is_completed)
+        const updatedResources = selectedDay.resources.map(r => r.id === resource.id ? updated : r)
+        const isDayDone = updatedResources.every(r => r.is_completed)
         setSelectedDay({
           ...selectedDay,
-          tasks: updatedTasks,
+          resources: updatedResources,
           is_completed: isDayDone
         })
       }
@@ -94,7 +89,7 @@ export const Roadmap: React.FC = () => {
           Roadmap Timeline
         </h2>
         <p className="text-zinc-500 font-medium mt-1">
-          Explore tracks and milestones. Click any day card to view topics and complete tasks.
+          Explore tracks and modules. Click any day card to view topics and complete resources.
         </p>
       </div>
 
@@ -115,9 +110,9 @@ export const Roadmap: React.FC = () => {
               <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed mt-0.5">{track.description}</p>
             </div>
 
-            {/* Milestones in Track */}
+            {/* Modules in Track */}
             <div className="flex flex-col gap-8 pl-4 border-l border-white/5">
-              {track.milestones.map((ms) => (
+              {track.modules && track.modules.map((ms) => (
                 <div key={ms.id} className="flex flex-col gap-4">
                   <div className="flex flex-col">
                     <h4 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
@@ -130,9 +125,9 @@ export const Roadmap: React.FC = () => {
 
                   {/* Day Cards Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
-                    {ms.days.map((day) => {
-                      const completedCount = day.tasks.filter(t => t.is_completed).length
-                      const totalCount = day.tasks.length
+                    {ms.days && ms.days.map((day) => {
+                      const completedCount = day.resources ? day.resources.filter(r => r.is_completed).length : 0
+                      const totalCount = day.resources ? day.resources.length : 0
                       
                       let cardStyle = 'border-white/5 bg-zinc-950/20 opacity-40'
                       let borderGlow = ''
@@ -177,7 +172,7 @@ export const Roadmap: React.FC = () => {
                             
                             {day.unlocked ? (
                               <div className="flex justify-between items-center text-[10px] text-zinc-500 font-bold uppercase mt-1">
-                                <span>Tasks</span>
+                                <span>Resources</span>
                                 <span>{completedCount} / {totalCount}</span>
                               </div>
                             ) : (
@@ -235,23 +230,23 @@ export const Roadmap: React.FC = () => {
                   {selectedDay.is_completed ? 'Day Completed (+100 XP)' : `Day ${selectedDay.day_number} Active`}
                 </span>
                 <h3 className="text-xl font-bold text-white pr-8">{selectedDay.title}</h3>
-                <p className="text-xs text-zinc-500">Check off individual tasks to log XP and unlock the next roadmap levels.</p>
+                <p className="text-xs text-zinc-500">Check off individual resources to log XP and unlock the next roadmap levels.</p>
               </div>
 
-              {/* Tasks List */}
+              {/* Resources List */}
               <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
-                {selectedDay.tasks.map((task) => (
+                {selectedDay.resources && selectedDay.resources.map((resource) => (
                   <div 
-                    key={task.id}
-                    onClick={() => handleToggleTask(task)}
+                    key={resource.id}
+                    onClick={() => handleToggleResource(resource)}
                     className={`flex items-start gap-4 p-4 rounded-2xl border text-left cursor-pointer transition-all ${
-                      task.is_completed 
+                      resource.is_completed 
                         ? 'bg-emerald-500/5 border-emerald-500/10 hover:border-emerald-500/30' 
                         : 'bg-zinc-950/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10'
                     }`}
                   >
                     <button type="button" className="mt-0.5 shrink-0">
-                      {task.is_completed ? (
+                      {resource.is_completed ? (
                         <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                       ) : (
                         <div className="w-5 h-5 rounded-md border-2 border-zinc-600 hover:border-zinc-400 flex items-center justify-center transition-colors" />
@@ -259,20 +254,20 @@ export const Roadmap: React.FC = () => {
                     </button>
                     
                     <div className="flex flex-col gap-1">
-                      <h4 className={`text-sm font-semibold leading-snug ${task.is_completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
-                        {task.title}
+                      <h4 className={`text-sm font-semibold leading-snug ${resource.is_completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
+                        {resource.title}
                       </h4>
-                      {task.notes && (
-                        <p className="text-xs text-zinc-500 leading-relaxed mt-0.5">{task.notes}</p>
+                      {resource.notes && (
+                        <p className="text-xs text-zinc-500 leading-relaxed mt-0.5">{resource.notes}</p>
                       )}
                       
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase">{task.category}</span>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase">{resource.category}</span>
                         <span className="text-[10px] text-zinc-700 font-bold">•</span>
                         <span className={`text-[10px] font-bold uppercase ${
-                          task.difficulty === 'Easy' ? 'text-emerald-400' :
-                          task.difficulty === 'Hard' ? 'text-red-400' : 'text-amber-400'
-                        }`}>{task.difficulty}</span>
+                          resource.difficulty === 'Easy' ? 'text-emerald-400' :
+                          resource.difficulty === 'Hard' ? 'text-red-400' : 'text-amber-400'
+                        }`}>{resource.difficulty}</span>
                       </div>
                     </div>
                   </div>
@@ -282,7 +277,7 @@ export const Roadmap: React.FC = () => {
               {/* Modal Footer actions */}
               <div className="flex justify-between items-center border-t border-white/5 pt-4">
                 <span className="text-xs text-zinc-500 font-medium">
-                  {selectedDay.tasks.filter(t => t.is_completed).length} / {selectedDay.tasks.length} Completed
+                  {selectedDay.resources ? selectedDay.resources.filter(r => r.is_completed).length : 0} / {selectedDay.resources ? selectedDay.resources.length : 0} Completed
                 </span>
                 
                 <button

@@ -12,7 +12,8 @@ import {
   ArrowRight,
   Award,
   Zap,
-  ListTodo
+  ListTodo,
+  Activity
 } from 'lucide-react'
 import { useActiveGoal, useGoalAnalytics, Goal, AnalyticsDashboard } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
@@ -105,7 +106,7 @@ export const Dashboard: React.FC = () => {
   if (activeGoal.tracks) {
     const allDays = []
     for (const track of activeGoal.tracks) {
-      for (const ms of track.milestones) {
+      for (const ms of track.modules) {
         for (const day of ms.days) {
           allDays.push(day)
         }
@@ -122,9 +123,9 @@ export const Dashboard: React.FC = () => {
     const incompleteTasks = []
     for (const day of allDays) {
       if (day.day_number >= (activeDay?.day_number || 1)) {
-        for (const task of day.tasks) {
-          if (!task.is_completed) {
-            incompleteTasks.push({ ...task, dayNumber: day.day_number })
+        for (const res of day.resources) {
+          if (!res.is_completed) {
+            incompleteTasks.push({ ...res, dayNumber: day.day_number })
           }
         }
       }
@@ -145,7 +146,7 @@ export const Dashboard: React.FC = () => {
             {greeting}, Mentor Client
           </h2>
           <p className="text-zinc-500 font-medium mt-1">
-            Track metrics and conquer your mission for Day {activeDay?.day_number || 1}.
+            Track metrics and conquer your {activeGoal.active_mode} mission for Day {activeDay?.day_number || 1}.
           </p>
         </div>
         
@@ -218,7 +219,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Highlight Grid (Streak, hours, xp, questions) */}
-        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+        <div className="lg:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Streak */}
           <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between">
             <div className="flex justify-between items-start">
@@ -231,42 +232,42 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Longest Streak</span>
+              <span>Best</span>
               <span className="font-bold text-zinc-300">{analytics.longest_streak} Days</span>
             </div>
           </div>
 
-          {/* Card 2: Hours Studied */}
+          {/* Card 2: Consistency Score */}
           <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between">
             <div className="flex justify-between items-start">
-              <div className={`p-3 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
-                <Clock className={`w-6 h-6 ${getColorClass('text')}`} />
+              <div className="p-3 rounded-xl bg-pink-500/10 border border-pink-500/20">
+                <Activity className="w-6 h-6 text-pink-400" />
               </div>
               <div className="flex flex-col text-right">
-                <span className="text-2xl font-extrabold text-white">{analytics.total_hours_studied}h</span>
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Hours Studied</span>
+                <span className="text-2xl font-extrabold text-white">{analytics.daily_score}</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Daily Score</span>
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Daily target</span>
-              <span className="font-bold text-zinc-300">{activeGoal.daily_hours}h / day</span>
+              <span>Goal</span>
+              <span className="font-bold text-zinc-300">100</span>
             </div>
           </div>
 
-          {/* Card 3: Questions Completed */}
+          {/* Card 3: Resources Completed */}
           <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
                 <CheckSquare className="w-6 h-6 text-blue-400" />
               </div>
               <div className="flex flex-col text-right">
-                <span className="text-2xl font-extrabold text-white">{analytics.total_questions_completed}</span>
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Tasks Checked</span>
+                <span className="text-2xl font-extrabold text-white">{analytics.total_resources_completed}</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Resources</span>
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Weakest Skill</span>
-              <span className="font-bold text-zinc-300 truncate max-w-[80px]">{analytics.weakest_topic || 'None'}</span>
+              <span>Topic</span>
+              <span className="font-bold text-zinc-300 truncate max-w-[50px]">{analytics.weakest_topic || 'None'}</span>
             </div>
           </div>
 
@@ -277,13 +278,13 @@ export const Dashboard: React.FC = () => {
                 <Award className="w-6 h-6 text-amber-400" />
               </div>
               <div className="flex flex-col text-right">
-                <span className="text-2xl font-extrabold text-white">{analytics.xp} XP</span>
+                <span className="text-2xl font-extrabold text-white">{analytics.xp}</span>
                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Total XP</span>
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Streak Badges</span>
-              <span className="font-bold text-zinc-300">{analytics.streak_badges_count} Earned</span>
+              <span>Badges</span>
+              <span className="font-bold text-zinc-300">{analytics.streak_badges_count}</span>
             </div>
           </div>
         </div>
@@ -308,7 +309,7 @@ export const Dashboard: React.FC = () => {
             <div className="flex flex-col gap-2">
               <h4 className="text-lg font-bold text-white">{activeDay?.title || 'Review Day'}</h4>
               <p className="text-sm text-zinc-400 leading-relaxed mt-1">
-                Configure your timers and check off {activeDay?.tasks?.length || 0} topics in your agenda. Completion unlocks the next milestone day.
+                Configure your timers and check off {activeDay?.resources?.length || 0} topics in your {activeGoal.active_mode} agenda. Completion unlocks the next day.
               </p>
             </div>
             
@@ -323,7 +324,7 @@ export const Dashboard: React.FC = () => {
                 </div>
                 <div>
                   <h5 className="text-sm font-semibold text-zinc-200">Go to Checklist</h5>
-                  <span className="text-xs text-zinc-500 mt-0.5 block">{activeDay?.tasks?.filter((t: any) => t.is_completed).length || 0} / {activeDay?.tasks?.length || 0} Tasks Completed</span>
+                  <span className="text-xs text-zinc-500 mt-0.5 block">{activeDay?.resources?.filter((r: any) => r.is_completed).length || 0} / {activeDay?.resources?.length || 0} Resources Completed</span>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-200 group-hover:translate-x-1" />
@@ -345,7 +346,7 @@ export const Dashboard: React.FC = () => {
         <div className="glass-panel rounded-3xl p-6 border border-white/5 flex flex-col gap-5 justify-between">
           <div className="flex flex-col gap-4">
             <h3 className="font-bold text-zinc-200 flex items-center gap-2">
-              <ListTodo className="w-5 h-5 text-zinc-400" /> Upcoming Tasks
+              <ListTodo className="w-5 h-5 text-zinc-400" /> Upcoming Resources
             </h3>
             
             <div className="flex flex-col gap-3">
@@ -381,7 +382,7 @@ export const Dashboard: React.FC = () => {
                 ))
               ) : (
                 <div className="text-center py-8 text-zinc-500 text-sm">
-                  No upcoming tasks left! Complete your active roadmap or modify timeline settings.
+                  No upcoming resources left! Complete your active roadmap or modify timeline settings.
                 </div>
               )}
             </div>

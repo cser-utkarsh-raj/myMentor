@@ -46,3 +46,17 @@ def delete_pdf(pdf_id: int, db: Session = Depends(get_db)):
             detail=f"PDF file metadata with ID {pdf_id} not found."
         )
     return {"message": "PDF file and metadata successfully deleted."}
+
+@router.put("/{pdf_id}/archive", response_model=PDFResponse)
+def toggle_archive_pdf(pdf_id: int, db: Session = Depends(get_db)):
+    pdf = PDFService.toggle_archive(db, pdf_id)
+    if not pdf:
+        raise HTTPException(status_code=404, detail="PDF not found")
+    return pdf
+
+@router.put("/{pdf_id}/tags", response_model=PDFResponse)
+def update_pdf_tags(pdf_id: int, tags: str = Form(...), db: Session = Depends(get_db)):
+    pdf = PDFService.update_tags(db, pdf_id, tags)
+    if not pdf:
+        raise HTTPException(status_code=404, detail="PDF not found")
+    return pdf
