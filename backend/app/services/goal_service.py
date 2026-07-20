@@ -12,20 +12,20 @@ class GoalService:
         return db.query(Goal).filter(Goal.id == goal_id).first()
 
     @staticmethod
-    def list_goals(db: Session) -> List[Goal]:
-        logger.info("Fetching all goals.")
-        return db.query(Goal).order_by(Goal.created_at.desc()).all()
+    def list_goals(db: Session, user_id: str) -> List[Goal]:
+        logger.info(f"Fetching all goals for user: {user_id}")
+        return db.query(Goal).filter(Goal.user_id == user_id).order_by(Goal.created_at.desc()).all()
 
     @staticmethod
-    def get_active_goal(db: Session) -> Optional[Goal]:
-        logger.info("Fetching the currently active goal.")
-        # For V1, the most recently created goal is active
-        return db.query(Goal).order_by(Goal.created_at.desc()).first()
+    def get_active_goal(db: Session, user_id: str) -> Optional[Goal]:
+        logger.info(f"Fetching the currently active goal for user: {user_id}")
+        return db.query(Goal).filter(Goal.user_id == user_id).order_by(Goal.created_at.desc()).first()
 
     @staticmethod
-    def create_goal(db: Session, goal_in: GoalCreate) -> Goal:
-        logger.info(f"Creating new learning goal: {goal_in.title}")
+    def create_goal(db: Session, goal_in: GoalCreate, user_id: str) -> Goal:
+        logger.info(f"Creating new learning goal: {goal_in.title} for user: {user_id}")
         db_goal = Goal(
+            user_id=user_id,
             title=goal_in.title,
             target=goal_in.target,
             active_mode=goal_in.active_mode,

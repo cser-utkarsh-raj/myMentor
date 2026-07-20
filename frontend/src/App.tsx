@@ -1,9 +1,11 @@
-import React, { Suspense, lazy, useEffect } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar } from './components/Sidebar'
+import { CommandPalette } from './components/CommandPalette'
 import { useActiveGoal, useBackupDatabase } from './hooks/useApi'
 import { useAuthStore } from './store/authStore'
+import { supabase } from './lib/supabase'
 import { Landing } from './pages/Landing'
 
 // Lazy loaded pages
@@ -38,6 +40,7 @@ const FallbackLoader = () => (
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: activeGoal, isLoading } = useActiveGoal()
   const backupMutation = useBackupDatabase()
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
   useEffect(() => {
     // 10 minutes = 600,000 ms silent backup
@@ -49,6 +52,17 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     }, 600000)
     return () => clearInterval(intervalId)
   }, [backupMutation])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsCommandPaletteOpen(prev => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   if (isLoading) return <FallbackLoader />
 
@@ -65,14 +79,29 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           {children}
         </Suspense>
       </main>
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
     </div>
   )
 }
 
 // Global Routing
 const AppContent: React.FC = () => {
-  const { session, isDemoMode } = useAuthStore()
+  const { session, isDemoMode, setSession } = useAuthStore()
   const isAuthenticated = session !== null || isDemoMode
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    // Listen to changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [setSession])
 
   return (
     <Routes>

@@ -230,3 +230,6 @@ class AnalyticsDashboard(BaseModel):
     heatmap: List[dict]
     weakest_topic: Optional[str] = None
     most_revised_topic: Optional[str] = None
+    recovery_recommended: Optional[bool] = False
+    checkpoint_celebration: Optional[bool] = False
+    last_completed_module: Optional[str] = None

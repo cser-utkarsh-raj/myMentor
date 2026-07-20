@@ -4,6 +4,7 @@ from app.database.session import get_db
 from app.schemas.schemas import PDFResponse
 from app.services.pdf_service import PDFService
 from app.core.logger import logger
+from app.api.dependencies import get_current_user
 from typing import List
 
 router = APIRouter(prefix="/pdfs", tags=["PDFs"])
@@ -12,7 +13,8 @@ router = APIRouter(prefix="/pdfs", tags=["PDFs"])
 def upload_pdf(
     file: UploadFile = File(...),
     category: str = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Uploads a PDF document to local storage and registers its metadata.
@@ -24,7 +26,7 @@ def upload_pdf(
         )
         
     try:
-        pdf = PDFService.upload_pdf(db, file, category)
+        pdf = PDFService.upload_pdf(db, file, category, user_id=current_user["id"])
         return pdf
     except Exception as e:
         logger.error(f"Error in upload_pdf endpoint: {e}")
@@ -34,29 +36,45 @@ def upload_pdf(
         )
 
 @router.get("/", response_model=List[PDFResponse])
-def list_pdfs(db: Session = Depends(get_db)):
-    return PDFService.list_pdfs(db)
+def list_pdfs(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    return PDFService.list_pdfs(db, user_id=current_user["id"])
 
 @router.delete("/{pdf_id}", status_code=status.HTTP_200_OK)
-def delete_pdf(pdf_id: int, db: Session = Depends(get_db)):
-    success = PDFService.delete_pdf(db, pdf_id)
-    if not success:
+def delete_pdf(pdf_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    pdf = PDFService.get_pdf(db, pdf_id)
+    if not pdf:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"PDF file metadata with ID {pdf_id} not found."
         )
+    if pdf.user_id != current_user["id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to delete this PDF."
+        )
+    PDFService.delete_pdf(db, pdf_id)
     return {"message": "PDF file and metadata successfully deleted."}
 
 @router.put("/{pdf_id}/archive", response_model=PDFResponse)
-def toggle_archive_pdf(pdf_id: int, db: Session = Depends(get_db)):
-    pdf = PDFService.toggle_archive(db, pdf_id)
+def toggle_archive_pdf(pdf_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    pdf = PDFService.get_pdf(db, pdf_id)
     if not pdf:
         raise HTTPException(status_code=404, detail="PDF not found")
-    return pdf
+    if pdf.user_id != current_user["id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to modify this PDF."
+        )
+    return PDFService.toggle_archive(db, pdf_id)
 
 @router.put("/{pdf_id}/tags", response_model=PDFResponse)
-def update_pdf_tags(pdf_id: int, tags: str = Form(...), db: Session = Depends(get_db)):
-    pdf = PDFService.update_tags(db, pdf_id, tags)
+def update_pdf_tags(pdf_id: int, tags: str = Form(...), db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    pdf = PDFService.get_pdf(db, pdf_id)
     if not pdf:
         raise HTTPException(status_code=404, detail="PDF not found")
-    return pdf
+    if pdf.user_id != current_user["id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to modify this PDF."
+        )
+    return PDFService.update_tags(db, pdf_id, tags)

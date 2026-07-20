@@ -23,12 +23,12 @@ export const Landing: React.FC = () => {
     }
   }, [session, isDemoMode, navigate])
 
-  const fadeIn = {
+  const fadeIn: any = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
   }
 
-  const stagger = {
+  const stagger: any = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,

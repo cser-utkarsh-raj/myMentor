@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Zap, Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { useAuthStore } from '../store/authStore'
 
 export const Signup: React.FC = () => {
   const navigate = useNavigate()
@@ -31,14 +32,34 @@ export const Signup: React.FC = () => {
           emailRedirectTo: `${window.location.origin}/app`
         }
       })
-      if (error) {
-        // Fallback for local development if Supabase isn't configured yet
-        console.warn('Supabase not configured, bypassing for local dev', error)
+      if (error) throw error
+      navigate('/setup')
+    } catch (err: any) {
+      if (
+        import.meta.env.VITE_SUPABASE_URL === undefined ||
+        import.meta.env.VITE_SUPABASE_URL.includes('placeholder') ||
+        err.message?.includes('fetch') ||
+        err.message?.includes('NetworkError')
+      ) {
+        console.warn('Supabase offline/unconfigured, falling back to local session')
+        useAuthStore.getState().setSession({
+          access_token: 'local-demo-token',
+          token_type: 'bearer',
+          expires_in: 3600,
+          refresh_token: 'dummy',
+          user: {
+            id: 'local-dev-user-uuid',
+            email: email || 'dev@mymentor.app',
+            aud: 'authenticated',
+            role: 'authenticated',
+            created_at: new Date().toISOString(),
+            app_metadata: {},
+            user_metadata: {}
+          }
+        } as any)
         navigate('/setup')
         return
       }
-      navigate('/setup')
-    } catch (err: any) {
       setError(err.message || 'Failed to sign up')
     } finally {
       setLoading(false)

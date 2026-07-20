@@ -9,8 +9,8 @@ from typing import List, Optional
 
 class PDFService:
     @staticmethod
-    def upload_pdf(db: Session, file: UploadFile, category: str) -> PDF:
-        logger.info(f"Uploading file: {file.filename} in category: {category}")
+    def upload_pdf(db: Session, file: UploadFile, category: str, user_id: str) -> PDF:
+        logger.info(f"Uploading file: {file.filename} in category: {category} for user: {user_id}")
         
         # Ensure uploads folder exists
         os.makedirs(settings.UPLOAD_FOLDER, exist_ok=True)
@@ -41,6 +41,7 @@ class PDFService:
         
         # Create database entry
         db_pdf = PDF(
+            user_id=user_id,
             filename=filename,
             file_path=file_path,
             size_bytes=size_bytes,
@@ -54,9 +55,9 @@ class PDFService:
         return db_pdf
 
     @staticmethod
-    def list_pdfs(db: Session) -> List[PDF]:
-        logger.info("Listing all registered PDFs.")
-        return db.query(PDF).order_by(PDF.upload_date.desc()).all()
+    def list_pdfs(db: Session, user_id: str) -> List[PDF]:
+        logger.info(f"Listing all registered PDFs for user: {user_id}")
+        return db.query(PDF).filter(PDF.user_id == user_id).order_by(PDF.upload_date.desc()).all()
 
     @staticmethod
     def get_pdf(db: Session, pdf_id: int) -> Optional[PDF]:

@@ -1,0 +1,74 @@
+{
+  "title": "Data Science & AI",
+  "target": "Data Scientist",
+  "tracks": [
+    {
+      "title": "Math & Data Analysis",
+      "description": "Understand core linear algebra, pandas, and numpy.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Numpy & Pandas Foundations",
+          "description": "Working with arrays, matrices, and dataframes.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Numpy Operations",
+              "resources": [
+                {
+                  "title": "Numpy Array Setup",
+                  "category": "Theory",
+                  "platform": "GitHub",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Create matrices and perform basic math."
+                },
+                {
+                  "title": "Pandas Dataframes",
+                  "category": "Theory",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Filter, merge, and clean raw data."
+                }
+              ]
+            },
+            {
+              "title": "Data Visualization",
+              "resources": [
+                {
+                  "title": "Matplotlib & Seaborn",
+                  "category": "Exercise",
+                  "platform": "LeetCode",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Plot bar charts and correlation heatmaps."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Machine Learning",
+          "description": "Algorithms and model metrics.",
+          "order": 2,
+          "steps": [
+            {
+              "title": "Linear Regression",
+              "resources": [
+                {
+                  "title": "Scikit-Learn Regression",
+                  "category": "Theory",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Train models and evaluate RMSE."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

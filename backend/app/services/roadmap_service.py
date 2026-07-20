@@ -24,6 +24,10 @@ class RoadmapService:
             filename = "backend_developer.json"
         elif "python" in title_lower:
             filename = "learn_python.json"
+        elif "react" in title_lower or "frontend" in title_lower:
+            filename = "learn_react.json"
+        elif "data science" in title_lower or "machine learning" in title_lower or "ai" in title_lower:
+            filename = "data_science.json"
         
         # Feel free to add more mappings here
         

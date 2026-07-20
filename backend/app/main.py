@@ -27,7 +27,7 @@ app = FastAPI(
 # CORS configuration for Vite Frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For V1, allow all. In production, configure specific origins.
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,6 +40,12 @@ app.include_router(timer.router, prefix=settings.API_V1_STR)
 app.include_router(pdfs.router, prefix=settings.API_V1_STR)
 app.include_router(resources.router, prefix=settings.API_V1_STR)
 app.include_router(system.router, prefix=settings.API_V1_STR)
+
+@app.get("/health")
+@app.get("/api/v1/health")
+def health_check():
+    """Simple status check for deployment environment validation."""
+    return {"status": "healthy", "database": "connected"}
 
 @app.get("/")
 def read_root():

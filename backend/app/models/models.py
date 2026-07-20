@@ -1,10 +1,11 @@
 from datetime import datetime, date
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Date, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Date, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.database.base_class import Base
 
 class Goal(Base):
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=False, index=True)
     title = Column(String, nullable=False, index=True)
     target = Column(String, nullable=True)  # e.g., "10 LPA"
     active_mode = Column(String, default="Learning")  # Learning, Practice, Revision, Interview
@@ -106,11 +107,13 @@ class StudySession(Base):
 class DailyStatistic(Base):
     id = Column(Integer, primary_key=True, index=True)
     goal_id = Column(Integer, ForeignKey("goal.id", ondelete="CASCADE"), nullable=False)
-    date = Column(Date, default=date.today, unique=True, index=True)
+    date = Column(Date, default=date.today, index=True)
     hours_studied = Column(Float, default=0.0)
     tasks_completed = Column(Integer, default=0)  # Maps to resources completed
     xp_gained = Column(Integer, default=0)
     consistency_score = Column(Float, default=0.0) # Daily score metric
+
+    __table_args__ = (UniqueConstraint('goal_id', 'date', name='_goal_date_uc'),)
 
     # Relationships
     goal = relationship("Goal", back_populates="daily_statistics")
@@ -130,6 +133,7 @@ class Badge(Base):
 
 class PDF(Base):
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=False, index=True)
     filename = Column(String, nullable=False, index=True)
     file_path = Column(String, nullable=False)
     size_bytes = Column(Integer, nullable=False)

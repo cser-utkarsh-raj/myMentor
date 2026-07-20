@@ -74,16 +74,25 @@ export const GoalSetup: React.FC = () => {
   }
 
   const handleNext = () => {
-    if (step < 3) setStep(step + 1)
+    if (step < 4) setStep(step + 1)
   }
 
   const handleBack = () => {
     if (step > 1) setStep(step - 1)
   }
 
+  const selectedGoalDetails = React.useMemo(() => {
+    if (!categorizedGoals || !selectedGoalId) return null
+    for (const cat of Object.keys(categorizedGoals)) {
+      const found = categorizedGoals[cat].find((g: any) => g.id === selectedGoalId)
+      if (found) return found
+    }
+    return null
+  }, [categorizedGoals, selectedGoalId])
+
   const handleFinish = async () => {
     setIsGenerating(true)
-    const finalGoal = goal === 'Custom Goal' ? customGoal : goal
+    const finalGoal = selectedGoalId === 'custom-01' ? customGoal : goal
     const finalTarget = target === 'Other' ? customTarget : target
     
     try {
@@ -175,20 +184,21 @@ export const GoalSetup: React.FC = () => {
             <div className="flex items-center justify-between w-full border-b border-white/5 pb-4">
               <div className="flex items-center gap-2">
                 <span className={`text-xs font-bold uppercase tracking-widest ${getColorClass('text')}`}>
-                  Step {step} of 3
+                  Step {step} of 4
                 </span>
                 <span className="text-zinc-500">•</span>
                 <span className="text-xs text-zinc-400 font-semibold">
                   {step === 1 && 'Choose Your Goal'}
                   {step === 2 && 'Set Target Performance'}
                   {step === 3 && 'Configure Timeline & Commitment'}
+                  {step === 4 && 'Journey Overview'}
                 </span>
               </div>
               <div className="flex gap-1.5">
-                {[1, 2, 3].map((s) => (
+                {[1, 2, 3, 4].map((s) => (
                   <div 
                     key={s}
-                    className={`w-8 h-1.5 rounded-full transition-all duration-300 ${
+                    className={`w-6 h-1.5 rounded-full transition-all duration-300 ${
                       s <= step 
                         ? (accentColor === 'purple' ? 'bg-purple-500' : accentColor === 'cyan' ? 'bg-cyan-500' : 'bg-emerald-500') 
                         : 'bg-zinc-800'
@@ -259,7 +269,7 @@ export const GoalSetup: React.FC = () => {
                       )}
                     </div>
 
-                    {goal === 'Custom Goal' && (
+                    {selectedGoalId === 'custom-01' && (
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }} 
                         animate={{ opacity: 1, y: 0 }}
@@ -431,6 +441,111 @@ export const GoalSetup: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
+
+                {step === 4 && (
+                  <motion.div
+                    key="step4"
+                    variants={slideVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="flex flex-col gap-6"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <h2 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
+                        Journey Overview <Sparkles className={`w-5 h-5 ${getColorClass('text')}`} />
+                      </h2>
+                      <p className="text-sm text-zinc-400">Review your structured pathway before launching your campaign.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Left: General Info Card */}
+                      <div className="md:col-span-2 p-5 rounded-2xl bg-zinc-900/60 border border-white/5 flex flex-col gap-4">
+                        <div>
+                          <h3 className="text-lg font-bold text-white">
+                            {selectedGoalId === 'custom-01' ? (customGoal || 'Custom Learning Roadmap') : goal}
+                          </h3>
+                          <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest font-semibold">Goal Description</p>
+                          <p className="text-sm text-zinc-300 mt-1 leading-relaxed">
+                            {selectedGoalDetails?.description || 'Your custom roadmap tailored specifically to your target outcomes.'}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 border-t border-b border-white/5 py-4">
+                          <div>
+                            <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block">Template Duration</span>
+                            <span className="text-sm font-bold text-zinc-300">{selectedGoalDetails?.estimated_duration || 'Variable'}</span>
+                          </div>
+                          <div>
+                            <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block">Difficulty</span>
+                            <span className="text-sm font-bold text-zinc-300">{selectedGoalDetails?.difficulty || 'Custom'}</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block mb-2">Target Commitment</span>
+                          <div className="flex items-center gap-4 text-sm text-zinc-300 bg-zinc-950/60 p-3.5 rounded-xl border border-white/5">
+                            <div className="flex items-center gap-2">
+                              <Calendar className={`w-4 h-4 ${getColorClass('text')}`} />
+                              <span>{timelineDays} Days</span>
+                            </div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                            <div className="flex items-center gap-2">
+                              <Clock className={`w-4 h-4 ${getColorClass('text')}`} />
+                              <span>{dailyHours} Hours/Day</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block mb-2">Skills Covered</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {selectedGoalDetails?.skills_covered && selectedGoalDetails.skills_covered.length > 0 ? (
+                              selectedGoalDetails.skills_covered.map((skill: string) => (
+                                <span key={skill} className="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-zinc-300">
+                                  {skill}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-zinc-500 italic">Custom learning profile targets.</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Milestones / Outcome Preview */}
+                      <div className="flex flex-col gap-4">
+                        <div className="p-5 rounded-2xl bg-zinc-900/60 border border-white/5 flex flex-col gap-3">
+                          <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block">Roadmap Milestones</span>
+                          <div className="flex flex-col gap-2">
+                            {selectedGoalDetails?.roadmap_preview && selectedGoalDetails.roadmap_preview.length > 0 ? (
+                              selectedGoalDetails.roadmap_preview.map((module: string, idx: number) => (
+                                <div key={idx} className="text-xs flex items-center gap-2 p-2 rounded-lg bg-zinc-950/40 border border-white/5">
+                                  <span className={`w-1.5 h-1.5 rounded-full ${getColorClass('text')}`} />
+                                  <span className="text-zinc-300 truncate">{module}</span>
+                                </div>
+                              ))
+                            ) : (
+                              ['Module 1: Foundations', 'Module 2: Core Concepts', 'Module 3: Optimization', 'Module 4: Milestone Project'].map((mod, idx) => (
+                                <div key={idx} className="text-xs flex items-center gap-2 p-2 rounded-lg bg-zinc-950/40 border border-white/5">
+                                  <span className={`w-1.5 h-1.5 rounded-full ${getColorClass('text')}`} />
+                                  <span className="text-zinc-300 truncate">{mod}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="p-5 rounded-2xl bg-zinc-900/60 border border-white/5 flex flex-col gap-2 flex-grow">
+                          <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block">Expected Outcome</span>
+                          <p className="text-xs text-zinc-400 leading-relaxed italic">
+                            "{selectedGoalDetails?.expected_outcome || 'Develop complete domain proficiency and launch target side project.'}"
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
 
@@ -449,10 +564,18 @@ export const GoalSetup: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  disabled={!goal || (goal === 'Custom Goal' && !customGoal)}
+                  disabled={!goal || (selectedGoalId === 'custom-01' && !customGoal)}
                   className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all ${getColorClass('btn')} disabled:opacity-40 disabled:pointer-events-none`}
                 >
                   Next <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : step === 3 ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all ${getColorClass('btn')}`}
+                >
+                  Review Journey <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
                 <button
@@ -461,7 +584,7 @@ export const GoalSetup: React.FC = () => {
                   disabled={createGoalMutation.isPending}
                   className={`flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all ${getColorClass('btn')}`}
                 >
-                  Generate Roadmap <Sparkles className="w-4 h-4" />
+                  Start Journey <Sparkles className="w-4 h-4" />
                 </button>
               )}
             </div>

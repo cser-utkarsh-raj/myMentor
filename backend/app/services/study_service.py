@@ -135,6 +135,36 @@ class StudyService:
             today_stats.consistency_score = daily_score
             db.commit()
 
+        # Calculate Recovery Recommendation
+        recovery_rec = False
+        if goal.last_active_date:
+            days_since_active = (today - goal.last_active_date).days
+            if days_since_active >= 2:
+                recovery_rec = True
+
+        # Calculate Checkpoint / Module Completion
+        last_comp_module = None
+        checkpoint_celebrate = False
+        
+        # Get all modules for this goal
+        modules = db.query(Module).join(Module.track).filter(Track.goal_id == goal_id).all()
+        for mod in modules:
+            # Check if all resources in all days of this module are completed
+            all_days = db.query(Day).filter(Day.module_id == mod.id).all()
+            if not all_days:
+                continue
+            
+            all_completed = True
+            for d in all_days:
+                if not d.is_completed:
+                    all_completed = False
+                    break
+            
+            if all_completed:
+                last_comp_module = mod.title
+                # If completed recently (within today/yesterday), recommend celebration
+                checkpoint_celebrate = True
+
         return AnalyticsDashboard(
             overall_progress_percent=round(overall_progress, 1),
             total_hours_studied=round(total_hours, 2),
@@ -149,5 +179,8 @@ class StudyService:
             weekly_study_hours=weekly_hours,
             heatmap=heatmap_data,
             weakest_topic=weakest,
-            most_revised_topic=most_revised
+            most_revised_topic=most_revised,
+            recovery_recommended=recovery_rec,
+            checkpoint_celebration=checkpoint_celebrate,
+            last_completed_module=last_comp_module
         )

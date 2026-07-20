@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { 
   Flame, 
@@ -10,9 +10,11 @@ import {
   ArrowRight,
   Award,
   Zap,
-  ListTodo
+  ListTodo,
+  AlertTriangle,
+  CheckCircle2
 } from 'lucide-react'
-import { useActiveGoal, useGoalAnalytics } from '../hooks/useApi'
+import { useActiveGoal, useGoalAnalytics, useTriggerRecovery } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const Dashboard: React.FC = () => {
@@ -22,6 +24,8 @@ export const Dashboard: React.FC = () => {
   // Queries
   const { data: activeGoal, isLoading: isLoadingGoal } = useActiveGoal()
   const { data: analytics, isLoading: isLoadingAnalytics } = useGoalAnalytics(activeGoal?.id)
+  const triggerRecoveryMutation = useTriggerRecovery()
+  const [recoverySuccess, setRecoverySuccess] = useState(false)
 
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
     switch (accentColor) {
@@ -162,6 +166,59 @@ export const Dashboard: React.FC = () => {
           <Play className="w-4 h-4 fill-zinc-950" /> Start Today's Mission
         </button>
       </div>
+
+      {/* Dynamic Alerts (Recovery / Checkpoints) */}
+      {recoverySuccess && (
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+            <span><strong>Recovery Mode Activated:</strong> Timeline extended by 7 days and daily commitment load scaled down.</span>
+          </div>
+          <button onClick={() => setRecoverySuccess(false)} className="text-zinc-500 hover:text-zinc-300 font-bold text-xs uppercase cursor-pointer">Dismiss</button>
+        </div>
+      )}
+
+      {analytics.recovery_recommended && !recoverySuccess && (
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm gap-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-bold text-zinc-100">Study Gap Detected</h4>
+              <p className="text-zinc-400 text-xs mt-0.5">You've been away for a couple of days. Trigger Recovery Mode to adjust your roadmap schedule and prevent burnout.</p>
+            </div>
+          </div>
+          <button
+            onClick={async () => {
+              if (activeGoal) {
+                try {
+                  await triggerRecoveryMutation.mutateAsync(activeGoal.id)
+                  setRecoverySuccess(true)
+                } catch (e) {
+                  alert("Failed to activate recovery mode.")
+                }
+              }
+            }}
+            disabled={triggerRecoveryMutation.isPending}
+            className="px-4 py-2 rounded-xl bg-red-500 text-black hover:bg-red-400 font-bold text-xs shrink-0 cursor-pointer disabled:opacity-50"
+          >
+            {triggerRecoveryMutation.isPending ? 'Activating...' : 'Trigger Recovery Mode'}
+          </button>
+        </div>
+      )}
+
+      {analytics.checkpoint_celebration && analytics.last_completed_module && (
+        <div className="flex items-center gap-4 p-5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-sm">
+          <div className={`p-2.5 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
+            <Award className={`w-5 h-5 ${getColorClass('text')}`} />
+          </div>
+          <div>
+            <h4 className="font-bold text-zinc-100">Checkpoint Reached! 🎉</h4>
+            <p className="text-zinc-400 text-xs mt-0.5">
+              You completed the module: <strong className="text-zinc-200">{analytics.last_completed_module}</strong>. Excellent progress! Keep moving forward.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Grid: circular progress & daily statistics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

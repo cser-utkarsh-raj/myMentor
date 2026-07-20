@@ -1,0 +1,74 @@
+{
+  "title": "Learn React & Frontend",
+  "target": "Frontend Developer",
+  "tracks": [
+    {
+      "title": "React Basics",
+      "description": "Understand components, state, props, and hooks.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Introduction to React",
+          "description": "Vite setup, JSX, and functional components.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Setup & First Component",
+              "resources": [
+                {
+                  "title": "Vite & React Setup",
+                  "category": "Theory",
+                  "platform": "GitHub",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Create a new Vite app and explore project files."
+                },
+                {
+                  "title": "JSX Basics",
+                  "category": "Theory",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Learn HTML rendering rules in JSX."
+                }
+              ]
+            },
+            {
+              "title": "Props & State",
+              "resources": [
+                {
+                  "title": "Props and Configuration",
+                  "category": "Exercise",
+                  "platform": "LeetCode",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Pass static and dynamic props down to components."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "State Management",
+          "description": "Hooks, Side Effects, and Routing.",
+          "order": 2,
+          "steps": [
+            {
+              "title": "React Hooks",
+              "resources": [
+                {
+                  "title": "useState and useEffect",
+                  "category": "Theory",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 50,
+                  "notes": "Understand state changes and side effects lifecycle."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

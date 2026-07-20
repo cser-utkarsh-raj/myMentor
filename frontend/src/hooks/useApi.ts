@@ -1,6 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuthStore } from '../store/authStore'
 
-const API_BASE = 'http://localhost:8000/api/v1'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+
+const getHeaders = (isMultipart = false) => {
+  const { session, isDemoMode } = useAuthStore.getState()
+  const headers: Record<string, string> = {}
+  
+  if (!isMultipart) {
+    headers['Content-Type'] = 'application/json'
+  }
+  
+  if (isDemoMode) {
+    headers['Authorization'] = 'Bearer demo_mode_token'
+  } else if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`
+  }
+  
+  return headers
+}
 
 // ==========================================
 // TYPES MATCHING BACKEND PYDANTIC SCHEMAS
@@ -101,17 +119,40 @@ export interface AnalyticsDashboard {
   heatmap: Array<{ date: string; count: number; xp: number; hours: number }>
   weakest_topic: string | null
   most_revised_topic: string | null
+  recovery_recommended?: boolean
+  checkpoint_celebration?: boolean
+  last_completed_module?: string | null
 }
 
 // ==========================================
 // HOOKS DEFINITIONS
 // ==========================================
 
+export const useTriggerRecovery = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (goalId: number) => {
+      const response = await fetch(`${API_BASE}/goals/${goalId}/recovery`, {
+        method: 'POST',
+        headers: getHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to trigger Recovery Mode')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
+      queryClient.invalidateQueries({ queryKey: ['goalAnalytics'] })
+    }
+  })
+}
+
 export function useActiveGoal() {
   return useQuery<Goal | null>({
     queryKey: ['activeGoal'],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/active`)
+      const res = await fetch(`${API_BASE}/goals/active`, {
+        headers: getHeaders()
+      })
       if (!res.ok) return null
       return res.json()
     }
@@ -122,7 +163,9 @@ export function useGoal(goalId: number | undefined) {
   return useQuery<Goal>({
     queryKey: ['goal', goalId],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/${goalId}`)
+      const res = await fetch(`${API_BASE}/goals/${goalId}`, {
+        headers: getHeaders()
+      })
       if (!res.ok) throw new Error('Failed to fetch goal detail')
       return res.json()
     },
@@ -134,7 +177,9 @@ export function useGoalAnalytics(goalId: number | undefined) {
   return useQuery<AnalyticsDashboard>({
     queryKey: ['analytics', goalId],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/${goalId}/analytics`)
+      const res = await fetch(`${API_BASE}/goals/${goalId}/analytics`, {
+        headers: getHeaders()
+      })
       if (!res.ok) throw new Error('Failed to fetch analytics')
       return res.json()
     },
@@ -146,7 +191,9 @@ export function useGoalBadges(goalId: number | undefined) {
   return useQuery<Badge[]>({
     queryKey: ['badges', goalId],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/${goalId}/badges`)
+      const res = await fetch(`${API_BASE}/goals/${goalId}/badges`, {
+        headers: getHeaders()
+      })
       if (!res.ok) throw new Error('Failed to fetch achievements')
       return res.json()
     },
@@ -160,13 +207,14 @@ export function useCreateGoal() {
     mutationFn: async (goalData) => {
       const res = await fetch(`${API_BASE}/goals/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify(goalData)
       })
       if (!res.ok) throw new Error('Failed to create goal')
       return res.json()
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(['activeGoal'], data)
       queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
     }
   })
@@ -177,7 +225,8 @@ export function useDeleteGoal() {
   return useMutation<void, Error, number>({
     mutationFn: async (goalId) => {
       const res = await fetch(`${API_BASE}/goals/${goalId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: getHeaders()
       })
       if (!res.ok) throw new Error('Failed to delete goal')
     },
@@ -193,7 +242,7 @@ export function useUpdateResource() {
     mutationFn: async ({ resourceId, payload }) => {
       const res = await fetch(`${API_BASE}/tasks/${resourceId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify(payload)
       })
       if (!res.ok) throw new Error('Failed to update resource')
@@ -202,6 +251,7 @@ export function useUpdateResource() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
       queryClient.invalidateQueries({ queryKey: ['goal'] })
+      queryClient.invalidateQueries({ queryKey: ['resources'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['badges'] })
     }
@@ -214,7 +264,7 @@ export function useLogStudySession() {
     mutationFn: async (sessionData) => {
       const res = await fetch(`${API_BASE}/timer/sessions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify(sessionData)
       })
       if (!res.ok) throw new Error('Failed to log study session')
@@ -231,7 +281,9 @@ export const useGoalLibrary = () => {
   return useQuery({
     queryKey: ['goalLibrary'],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/system/library`)
+      const response = await fetch(`${API_BASE}/system/library`, {
+        headers: getHeaders()
+      })
       if (!response.ok) throw new Error('Failed to fetch library')
       const data = await response.json()
       return data.data
@@ -243,7 +295,9 @@ export function useResources() {
   return useQuery<Record<string, any[]>>({
     queryKey: ['resources'],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/resources/`)
+      const res = await fetch(`${API_BASE}/resources/`, {
+        headers: getHeaders()
+      })
       if (!res.ok) throw new Error('Failed to fetch resource library')
       return res.json()
     }
@@ -254,7 +308,9 @@ export function usePDFs() {
   return useQuery<PDFFile[]>({
     queryKey: ['pdfs'],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/pdfs/`)
+      const res = await fetch(`${API_BASE}/pdfs/`, {
+        headers: getHeaders()
+      })
       if (!res.ok) throw new Error('Failed to fetch PDFs')
       return res.json()
     }
@@ -267,6 +323,7 @@ export function useUploadPDF() {
     mutationFn: async (formData) => {
       const res = await fetch(`${API_BASE}/pdfs/`, {
         method: 'POST',
+        headers: getHeaders(true),
         body: formData
       })
       if (!res.ok) throw new Error('Failed to upload PDF')
@@ -283,7 +340,8 @@ export function useDeletePDF() {
   return useMutation<void, Error, number>({
     mutationFn: async (pdfId) => {
       const res = await fetch(`${API_BASE}/pdfs/${pdfId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: getHeaders()
       })
       if (!res.ok) throw new Error('Failed to delete PDF')
     },
@@ -298,7 +356,8 @@ export function useTogglePDFArchive() {
   return useMutation<PDFFile, Error, number>({
     mutationFn: async (pdfId) => {
       const res = await fetch(`${API_BASE}/pdfs/${pdfId}/archive`, {
-        method: 'PUT'
+        method: 'PUT',
+        headers: getHeaders()
       })
       if (!res.ok) throw new Error('Failed to toggle archive status')
       return res.json()
@@ -317,6 +376,7 @@ export function useUpdatePDFTags() {
       formData.append('tags', tags)
       const res = await fetch(`${API_BASE}/pdfs/${pdfId}/tags`, {
         method: 'PUT',
+        headers: getHeaders(true),
         body: formData
       })
       if (!res.ok) throw new Error('Failed to update PDF tags')
@@ -331,7 +391,9 @@ export function useUpdatePDFTags() {
 export function useBackupDatabase() {
   return useMutation<any, Error, void>({
     mutationFn: async () => {
-      const res = await fetch(`${API_BASE}/system/backup`)
+      const res = await fetch(`${API_BASE}/system/backup`, {
+        headers: getHeaders()
+      })
       if (!res.ok) throw new Error('Failed to backup database')
       return res.json()
     }

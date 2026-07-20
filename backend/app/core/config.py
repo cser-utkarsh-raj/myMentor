@@ -8,6 +8,13 @@ class Settings(BaseSettings):
     PORT: int = 8000
     UPLOAD_FOLDER: str = "./uploads"
     
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000"
+    ]
+    
     # Database Settings
     DATABASE_URL: str = "sqlite:///./mymentor.db"
     
@@ -24,6 +31,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
+        extra = "ignore"
 
 settings = Settings()
 
