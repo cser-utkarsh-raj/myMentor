@@ -79,6 +79,9 @@ class RoadmapService:
         for i, step_info in enumerate(flat_steps):
             day_start = int(round(i * N / total_steps)) + 1
             day_end = int(round((i + 1) * N / total_steps))
+            # Ensure every step gets at least one day — never skip steps
+            if day_end < day_start:
+                day_end = day_start
             allocated_days_count = day_end - day_start + 1
             
             # Track
@@ -137,7 +140,10 @@ class RoadmapService:
                     t_start = int(round(day_idx * res_count / allocated_days_count))
                     t_end = int(round((day_idx + 1) * res_count / allocated_days_count))
                     day_res = res_list[t_start:t_end]
-                    
+                else:
+                    day_res = []
+                
+                if len(day_res) > 0:
                     for r_item in day_res:
                         resource = Resource(
                             day_id=db_day.id,
@@ -152,8 +158,7 @@ class RoadmapService:
                             completed_at=None
                         )
                         db.add(resource)
-                
-                if res_count == 0 or (t_end - t_start == 0):
+                else:
                     resource = Resource(
                         day_id=db_day.id,
                         title=f"Review: {step_info['step_title']}",

@@ -44,23 +44,6 @@ class GoalService:
         return db_goal
 
     @staticmethod
-    def update_goal(db: Session, goal_id: int, goal_in: GoalUpdate) -> Optional[Goal]:
-        logger.info(f"Updating goal ID: {goal_id}")
-        db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
-        if not db_goal:
-            logger.warning(f"Goal with ID {goal_id} not found.")
-            return None
-            
-        update_data = goal_in.model_dump(exclude_unset=True)
-        for field, value in update_data.items():
-            setattr(db_goal, field, value)
-            
-        db.commit()
-        db.refresh(db_goal)
-        logger.info(f"Goal ID {goal_id} updated successfully.")
-        return db_goal
-
-    @staticmethod
     def delete_goal(db: Session, goal_id: int) -> bool:
         logger.info(f"Deleting goal ID: {goal_id}")
         db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
@@ -148,3 +131,21 @@ class GoalService:
                     
                     # Award bonus XP for badges!
                     goal.xp += 150
+
+                    # Also record badge XP in daily statistics for analytics consistency
+                    today = datetime.utcnow().date()
+                    daily_stat = db.query(DailyStatistic).filter(
+                        DailyStatistic.goal_id == goal.id,
+                        DailyStatistic.date == today
+                    ).first()
+                    if daily_stat:
+                        daily_stat.xp_gained += 150
+                    else:
+                        new_stat = DailyStatistic(
+                            goal_id=goal.id,
+                            date=today,
+                            xp_gained=150,
+                            hours_studied=0.0,
+                            resources_completed=0
+                        )
+                        db.add(new_stat)

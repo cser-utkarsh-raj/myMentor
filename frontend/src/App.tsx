@@ -43,6 +43,9 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
   useEffect(() => {
+    const { isDemoMode } = useAuthStore.getState()
+    if (isDemoMode) return // Skip backups in demo mode
+
     // 10 minutes = 600,000 ms silent backup
     const intervalId = setInterval(() => {
       backupMutation.mutate(undefined, {

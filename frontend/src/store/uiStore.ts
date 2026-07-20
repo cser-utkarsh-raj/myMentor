@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 export type AccentColor = 'purple' | 'cyan' | 'emerald'
 
@@ -7,15 +8,15 @@ interface UIState {
   setAccentColor: (color: AccentColor) => void
 }
 
-export const useUIStore = create<UIState>((set) => {
-  // Load saved accent color from LocalStorage
-  const savedAccent = (localStorage.getItem('mymentor_accent') as AccentColor) || 'purple'
-  
-  return {
-    accentColor: savedAccent,
-    setAccentColor: (color: AccentColor) => {
-      localStorage.setItem('mymentor_accent', color)
-      set({ accentColor: color })
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      accentColor: 'purple',
+      setAccentColor: (color: AccentColor) => set({ accentColor: color })
+    }),
+    {
+      name: 'mymentor-ui-storage',
+      storage: createJSONStorage(() => localStorage)
     }
-  }
-})
+  )
+)

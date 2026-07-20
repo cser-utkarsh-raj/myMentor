@@ -149,6 +149,14 @@ def trigger_recovery_mode(goal_id: int, db: Session = Depends(get_db), current_u
             detail="You do not have permission to access this goal."
         )
     
+    # Limit recovery mode to 3 activations
+    # Each activation adds 7 days, so if already extended by 21+ days beyond reasonable limits
+    if goal.active_mode == "Recovery":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recovery mode is already active. You can adjust your timeline in Settings."
+        )
+    
     # Update goal settings
     goal.timeline_days += 7
     # Adjust daily hours slightly to reduce load (minimum 1 hour)

@@ -20,6 +20,20 @@ const getHeaders = (isMultipart = false) => {
   return headers
 }
 
+
+const handleApiError = async (res: Response, fallbackMessage: string): Promise<never> => {
+  let detail = fallbackMessage
+  try {
+    const body = await res.json()
+    if (body.detail) {
+      detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+    }
+  } catch {
+    // Response body is not JSON, use fallback
+  }
+  throw new Error(detail)
+}
+
 // ==========================================
 // TYPES MATCHING BACKEND PYDANTIC SCHEMAS
 // ==========================================
@@ -136,7 +150,7 @@ export const useTriggerRecovery = () => {
         method: 'POST',
         headers: getHeaders()
       })
-      if (!response.ok) throw new Error('Failed to trigger Recovery Mode')
+      if (!response.ok) await handleApiError(response, 'Failed to trigger Recovery Mode')
       return response.json()
     },
     onSuccess: () => {
@@ -166,7 +180,7 @@ export function useGoal(goalId: number | undefined) {
       const res = await fetch(`${API_BASE}/goals/${goalId}`, {
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to fetch goal detail')
+      if (!res.ok) await handleApiError(res, 'Failed to fetch goal detail')
       return res.json()
     },
     enabled: !!goalId
@@ -180,7 +194,7 @@ export function useGoalAnalytics(goalId: number | undefined) {
       const res = await fetch(`${API_BASE}/goals/${goalId}/analytics`, {
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to fetch analytics')
+      if (!res.ok) await handleApiError(res, 'Failed to fetch analytics')
       return res.json()
     },
     enabled: !!goalId
@@ -194,7 +208,7 @@ export function useGoalBadges(goalId: number | undefined) {
       const res = await fetch(`${API_BASE}/goals/${goalId}/badges`, {
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to fetch achievements')
+      if (!res.ok) await handleApiError(res, 'Failed to fetch achievements')
       return res.json()
     },
     enabled: !!goalId
@@ -210,7 +224,7 @@ export function useCreateGoal() {
         headers: getHeaders(),
         body: JSON.stringify(goalData)
       })
-      if (!res.ok) throw new Error('Failed to create goal')
+      if (!res.ok) await handleApiError(res, 'Failed to create goal')
       return res.json()
     },
     onSuccess: (data) => {
@@ -228,7 +242,7 @@ export function useDeleteGoal() {
         method: 'DELETE',
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to delete goal')
+      if (!res.ok) await handleApiError(res, 'Failed to delete goal')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
@@ -245,7 +259,7 @@ export function useUpdateResource() {
         headers: getHeaders(),
         body: JSON.stringify(payload)
       })
-      if (!res.ok) throw new Error('Failed to update resource')
+      if (!res.ok) await handleApiError(res, 'Failed to update resource')
       return res.json()
     },
     onSuccess: (_, variables) => {
@@ -267,7 +281,7 @@ export function useLogStudySession() {
         headers: getHeaders(),
         body: JSON.stringify(sessionData)
       })
-      if (!res.ok) throw new Error('Failed to log study session')
+      if (!res.ok) await handleApiError(res, 'Failed to log study session')
       return res.json()
     },
     onSuccess: () => {
@@ -284,7 +298,7 @@ export const useGoalLibrary = () => {
       const response = await fetch(`${API_BASE}/system/library`, {
         headers: getHeaders()
       })
-      if (!response.ok) throw new Error('Failed to fetch library')
+      if (!response.ok) await handleApiError(response, 'Failed to fetch library')
       const data = await response.json()
       return data.data
     }
@@ -298,7 +312,7 @@ export function useResources() {
       const res = await fetch(`${API_BASE}/resources/`, {
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to fetch resource library')
+      if (!res.ok) await handleApiError(res, 'Failed to fetch resource library')
       return res.json()
     }
   })
@@ -311,7 +325,7 @@ export function usePDFs() {
       const res = await fetch(`${API_BASE}/pdfs/`, {
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to fetch PDFs')
+      if (!res.ok) await handleApiError(res, 'Failed to fetch PDFs')
       return res.json()
     }
   })
@@ -326,7 +340,7 @@ export function useUploadPDF() {
         headers: getHeaders(true),
         body: formData
       })
-      if (!res.ok) throw new Error('Failed to upload PDF')
+      if (!res.ok) await handleApiError(res, 'Failed to upload PDF')
       return res.json()
     },
     onSuccess: () => {
@@ -343,7 +357,7 @@ export function useDeletePDF() {
         method: 'DELETE',
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to delete PDF')
+      if (!res.ok) await handleApiError(res, 'Failed to delete PDF')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pdfs'] })
@@ -359,7 +373,7 @@ export function useTogglePDFArchive() {
         method: 'PUT',
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to toggle archive status')
+      if (!res.ok) await handleApiError(res, 'Failed to toggle archive status')
       return res.json()
     },
     onSuccess: () => {
@@ -379,7 +393,7 @@ export function useUpdatePDFTags() {
         headers: getHeaders(true),
         body: formData
       })
-      if (!res.ok) throw new Error('Failed to update PDF tags')
+      if (!res.ok) await handleApiError(res, 'Failed to update PDF tags')
       return res.json()
     },
     onSuccess: () => {
@@ -394,7 +408,7 @@ export function useBackupDatabase() {
       const res = await fetch(`${API_BASE}/system/backup`, {
         headers: getHeaders()
       })
-      if (!res.ok) throw new Error('Failed to backup database')
+      if (!res.ok) await handleApiError(res, 'Failed to backup database')
       return res.json()
     }
   })

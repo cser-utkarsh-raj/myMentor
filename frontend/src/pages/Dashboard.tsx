@@ -384,7 +384,7 @@ export const Dashboard: React.FC = () => {
                 </div>
                 <div>
                   <h5 className="text-sm font-semibold text-zinc-200">Go to Checklist</h5>
-                  <span className="text-xs text-zinc-500 mt-0.5 block">{activeDay?.resources?.filter((r: any) => r.is_completed).length || 0} / {activeDay?.resources?.length || 0} Resources Completed</span>
+                  <span className="text-xs text-zinc-500 mt-0.5 block">{(activeDay?.resources || []).filter((r: any) => r.is_completed).length} / {(activeDay?.resources || []).length} Resources Completed</span>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-200 group-hover:translate-x-1" />

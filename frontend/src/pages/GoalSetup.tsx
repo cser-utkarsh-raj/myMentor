@@ -473,7 +473,7 @@ export const GoalSetup: React.FC = () => {
 
                         <div className="grid grid-cols-2 gap-4 border-t border-b border-white/5 py-4">
                           <div>
-                            <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block">Template Duration</span>
+                            <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block">Base Template Duration</span>
                             <span className="text-sm font-bold text-zinc-300">{selectedGoalDetails?.estimated_duration || 'Variable'}</span>
                           </div>
                           <div>
@@ -484,16 +484,21 @@ export const GoalSetup: React.FC = () => {
 
                         <div>
                           <span className="text-xs text-zinc-500 uppercase tracking-widest font-semibold block mb-2">Target Commitment</span>
-                          <div className="flex items-center gap-4 text-sm text-zinc-300 bg-zinc-950/60 p-3.5 rounded-xl border border-white/5">
-                            <div className="flex items-center gap-2">
-                              <Calendar className={`w-4 h-4 ${getColorClass('text')}`} />
-                              <span>{timelineDays} Days</span>
+                          <div className="flex flex-col gap-2 bg-zinc-950/60 p-3.5 rounded-xl border border-white/5">
+                            <div className="flex items-center gap-4 text-sm text-zinc-300">
+                              <div className="flex items-center gap-2">
+                                <Calendar className={`w-4 h-4 ${getColorClass('text')}`} />
+                                <span>{timelineDays} Days</span>
+                              </div>
+                              <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                              <div className="flex items-center gap-2">
+                                <Clock className={`w-4 h-4 ${getColorClass('text')}`} />
+                                <span>{dailyHours} Hours/Day</span>
+                              </div>
                             </div>
-                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
-                            <div className="flex items-center gap-2">
-                              <Clock className={`w-4 h-4 ${getColorClass('text')}`} />
-                              <span>{dailyHours} Hours/Day</span>
-                            </div>
+                            <p className="text-[10px] text-zinc-500 italic mt-1 leading-relaxed">
+                              💡 The standard {selectedGoalDetails?.estimated_duration || 'curriculum'} will be dynamically scaled to fit your custom timeline of {timelineDays} days.
+                            </p>
                           </div>
                         </div>
 

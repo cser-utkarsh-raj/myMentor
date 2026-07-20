@@ -90,7 +90,7 @@ export const Progress: React.FC = () => {
   for (let i = 76; i >= 0; i--) {
     const d = new Date()
     d.setDate(today.getDate() - i)
-    const isoString = d.toISOString().split('T')[0]
+    const isoString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     const stat = statsMap[isoString]
     
     heatmapGrid.push({

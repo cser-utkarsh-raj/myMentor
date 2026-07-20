@@ -95,7 +95,14 @@ export const Resources: React.FC = () => {
   }
 
   const flatResources = getFlattenedResources()
-  const filterOptions = ['ALL', 'BOOKMARKS', 'DSA', 'Python', 'SQL', 'System Design', 'React']
+  const dynamicCategories = React.useMemo(() => {
+    const cats = new Set<string>()
+    flatResources.forEach(item => {
+      if (item.category) cats.add(item.category)
+    })
+    return Array.from(cats).sort()
+  }, [flatResources])
+  const filterOptions = ['ALL', 'BOOKMARKS', ...dynamicCategories]
   const platformOptions = ['ALL', 'LeetCode', 'HackerRank', 'Internal', 'GitHub', 'YouTube']
   const difficultyOptions = ['ALL', 'Easy', 'Medium', 'Hard']
   

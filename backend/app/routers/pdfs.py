@@ -24,6 +24,11 @@ def upload_pdf(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only PDF documents are allowed."
         )
+    if file.content_type and file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file type. Only PDF documents are accepted."
+        )
         
     try:
         pdf = PDFService.upload_pdf(db, file, category, user_id=current_user["id"])

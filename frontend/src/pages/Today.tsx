@@ -93,9 +93,10 @@ export const Today: React.FC = () => {
       const todayDay = allDays.find(d => d.unlocked && !d.is_completed) || allDays.find(d => d.unlocked) || allDays[0]
       setActiveDay(todayDay || null)
       
-      if (todayDay && todayDay.resources.length > 0 && !selectedResource) {
-        setSelectedResource(todayDay.resources[0])
-        setNoteContent(todayDay.resources[0].notes || '')
+      if (todayDay && (todayDay.resources || []).length > 0 && !selectedResource) {
+        const resources = todayDay.resources || []
+        setSelectedResource(resources[0])
+        setNoteContent(resources[0].notes || '')
       }
     }
   }, [activeGoal, selectedResource])
@@ -114,6 +115,12 @@ export const Today: React.FC = () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current)
     }
   }, [timerIsRunning, tickTimer])
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+    }
+  }, [])
 
   // 3. Auto-save study session if timer hits 0
   useEffect(() => {
@@ -215,8 +222,9 @@ export const Today: React.FC = () => {
     )
   }
 
-  const completedCount = activeDay.resources.filter(r => r.is_completed).length
-  const totalCount = activeDay.resources.length
+  const resources = activeDay.resources || []
+  const completedCount = resources.filter(r => r.is_completed).length
+  const totalCount = resources.length
   const todayProgress = Math.round((completedCount / (totalCount || 1)) * 100)
 
   return (
@@ -386,7 +394,7 @@ export const Today: React.FC = () => {
           <h4 className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-2">Checks for Today</h4>
           
           <div className="flex flex-col gap-3">
-            {activeDay.resources.map((resource) => {
+            {(activeDay.resources || []).map((resource) => {
               const isSelected = selectedResource?.id === resource.id
               const isActiveSession = isSessionActive && activeResourceId === resource.id
               
