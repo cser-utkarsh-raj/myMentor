@@ -185,3 +185,5 @@ FastAPI generates automated OpenAPI Swagger documentation at [http://localhost:8
 - 🔒 **Secure Authorization**: OAuth2 with JWT refresh tokens for cloud accounts.
 - 🤖 **Gemini AI Mentor**: Chatbot assistant parsed directly from your uploaded PDF catalog using embeddings.
 - 🔄 **Neon Cloud Sync**: Sync local SQLite databases directly to PostgreSQL in the cloud upon login.
+#   m y M e n t o r  
+ 
