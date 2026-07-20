@@ -15,9 +15,10 @@ import {
   Terminal,
   Cpu,
   TrendingUp,
-  BrainCircuit
+  BrainCircuit,
+  Loader2
 } from 'lucide-react'
-import { useCreateGoal } from '../hooks/useApi'
+import { useCreateGoal, useGoalLibrary } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const GoalSetup: React.FC = () => {
@@ -28,6 +29,7 @@ export const GoalSetup: React.FC = () => {
   const [step, setStep] = useState(1)
   
   // Setup Wizard States
+  const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null)
   const [goal, setGoal] = useState('')
   const [customGoal, setCustomGoal] = useState('')
   const [target, setTarget] = useState('')
@@ -36,20 +38,12 @@ export const GoalSetup: React.FC = () => {
   const [dailyHours, setDailyHours] = useState(3)
   const [timelineDays, setTimelineDays] = useState(45)
   const [isGenerating, setIsGenerating] = useState(false)
-
-  const goalsList = [
-    { id: 'backend', name: 'Become Backend Developer', icon: Terminal, desc: 'Databases, APIs, System Design, Servers' },
-    { id: 'fullstack', name: 'Become Full Stack Developer', icon: Layers, desc: 'Frontend + Backend web application design' },
-    { id: 'python', name: 'Learn Python', icon: Code, desc: 'Syntax, automation, scripts, standard libraries' },
-    { id: 'react', name: 'Learn React', icon: Cpu, desc: 'Components, hooks, state, virtual DOM UI design' },
-    { id: 'devops', name: 'Learn DevOps', icon: BrainCircuit, desc: 'Containers, deployment pipelines, cloud architecture' },
-    { id: 'startup', name: 'Build Startup', icon: TrendingUp, desc: 'Product iterations, scaling, rapid prototyping' },
-    { id: 'custom', name: 'Custom Goal', icon: Sparkles, desc: 'Design your own custom learning roadmap' }
-  ]
+  
+  const { data: categorizedGoals, isLoading: isLibraryLoading } = useGoalLibrary()
 
   const targetsList = [
-    { name: 'Crack 10 LPA Package', val: '10 LPA' },
-    { name: 'Crack 20 LPA Package', val: '20 LPA' },
+    { name: 'Career Transition / New Job', val: 'New Job' },
+    { name: 'Interview Preparation', val: 'Interviews' },
     { name: 'Core Skill Mastery', val: 'Mastery' },
     { name: 'Side Project Build', val: 'Product Launch' },
     { name: 'No Specific Target', val: 'None' }
@@ -104,7 +98,7 @@ export const GoalSetup: React.FC = () => {
       // Satisfying artificial delay to show generation progress
       setTimeout(() => {
         setIsGenerating(false)
-        navigate('/')
+        navigate('/app')
       }, 2500)
     } catch (e) {
       setIsGenerating(false)
@@ -223,36 +217,46 @@ export const GoalSetup: React.FC = () => {
                       <p className="text-sm text-zinc-400">Select a career pathway or choose custom goal to write your own.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-1">
-                      {goalsList.map((g) => {
-                        const Icon = g.icon
-                        const isSelected = goal === g.name
-                        return (
-                          <button
-                            key={g.id}
-                            type="button"
-                            onClick={() => {
-                              setGoal(g.name)
-                              if (g.name !== 'Custom Goal') setCustomGoal('')
-                            }}
-                            className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
-                              isSelected 
-                                ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20` 
-                                : 'bg-zinc-950/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10'
-                            }`}
-                          >
-                            <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-zinc-950 border border-white/10' : 'bg-zinc-900 border border-white/5'}`}>
-                              <Icon className={`w-5 h-5 ${isSelected ? getColorClass('text') : 'text-zinc-500'}`} />
+                    <div className="flex flex-col gap-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                      {isLibraryLoading ? (
+                        <div className="flex justify-center p-8">
+                          <Loader2 className={`w-8 h-8 animate-spin ${getColorClass('text')}`} />
+                        </div>
+                      ) : (
+                        categorizedGoals && Object.entries(categorizedGoals).map(([category, goals]: [string, any]) => (
+                          <div key={category} className="flex flex-col gap-3">
+                            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest">{category}</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {goals.map((g: any) => {
+                                const isSelected = selectedGoalId === g.id
+                                return (
+                                  <button
+                                    key={g.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedGoalId(g.id)
+                                      setGoal(g.title)
+                                      if (g.id !== 'custom-01') setCustomGoal('')
+                                    }}
+                                    className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                                      isSelected 
+                                        ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20` 
+                                        : 'bg-zinc-950/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10'
+                                    }`}
+                                  >
+                                    <div className="flex flex-col">
+                                      <span className={`font-semibold text-sm ${isSelected ? 'text-white' : 'text-zinc-300'}`}>
+                                        {g.title}
+                                      </span>
+                                      <span className="text-xs text-zinc-500 mt-1 leading-relaxed">{g.description}</span>
+                                    </div>
+                                  </button>
+                                )
+                              })}
                             </div>
-                            <div className="flex flex-col">
-                              <span className={`font-semibold text-sm ${isSelected ? 'text-white' : 'text-zinc-300'}`}>
-                                {g.name}
-                              </span>
-                              <span className="text-xs text-zinc-500 mt-1 leading-relaxed">{g.desc}</span>
-                            </div>
-                          </button>
-                        )
-                      })}
+                          </div>
+                        ))
+                      )}
                     </div>
 
                     {goal === 'Custom Goal' && (

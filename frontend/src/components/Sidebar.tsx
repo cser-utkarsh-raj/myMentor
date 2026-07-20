@@ -11,7 +11,8 @@ import {
   Flame, 
   Award,
   Zap,
-  ChevronRight
+  ChevronRight,
+  Target
 } from 'lucide-react'
 import { useUIStore, AccentColor } from '../store/uiStore'
 import { Goal } from '../hooks/useApi'
@@ -47,13 +48,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
   }
   
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: Home },
-    { name: 'Roadmap', path: '/roadmap', icon: Map },
-    { name: 'Today', path: '/today', icon: Calendar },
-    { name: 'Progress', path: '/progress', icon: BarChart2 },
-    { name: 'Resources', path: '/resources', icon: BookOpen },
-    { name: 'PDFs', path: '/pdfs', icon: FileText },
-    { name: 'Settings', path: '/settings', icon: Settings },
+    { name: 'Dashboard', path: '/app/', icon: Home },
+    { name: 'Roadmap', path: '/app/roadmap', icon: Map },
+    { name: 'Today', path: '/app/today', icon: Calendar },
+    { name: 'Progress', path: '/app/progress', icon: BarChart2 },
+    { name: 'Resources', path: '/app/resources', icon: BookOpen },
+    { name: 'PDFs', path: '/app/pdfs', icon: FileText },
+    { name: 'Settings', path: '/app/settings', icon: Settings },
+    { name: 'New Goal', path: '/setup', icon: Target },
   ]
   
   // Calculate XP Level (arbitrary gamification: 1000 XP per level)
@@ -66,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
     <aside className="w-80 h-screen fixed left-0 top-0 glass-panel border-r border-white/10 flex flex-col justify-between p-6 z-40">
       <div className="flex flex-col gap-8 w-full">
         {/* Brand Logo */}
-        <div className="flex items-center gap-3 px-2 cursor-pointer" onClick={() => navigate('/')}>
+        <div className="flex items-center gap-3 px-2 cursor-pointer" onClick={() => navigate('/app')}>
           <div className={`p-2.5 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} shadow-[0_0_15px_rgba(0,0,0,0.2)]`}>
             <Zap className={`w-6 h-6 ${getColorClass('text')}`} />
           </div>

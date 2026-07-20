@@ -1,21 +1,18 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { 
   Flame, 
   Clock, 
   CheckSquare, 
   Calendar, 
-  TrendingUp, 
   Sparkles, 
   Play, 
   ArrowRight,
   Award,
   Zap,
-  ListTodo,
-  Activity
+  ListTodo
 } from 'lucide-react'
-import { useActiveGoal, useGoalAnalytics, Goal, AnalyticsDashboard } from '../hooks/useApi'
+import { useActiveGoal, useGoalAnalytics } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const Dashboard: React.FC = () => {
@@ -101,14 +98,18 @@ export const Dashboard: React.FC = () => {
 
   // Find Today's Day from activeGoal tracks
   let activeDay: any = null
-  let upcomingTasks: any[] = []
+  let upcomingResources: any[] = []
 
   if (activeGoal.tracks) {
     const allDays = []
     for (const track of activeGoal.tracks) {
-      for (const ms of track.modules) {
-        for (const day of ms.days) {
-          allDays.push(day)
+      if (track.modules) {
+        for (const mod of track.modules) {
+          if (mod.days) {
+            for (const day of mod.days) {
+              allDays.push(day)
+            }
+          }
         }
       }
     }
@@ -119,18 +120,20 @@ export const Dashboard: React.FC = () => {
     // Active Day is the first unlocked day that is not completed, or fallback to first unlocked
     activeDay = allDays.find(d => d.unlocked && !d.is_completed) || allDays.find(d => d.unlocked) || allDays[0]
     
-    // Gather next 3 uncompleted upcoming tasks
-    const incompleteTasks = []
+    // Gather next 3 uncompleted upcoming resources
+    const incompleteResources = []
     for (const day of allDays) {
       if (day.day_number >= (activeDay?.day_number || 1)) {
-        for (const res of day.resources) {
-          if (!res.is_completed) {
-            incompleteTasks.push({ ...res, dayNumber: day.day_number })
+        if (day.resources) {
+          for (const resource of day.resources) {
+            if (!resource.is_completed) {
+              incompleteResources.push({ ...resource, dayNumber: day.day_number })
+            }
           }
         }
       }
     }
-    upcomingTasks = incompleteTasks.slice(0, 3)
+    upcomingResources = incompleteResources.slice(0, 3)
   }
 
   // Calculate greeting
@@ -146,7 +149,7 @@ export const Dashboard: React.FC = () => {
             {greeting}, Mentor Client
           </h2>
           <p className="text-zinc-500 font-medium mt-1">
-            Track metrics and conquer your {activeGoal.active_mode} mission for Day {activeDay?.day_number || 1}.
+            Track metrics and conquer your mission for Day {activeDay?.day_number || 1}.
           </p>
         </div>
         
@@ -219,7 +222,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Highlight Grid (Streak, hours, xp, questions) */}
-        <div className="lg:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
           {/* Card 1: Streak */}
           <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between">
             <div className="flex justify-between items-start">
@@ -232,25 +235,25 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Best</span>
+              <span>Longest Streak</span>
               <span className="font-bold text-zinc-300">{analytics.longest_streak} Days</span>
             </div>
           </div>
 
-          {/* Card 2: Consistency Score */}
+          {/* Card 2: Hours Studied */}
           <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between">
             <div className="flex justify-between items-start">
-              <div className="p-3 rounded-xl bg-pink-500/10 border border-pink-500/20">
-                <Activity className="w-6 h-6 text-pink-400" />
+              <div className={`p-3 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
+                <Clock className={`w-6 h-6 ${getColorClass('text')}`} />
               </div>
               <div className="flex flex-col text-right">
-                <span className="text-2xl font-extrabold text-white">{analytics.daily_score}</span>
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Daily Score</span>
+                <span className="text-2xl font-extrabold text-white">{analytics.total_hours_studied}h</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Hours Studied</span>
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Goal</span>
-              <span className="font-bold text-zinc-300">100</span>
+              <span>Daily target</span>
+              <span className="font-bold text-zinc-300">{activeGoal.daily_hours}h / day</span>
             </div>
           </div>
 
@@ -262,12 +265,12 @@ export const Dashboard: React.FC = () => {
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-2xl font-extrabold text-white">{analytics.total_resources_completed}</span>
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Resources</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Resources Done</span>
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Topic</span>
-              <span className="font-bold text-zinc-300 truncate max-w-[50px]">{analytics.weakest_topic || 'None'}</span>
+              <span>Weakest Skill</span>
+              <span className="font-bold text-zinc-300 truncate max-w-[80px]">{analytics.weakest_topic || 'None'}</span>
             </div>
           </div>
 
@@ -278,13 +281,13 @@ export const Dashboard: React.FC = () => {
                 <Award className="w-6 h-6 text-amber-400" />
               </div>
               <div className="flex flex-col text-right">
-                <span className="text-2xl font-extrabold text-white">{analytics.xp}</span>
+                <span className="text-2xl font-extrabold text-white">{analytics.xp} XP</span>
                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Total XP</span>
               </div>
             </div>
             <div className="border-t border-white/5 pt-3 mt-4 flex justify-between text-xs text-zinc-500">
-              <span>Badges</span>
-              <span className="font-bold text-zinc-300">{analytics.streak_badges_count}</span>
+              <span>Streak Badges</span>
+              <span className="font-bold text-zinc-300">{analytics.streak_badges_count} Earned</span>
             </div>
           </div>
         </div>
@@ -309,7 +312,7 @@ export const Dashboard: React.FC = () => {
             <div className="flex flex-col gap-2">
               <h4 className="text-lg font-bold text-white">{activeDay?.title || 'Review Day'}</h4>
               <p className="text-sm text-zinc-400 leading-relaxed mt-1">
-                Configure your timers and check off {activeDay?.resources?.length || 0} topics in your {activeGoal.active_mode} agenda. Completion unlocks the next day.
+                Configure your timers and check off {activeDay?.resources?.length || 0} topics in your agenda. Completion unlocks the next milestone day.
               </p>
             </div>
             
@@ -350,8 +353,8 @@ export const Dashboard: React.FC = () => {
             </h3>
             
             <div className="flex flex-col gap-3">
-              {upcomingTasks.length > 0 ? (
-                upcomingTasks.map((t, idx) => (
+              {upcomingResources.length > 0 ? (
+                upcomingResources.map((t, idx) => (
                   <div 
                     key={t.id}
                     className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950/30 border border-white/5 hover:border-white/10 hover:bg-zinc-950/50 transition-all cursor-pointer"
@@ -390,7 +393,7 @@ export const Dashboard: React.FC = () => {
           
           <button 
             type="button"
-            onClick={() => navigate('/roadmap')}
+            onClick={() => navigate('/app/roadmap')}
             className="w-full text-center text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-colors mt-2"
           >
             View Full Roadmap Grid

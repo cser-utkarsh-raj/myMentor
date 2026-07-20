@@ -12,6 +12,11 @@ class GoalService:
         return db.query(Goal).filter(Goal.id == goal_id).first()
 
     @staticmethod
+    def list_goals(db: Session) -> List[Goal]:
+        logger.info("Fetching all goals.")
+        return db.query(Goal).order_by(Goal.created_at.desc()).all()
+
+    @staticmethod
     def get_active_goal(db: Session) -> Optional[Goal]:
         logger.info("Fetching the currently active goal.")
         # For V1, the most recently created goal is active

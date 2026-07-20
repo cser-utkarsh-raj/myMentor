@@ -5,9 +5,9 @@ from app.schemas.schemas import StudySessionCreate, StudySessionResponse
 from app.services.study_service import StudyService
 from app.core.logger import logger
 
-router = APIRouter(prefix="/timer", tags=["Timer"])
+router = APIRouter(prefix="/study-sessions", tags=["Study Sessions"])
 
-@router.post("/sessions", response_model=StudySessionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=StudySessionResponse, status_code=status.HTTP_201_CREATED)
 def log_study_session(session_in: StudySessionCreate, db: Session = Depends(get_db)):
     """
     Logs a completed study session (Pomodoro timer blocks of 25, 45, 60, or 90 mins).

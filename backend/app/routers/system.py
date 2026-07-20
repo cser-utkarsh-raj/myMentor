@@ -36,3 +36,17 @@ def backup_database(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Failed to generate backup: {e}")
         return {"status": "error", "message": str(e)}
+
+from app.services.goal_library import get_categorized_goals
+
+@router.get("/library", status_code=status.HTTP_200_OK)
+def get_library():
+    """
+    Returns the seeded V3 goal library organized by category.
+    """
+    try:
+        data = get_categorized_goals()
+        return {"status": "success", "data": data}
+    except Exception as e:
+        logger.error(f"Failed to fetch goal library: {e}")
+        return {"status": "error", "message": str(e)}

@@ -11,6 +11,11 @@ from typing import List, Optional
 
 router = APIRouter(prefix="/goals", tags=["Goals"])
 
+@router.get("/", response_model=List[GoalResponse])
+def get_goals(db: Session = Depends(get_db)):
+    """Returns a list of all goals."""
+    return GoalService.list_goals(db)
+
 @router.post("/", response_model=GoalResponse, status_code=status.HTTP_201_CREATED)
 def create_goal(goal_in: GoalCreate, db: Session = Depends(get_db)):
     """

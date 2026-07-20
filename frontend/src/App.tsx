@@ -1,8 +1,10 @@
-import React, { Suspense, lazy } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import React, { Suspense, lazy, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar } from './components/Sidebar'
 import { useActiveGoal, useBackupDatabase } from './hooks/useApi'
+import { useAuthStore } from './store/authStore'
+import { Landing } from './pages/Landing'
 
 // Lazy loaded pages
 const Dashboard = lazy(() => import('./pages/Dashboard').then(module => ({ default: module.Dashboard })))
@@ -13,6 +15,8 @@ const PDFs = lazy(() => import('./pages/PDFs').then(module => ({ default: module
 const Resources = lazy(() => import('./pages/Resources').then(module => ({ default: module.Resources })))
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })))
 const GoalSetup = lazy(() => import('./pages/GoalSetup').then(module => ({ default: module.GoalSetup })))
+const Login = lazy(() => import('./pages/Login').then(module => ({ default: module.Login })))
+const Signup = lazy(() => import('./pages/Signup').then(module => ({ default: module.Signup })))
 
 // Initialize TanStack Query Client
 const queryClient = new QueryClient({
@@ -30,61 +34,94 @@ const FallbackLoader = () => (
   </div>
 )
 
-const AppContent: React.FC = () => {
+// Protected Layout that includes the Sidebar
+const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: activeGoal, isLoading } = useActiveGoal()
   const backupMutation = useBackupDatabase()
 
-  React.useEffect(() => {
-    // 10 minutes = 600,000 ms
+  useEffect(() => {
+    // 10 minutes = 600,000 ms silent backup
     const intervalId = setInterval(() => {
       backupMutation.mutate(undefined, {
         onSuccess: () => console.log('Silent auto-backup completed.'),
         onError: (err) => console.error('Silent auto-backup failed:', err)
       })
     }, 600000)
-
     return () => clearInterval(intervalId)
   }, [backupMutation])
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#09090b]">
-        <div className="w-10 h-10 rounded-full border-2 border-dashed border-purple-500 animate-spin" />
-      </div>
-    )
-  }
+  if (isLoading) return <FallbackLoader />
 
-  // Onboarding enforcement: If no active goal exists, force wizard setup
+  // If no active goal is found on the backend, force them to the wizard
   if (!activeGoal) {
-    return (
-      <Suspense fallback={<FallbackLoader />}>
-        <GoalSetup />
-      </Suspense>
-    )
+    return <Navigate to="/setup" replace />
   }
 
   return (
     <div className="min-h-screen bg-[#09090b] flex">
-      {/* Sidebar navigation */}
       <Sidebar goal={activeGoal} />
-      
-      {/* Main content area */}
       <main className="flex-1 min-h-screen pl-80 p-8 overflow-y-auto">
         <Suspense fallback={<FallbackLoader />}>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/roadmap" element={<Roadmap />} />
-            <Route path="/today" element={<Today />} />
-            <Route path="/progress" element={<Progress />} />
-            <Route path="/pdfs" element={<PDFs />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/settings" element={<Settings />} />
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          {children}
         </Suspense>
       </main>
     </div>
+  )
+}
+
+// Global Routing
+const AppContent: React.FC = () => {
+  const { session, isDemoMode } = useAuthStore()
+  const isAuthenticated = session !== null || isDemoMode
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={
+        <Suspense fallback={<FallbackLoader />}>
+          <Login />
+        </Suspense>
+      } />
+      <Route path="/signup" element={
+        <Suspense fallback={<FallbackLoader />}>
+          <Signup />
+        </Suspense>
+      } />
+      
+      {/* Semi-Protected Onboarding */}
+      <Route path="/setup" element={
+        isAuthenticated ? (
+          <Suspense fallback={<FallbackLoader />}>
+            <GoalSetup />
+          </Suspense>
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      } />
+
+      {/* Protected Application Routes */}
+      <Route path="/app/*" element={
+        isAuthenticated ? (
+          <ProtectedLayout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/roadmap" element={<Roadmap />} />
+              <Route path="/today" element={<Today />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/pdfs" element={<PDFs />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </ProtectedLayout>
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      } />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 

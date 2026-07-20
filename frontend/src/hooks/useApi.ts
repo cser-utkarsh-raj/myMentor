@@ -227,6 +227,18 @@ export function useLogStudySession() {
   })
 }
 
+export const useGoalLibrary = () => {
+  return useQuery({
+    queryKey: ['goalLibrary'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/system/library`)
+      if (!response.ok) throw new Error('Failed to fetch library')
+      const data = await response.json()
+      return data.data
+    }
+  })
+}
+
 export function useResources() {
   return useQuery<Record<string, any[]>>({
     queryKey: ['resources'],
