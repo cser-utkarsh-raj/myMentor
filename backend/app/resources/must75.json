@@ -1,0 +1,65 @@
+[
+  {
+    "title": "Two Sum",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/two-sum/",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target."
+  },
+  {
+    "title": "Valid Parentheses",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/valid-parentheses/",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Use a stack to match opening and closing brackets."
+  },
+  {
+    "title": "Merge Two Sorted Lists",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/merge-two-sorted-lists/",
+    "estimated_time_mins": 20,
+    "xp": 10,
+    "notes": "Standard two-pointer traversal merging elements into a dummy head list."
+  },
+  {
+    "title": "Best Time to Buy and Sell Stock",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Keep track of min price seen and calculate max profit dynamically."
+  },
+  {
+    "title": "Valid Palindrome",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/valid-palindrome/",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Clean string of non-alphanumeric chars and check matching using two pointers."
+  },
+  {
+    "title": "Invert Binary Tree",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/invert-binary-tree/",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Recursive swap of left and right child subtrees."
+  },
+  {
+    "title": "Merge Intervals",
+    "category": "DSA",
+    "difficulty": "Medium",
+    "link": "https://leetcode.com/problems/merge-intervals/",
+    "estimated_time_mins": 30,
+    "xp": 20,
+    "notes": "Sort intervals by start time. Merge overlapping intervals in a single pass."
+  }
+]

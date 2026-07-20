@@ -1,0 +1,77 @@
+{
+  "title": "Custom Goal Roadmap",
+  "target": "Personal Development",
+  "tracks": [
+    {
+      "title": "Core Foundations",
+      "description": "Establish key concepts and research materials.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Initial Setup & Research",
+          "description": "Map out goals and set up workspace environment.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Planning Phase",
+              "tasks": [
+                {
+                  "title": "Write down targets & resources",
+                  "category": "Resume",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Identify primary online resources and schedule study blocks."
+                },
+                {
+                  "title": "Set up learning environment",
+                  "category": "Projects",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Verify code editors, package managers, and folders are ready."
+                }
+              ]
+            },
+            {
+              "title": "Core Foundations Study",
+              "tasks": [
+                {
+                  "title": "Complete Introduction & Overview",
+                  "category": "Projects",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Study primary terms and basic concepts for your custom goal."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Practical Application",
+      "description": "Build real projects and test knowledge.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "Implementation",
+          "description": "Apply concepts in practice scenarios.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Mini Project Phase",
+              "tasks": [
+                {
+                  "title": "Design a small test case or demo",
+                  "category": "Projects",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 120,
+                  "notes": "Test out what you have learned by making a real implementation."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

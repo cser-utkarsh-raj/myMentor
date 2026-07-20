@@ -1,0 +1,221 @@
+{
+  "title": "Become Backend Developer",
+  "target": "10 LPA / 20 LPA",
+  "tracks": [
+    {
+      "title": "Programming & Languages",
+      "description": "Master core languages and programming paradigms.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Python Fundamentals",
+          "description": "Learn basic syntax, control structures, and collections.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Syntax & Control Flow",
+              "tasks": [
+                {
+                  "title": "Variables, Data Types, and Math Operators",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Learn variables, print statement, numeric and string types."
+                },
+                {
+                  "title": "Conditional Statements & Loops",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Use if/elif/else blocks, for loops, and while loops."
+                }
+              ]
+            },
+            {
+              "title": "Functions & Modules",
+              "tasks": [
+                {
+                  "title": "Writing functions and arguments",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Define functions with `def`, return values, default parameters."
+                },
+                {
+                  "title": "Importing built-in modules",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 20,
+                  "notes": "Understand `import math`, `import sys`, `import random`."
+                }
+              ]
+            },
+            {
+              "title": "Python Data Structures",
+              "tasks": [
+                {
+                  "title": "Lists & Tuples operation",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Practice list slicing, appending, and unpacking tuples."
+                },
+                {
+                  "title": "Dictionaries & Sets",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Learn key-value maps and unique element collections."
+                },
+                {
+                  "title": "DSA: Two Sum",
+                  "category": "DSA",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Find two indices that sum up to target in O(N)."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Relational Databases & SQL",
+      "description": "Learn how to store, query, and structure data.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "SQL Basics & Querying",
+          "description": "Retrieve data using SELECT, WHERE, and sorting.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "SQL SELECT and Filters",
+              "tasks": [
+                {
+                  "title": "Basic SELECT query syntax",
+                  "category": "SQL",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "SELECT columns FROM table WHERE condition ORDER BY col."
+                },
+                {
+                  "title": "Aggregate Functions",
+                  "category": "SQL",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Using COUNT, SUM, AVG, MIN, MAX."
+                }
+              ]
+            },
+            {
+              "title": "Advanced SQL joins",
+              "tasks": [
+                {
+                  "title": "INNER and LEFT joins",
+                  "category": "SQL",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 45,
+                  "notes": "Learn how to join related tables together."
+                },
+                {
+                  "title": "GROUP BY & HAVING clauses",
+                  "category": "SQL",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 45,
+                  "notes": "Group database records and apply post-grouping filters."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Web Frameworks & APIs",
+      "description": "Build modern REST APIs using FastAPI.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "FastAPI Basics",
+          "description": "Write endpoints, request/response models, and run servers.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "FastAPI Setup & Routes",
+              "tasks": [
+                {
+                  "title": "GET / POST endpoint creation",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 40,
+                  "notes": "Define path operations and query parameters."
+                },
+                {
+                  "title": "Pydantic Schemas for Validation",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Verify incoming payload schemas dynamically."
+                }
+              ]
+            },
+            {
+              "title": "SQLAlchemy integration",
+              "tasks": [
+                {
+                  "title": "Define DB connection session",
+                  "category": "SQL",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Inject db dependencies using `Depends(get_db)`."
+                },
+                {
+                  "title": "Build CRUD Operations",
+                  "category": "Python",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Write create, read, update, delete operations for items."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "DevOps & Deployment",
+      "description": "Dockerize and ship backend applications.",
+      "order": 4,
+      "milestones": [
+        {
+          "title": "Containers & Docker",
+          "description": "Build Docker images and manage container runs.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Dockerizing a Python App",
+              "tasks": [
+                {
+                  "title": "Write a multi-stage Dockerfile",
+                  "category": "DevOps",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 45,
+                  "notes": "Minimize image size and configure python environments."
+                },
+                {
+                  "title": "Docker Compose configurations",
+                  "category": "DevOps",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 45,
+                  "notes": "Run app alongside a postgres db container."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

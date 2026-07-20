@@ -1,0 +1,96 @@
+{
+  "title": "Learn Python",
+  "target": "Core Python Mastery",
+  "tracks": [
+    {
+      "title": "Python Programming",
+      "description": "Understand core python concepts.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Fundamentals",
+          "description": "Variables, conditions, and operations.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Introduction",
+              "tasks": [
+                {
+                  "title": "Install Python & VSCode Setup",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Verify python version and configure code settings."
+                },
+                {
+                  "title": "Variables & Basic Types",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Working with strings, floats, ints, booleans."
+                }
+              ]
+            },
+            {
+              "title": "Flow Control",
+              "tasks": [
+                {
+                  "title": "Conditions & Loops",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Using if/else, loops, break, and continue."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Intermediate Python",
+          "description": "OOP, Exceptions, Modules",
+          "order": 2,
+          "steps": [
+            {
+              "title": "Functions & Modules",
+              "tasks": [
+                {
+                  "title": "Write functions and parameters",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 40,
+                  "notes": "Define modular code snippets."
+                },
+                {
+                  "title": "File I/O operations",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 40,
+                  "notes": "Open, read, write files using `with open()` statement."
+                }
+              ]
+            },
+            {
+              "title": "OOP & Exceptions",
+              "tasks": [
+                {
+                  "title": "Create classes and objects",
+                  "category": "Python",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Define properties, constructor `__init__`, and simple methods."
+                },
+                {
+                  "title": "Try/Except blocks",
+                  "category": "Python",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Handle runtime errors and avoid app crashes."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

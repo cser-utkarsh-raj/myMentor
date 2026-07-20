@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Contains Duplicate",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/contains-duplicate/",
+    "estimated_time_mins": 10,
+    "xp": 10,
+    "notes": "Use a hash set to track visited values."
+  },
+  {
+    "title": "Valid Anagram",
+    "category": "DSA",
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/valid-anagram/",
+    "estimated_time_mins": 10,
+    "xp": 10,
+    "notes": "Count character occurrences using a frequency map or array."
+  },
+  {
+    "title": "Product of Array Except Self",
+    "category": "DSA",
+    "difficulty": "Medium",
+    "link": "https://leetcode.com/problems/product-of-array-except-self/",
+    "estimated_time_mins": 25,
+    "xp": 20,
+    "notes": "Calculate prefix and suffix products in two sweeps, or with space optimization."
+  },
+  {
+    "title": "Maximum Subarray",
+    "category": "DSA",
+    "difficulty": "Medium",
+    "link": "https://leetcode.com/problems/maximum-subarray/",
+    "estimated_time_mins": 20,
+    "xp": 20,
+    "notes": "Use Kadane's Algorithm: update current max sum and global max sum at each step."
+  },
+  {
+    "title": "3Sum",
+    "category": "DSA",
+    "difficulty": "Medium",
+    "link": "https://leetcode.com/problems/3sum/",
+    "estimated_time_mins": 35,
+    "xp": 20,
+    "notes": "Sort the array. Loop first pointer, then use two pointers for remaining target."
+  }
+]

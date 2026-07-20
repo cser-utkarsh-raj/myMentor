@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Python Decorators",
+    "category": "Python",
+    "difficulty": "Medium",
+    "link": "https://docs.python.org/3/glossary.html#term-decorator",
+    "estimated_time_mins": 20,
+    "xp": 15,
+    "notes": "Understand closure, function wrapping, and how `@decorator` syntax is applied."
+  },
+  {
+    "title": "Generators & yield",
+    "category": "Python",
+    "difficulty": "Medium",
+    "link": "https://docs.python.org/3/howto/functional.html#generators",
+    "estimated_time_mins": 15,
+    "xp": 15,
+    "notes": "Learn memory-efficient streaming, iterator protocols, and the use of the yield keyword."
+  },
+  {
+    "title": "Python Memory Management & GIL",
+    "category": "Python",
+    "difficulty": "Hard",
+    "link": "https://realpython.com/python-memory-management/",
+    "estimated_time_mins": 30,
+    "xp": 25,
+    "notes": "Garbage collection, reference counting, memory pools, and the Global Interpreter Lock."
+  },
+  {
+    "title": "List Comprehensions & Expressions",
+    "category": "Python",
+    "difficulty": "Easy",
+    "link": "https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions",
+    "estimated_time_mins": 10,
+    "xp": 10,
+    "notes": "One-liner syntax for transforming list elements. Distinguish lists vs. generator expressions."
+  },
+  {
+    "title": "Context Managers & with statement",
+    "category": "Python",
+    "difficulty": "Easy",
+    "link": "https://docs.python.org/3/reference/datamodel.html#context-managers",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Implementing custom context managers using `__enter__` / `__exit__` and `contextlib`."
+  }
+]

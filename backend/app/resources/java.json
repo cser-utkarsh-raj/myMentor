@@ -1,0 +1,38 @@
+[
+  {
+    "title": "Java Garbage Collection",
+    "category": "Java",
+    "difficulty": "Hard",
+    "link": "https://www.oracle.com/webfolder/technetwork/tutorials/obe/java/gc01/index.html",
+    "estimated_time_mins": 30,
+    "xp": 25,
+    "notes": "Generational GC (Eden, Survivor, Tenured), JVM heap spaces, and collector algorithms (G1, ZGC)."
+  },
+  {
+    "title": "Multithreading & Concurrency",
+    "category": "Java",
+    "difficulty": "Hard",
+    "link": "https://docs.oracle.com/javase/tutorial/essential/concurrency/",
+    "estimated_time_mins": 40,
+    "xp": 25,
+    "notes": "Thread creation, synchronized blocks, volatile keyword, locks, and ExecutorService."
+  },
+  {
+    "title": "Java Streams API",
+    "category": "Java",
+    "difficulty": "Medium",
+    "link": "https://www.baeldung.com/java-8-streams",
+    "estimated_time_mins": 25,
+    "xp": 15,
+    "notes": "Functional programming in Java using streams: filter, map, collect, reduce, and lazy evaluation."
+  },
+  {
+    "title": "JVM Memory Model (Stack vs. Heap)",
+    "category": "Java",
+    "difficulty": "Easy",
+    "link": "https://www.baeldung.com/java-stack-heap",
+    "estimated_time_mins": 20,
+    "xp": 10,
+    "notes": "Stack stores primitive values and references. Heap stores object allocations. Pass-by-value semantics."
+  }
+]

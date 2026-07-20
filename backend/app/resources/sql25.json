@@ -1,0 +1,47 @@
+[
+  {
+    "title": "SQL JOINs Explained",
+    "category": "SQL",
+    "difficulty": "Easy",
+    "link": "https://www.w3schools.com/sql/sql_join.asp",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Deep dive into INNER, LEFT, RIGHT, and FULL joins. Practice merging tables."
+  },
+  {
+    "title": "SQL GROUP BY & HAVING",
+    "category": "SQL",
+    "difficulty": "Easy",
+    "link": "https://www.w3schools.com/sql/sql_groupby.asp",
+    "estimated_time_mins": 20,
+    "xp": 10,
+    "notes": "Grouping rows using aggregate functions (SUM, AVG, COUNT, MIN, MAX). HAVING operates on groups."
+  },
+  {
+    "title": "Window Functions",
+    "category": "SQL",
+    "difficulty": "Medium",
+    "link": "https://mode.com/sql-tutorial/sql-window-functions/",
+    "estimated_time_mins": 30,
+    "xp": 20,
+    "notes": "OVER(), PARTITION BY, ROW_NUMBER(), RANK(), DENSE_RANK(), and LAG()/LEAD()."
+  },
+  {
+    "title": "Common Table Expressions (CTEs)",
+    "category": "SQL",
+    "difficulty": "Easy",
+    "link": "https://www.postgresql.org/docs/current/queries-with.html",
+    "estimated_time_mins": 15,
+    "xp": 10,
+    "notes": "Using `WITH query_name AS (...)` to structure and simplify complex nested subqueries."
+  },
+  {
+    "title": "SQL Indexes & Query Tuning",
+    "category": "SQL",
+    "difficulty": "Hard",
+    "link": "https://use-the-index-luke.com/",
+    "estimated_time_mins": 45,
+    "xp": 25,
+    "notes": "B-Tree indexes, execution plans (EXPLAIN), scan types (Index vs. Seq Scan), and performance."
+  }
+]

@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+logs/
+*.log
+*.db
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+.nuxt/
+.vercel/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
