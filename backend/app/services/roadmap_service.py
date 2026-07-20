@@ -20,7 +20,7 @@ class RoadmapService:
         filename = "custom_goal.json"
         title_lower = goal.title.lower()
         
-        if "backend" in title_lower:
+        if "backend" in title_lower or "software" in title_lower or "developer" in title_lower:
             filename = "backend_developer.json"
         elif "python" in title_lower:
             filename = "learn_python.json"

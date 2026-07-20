@@ -95,12 +95,26 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
+      if (session) {
+        setSession(session)
+      } else {
+        const state = useAuthStore.getState()
+        if (!state.isDemoMode && state.session?.access_token !== 'local-demo-token') {
+          setSession(null)
+        }
+      }
     })
 
     // Listen to changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+      if (session) {
+        setSession(session)
+      } else {
+        const state = useAuthStore.getState()
+        if (!state.isDemoMode && state.session?.access_token !== 'local-demo-token') {
+          setSession(null)
+        }
+      }
     })
 
     return () => subscription.unsubscribe()

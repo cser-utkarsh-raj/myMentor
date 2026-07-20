@@ -4,42 +4,45 @@
   "tracks": [
     {
       "title": "Core Foundations",
-      "description": "Establish key concepts and research materials.",
+      "description": "Establish key concepts, research materials, and organize practice schedules.",
       "order": 1,
       "milestones": [
         {
           "title": "Initial Setup & Research",
-          "description": "Map out goals and set up workspace environment.",
+          "description": "Map out goals and set up learning space.",
           "order": 1,
           "steps": [
             {
               "title": "Planning Phase",
-              "tasks": [
+              "resources": [
                 {
-                  "title": "Write down targets & resources",
-                  "category": "Resume",
+                  "title": "Define Core Scope & Materials",
+                  "category": "Planning",
+                  "platform": "Internal",
                   "difficulty": "Easy",
                   "estimated_time_mins": 30,
-                  "notes": "Identify primary online resources and schedule study blocks."
+                  "notes": "List the key concepts, books, online tutorials, or mentors you will study to learn this skill."
                 },
                 {
-                  "title": "Set up learning environment",
-                  "category": "Projects",
+                  "title": "Set Up Practice Workspace",
+                  "category": "Planning",
+                  "platform": "Internal",
                   "difficulty": "Easy",
                   "estimated_time_mins": 30,
-                  "notes": "Verify code editors, package managers, and folders are ready."
+                  "notes": "Organize your practice area, calendar slots, and notebooks to ensure distraction-free learning sessions."
                 }
               ]
             },
             {
-              "title": "Core Foundations Study",
-              "tasks": [
+              "title": "Core Concepts Review",
+              "resources": [
                 {
-                  "title": "Complete Introduction & Overview",
-                  "category": "Projects",
+                  "title": "Review Fundamental Principles",
+                  "category": "Theory",
+                  "platform": "Internal",
                   "difficulty": "Easy",
                   "estimated_time_mins": 60,
-                  "notes": "Study primary terms and basic concepts for your custom goal."
+                  "notes": "Study the basic terminology, rules, safety guidelines, and core concepts of this domain."
                 }
               ]
             }
@@ -49,23 +52,45 @@
     },
     {
       "title": "Practical Application",
-      "description": "Build real projects and test knowledge.",
+      "description": "Engage in hands-on practice sessions and evaluate milestone progress.",
       "order": 2,
       "milestones": [
         {
-          "title": "Implementation",
-          "description": "Apply concepts in practice scenarios.",
+          "title": "Implementation & Drills",
+          "description": "Apply concepts in practical training scenarios.",
           "order": 1,
           "steps": [
             {
-              "title": "Mini Project Phase",
-              "tasks": [
+              "title": "Active Practice Phase",
+              "resources": [
                 {
-                  "title": "Design a small test case or demo",
-                  "category": "Projects",
+                  "title": "Structured Practice Session",
+                  "category": "Practice",
+                  "platform": "Internal",
                   "difficulty": "Medium",
                   "estimated_time_mins": 120,
-                  "notes": "Test out what you have learned by making a real implementation."
+                  "notes": "Spend dedicated time performing active practice, drills, or step-by-step simulations of the core skill."
+                },
+                {
+                  "title": "Document Insights & Learning",
+                  "category": "Review",
+                  "platform": "Internal",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 30,
+                  "notes": "Write down what worked well, what was difficult, and key tips you want to remember for next time."
+                }
+              ]
+            },
+            {
+              "title": "First Major Milestone",
+              "resources": [
+                {
+                  "title": "Complete Practical Demo / Evaluation",
+                  "category": "Evaluation",
+                  "platform": "Internal",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 120,
+                  "notes": "Complete a real-world test case, perform a dry run, or construct a simple demonstration of your progress."
                 }
               ]
             }

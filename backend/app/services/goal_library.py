@@ -11,74 +11,56 @@ GOAL_CATEGORIES = [
 
 GOAL_LIBRARY = [
     {
-        "id": "tech-backend-01",
+        "id": "tech-dev-01",
         "category": "Technology",
-        "title": "Backend Developer",
-        "description": "Master server-side architecture, APIs, and databases.",
-        "estimated_duration": "4 months",
-        "difficulty": "Intermediate",
-        "skills_covered": ["Python", "FastAPI", "PostgreSQL", "Docker"],
-        "expected_outcome": "Build scalable, production-ready backend systems.",
-        "roadmap_preview": [
-            "Module 1: Programming Fundamentals",
-            "Module 2: Databases & SQL",
-            "Module 3: API Design (REST/GraphQL)",
-            "Module 4: System Architecture"
-        ]
-    },
-    {
-        "id": "tech-ai-01",
-        "category": "Technology",
-        "title": "AI & Machine Learning",
-        "description": "Learn to build, train, and deploy AI models.",
-        "estimated_duration": "6 months",
-        "difficulty": "Advanced",
-        "skills_covered": ["Python", "PyTorch", "Transformers", "Data Science"],
-        "expected_outcome": "Deploy LLMs and machine learning pipelines.",
-        "roadmap_preview": [
-            "Module 1: Math & Statistics",
-            "Module 2: Machine Learning Algorithms",
-            "Module 3: Deep Learning",
-            "Module 4: LLMs & Fine-Tuning"
-        ]
-    },
-    {
-        "id": "biz-startup-01",
-        "category": "Business",
-        "title": "Startup Founder",
-        "description": "From idea validation to fundraising and product launch.",
+        "title": "Software Development",
+        "description": "Master programming languages, design patterns, and software engineering fundamentals.",
         "estimated_duration": "3 months",
         "difficulty": "Beginner",
-        "skills_covered": ["Product Management", "Marketing", "Finance", "Leadership"],
-        "expected_outcome": "Launch a validated MVP and acquire first customers.",
+        "skills_covered": ["Programming", "APIs", "Databases", "Version Control"],
+        "expected_outcome": "Build functional, well-structured software applications.",
         "roadmap_preview": [
-            "Module 1: Idea Validation",
-            "Module 2: Building the MVP",
-            "Module 3: Go-to-Market Strategy",
-            "Module 4: Fundraising"
+            "Module 1: Code Basics & Flow Control",
+            "Module 2: Structured Data & Objects",
+            "Module 3: Relational Databases",
+            "Module 4: Application Projects"
         ]
     },
     {
-        "id": "cre-film-01",
-        "category": "Creative",
-        "title": "Film Making",
-        "description": "Master the art of storytelling, cinematography, and editing.",
-        "estimated_duration": "5 months",
-        "difficulty": "Intermediate",
-        "skills_covered": ["Screenwriting", "Camera Operation", "Lighting", "Premiere Pro"],
-        "expected_outcome": "Direct and edit a professional short film.",
+        "id": "biz-mktg-01",
+        "category": "Business",
+        "title": "Business & Marketing",
+        "description": "Learn core business principles, user growth, and digital branding strategies.",
+        "estimated_duration": "2 months",
+        "difficulty": "Beginner",
+        "skills_covered": ["Product Strategy", "Growth Marketing", "Campaign Analytics"],
+        "expected_outcome": "Design business plans and execute marketing campaigns.",
         "roadmap_preview": [
-            "Module 1: Pre-production",
-            "Module 2: Cinematography",
-            "Module 3: Directing",
-            "Module 4: Post-production"
+            "Module 1: Value Proposition",
+            "Module 2: Growth Channels",
+            "Module 3: Execution Plan"
+        ]
+    },
+    {
+        "id": "cre-design-01",
+        "category": "Creative",
+        "title": "Creative Design",
+        "description": "Master visual design principles, color theory, layout editing, and digital design.",
+        "estimated_duration": "3 months",
+        "difficulty": "Beginner",
+        "skills_covered": ["UI Design", "Visual Arts", "Layout Editing"],
+        "expected_outcome": "Build visual mockups and layout portfolios.",
+        "roadmap_preview": [
+            "Module 1: Composition & Color",
+            "Module 2: Layout Design",
+            "Module 3: Project Design"
         ]
     },
     {
         "id": "custom-01",
         "category": "Custom",
         "title": "Custom Goal",
-        "description": "Define your own learning path.",
+        "description": "Define your own custom learning path (e.g. Cooking, Sports, Writing, etc.).",
         "estimated_duration": "Variable",
         "difficulty": "Variable",
         "skills_covered": [],
