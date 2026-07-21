@@ -190,9 +190,17 @@ export const Login: React.FC = () => {
           </button>
         </form>
 
+        <button
+          type="button"
+          onClick={handleDemoLogin}
+          className="w-full flex items-center justify-center gap-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 py-2.5 rounded-xl font-bold text-sm hover:bg-purple-500/20 transition-all cursor-pointer"
+        >
+          Try Demo Mode
+        </button>
+
         <div className="relative flex items-center py-2">
           <div className="flex-grow border-t border-white/10"></div>
-          <span className="flex-shrink-0 mx-4 text-xs font-semibold text-zinc-500 uppercase">Or continue with</span>
+          <span className="flex-shrink-0 mx-4 text-xs font-semibold text-zinc-550 uppercase">Or continue with</span>
           <div className="flex-grow border-t border-white/10"></div>
         </div>
 

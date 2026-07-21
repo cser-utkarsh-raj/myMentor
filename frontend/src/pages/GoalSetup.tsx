@@ -109,9 +109,9 @@ export const GoalSetup: React.FC = () => {
         setIsGenerating(false)
         navigate('/app')
       }, 2500)
-    } catch (e: any) {
+    } catch (e) {
       setIsGenerating(false)
-      alert(`Error creating your goal: ${e.message || e}`);
+      alert('Error creating your goal. Please verify backend service connection.')
     }
   }
 
