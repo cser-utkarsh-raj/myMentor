@@ -143,7 +143,9 @@ export const Resources: React.FC = () => {
             Resource Library
           </h2>
           <p className="text-zinc-500 font-medium mt-1">
-            Built-in problem sets and conceptual blueprints.
+            {library && 'custom_resources' in library 
+              ? 'AI-curated study resources, reference books, and official manuals.'
+              : 'Built-in problem sets and conceptual blueprints.'}
           </p>
         </div>
 
