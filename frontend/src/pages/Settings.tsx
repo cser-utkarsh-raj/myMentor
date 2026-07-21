@@ -23,6 +23,8 @@ export const Settings: React.FC = () => {
   const { data: activeGoal, refetch } = useActiveGoal()
   const deleteGoalMutation = useDeleteGoal()
   const clearSession = useAuthStore(state => state.clearSession)
+  const { userName, setUserName } = useAuthStore()
+  const [tempName, setTempName] = React.useState(userName)
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -134,6 +136,34 @@ export const Settings: React.FC = () => {
               }`}
             >
               <div className="w-3.5 h-3.5 rounded-full bg-emerald-500" /> Forest Emerald
+            </button>
+          </div>
+        </div>
+
+        {/* User Profile Card */}
+        <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-zinc-950/15 flex flex-col gap-4">
+          <h3 className="font-bold text-zinc-200 flex items-center gap-2">
+            <Palette className="w-4.5 h-4.5 text-zinc-500" /> User Profile Display Name
+          </h3>
+          <p className="text-xs text-zinc-400">Change your display name shown in the dashboard greeting.</p>
+          
+          <div className="flex gap-3 max-w-md items-center">
+            <input
+              type="text"
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              placeholder="Enter your name"
+              className="glass-input text-sm flex-1 bg-zinc-900 border border-white/10 rounded-xl px-4 py-2.5 text-zinc-200"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setUserName(tempName.trim() || 'Mentor Client')
+                alert('Profile name updated!')
+              }}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${getColorClass('btn')}`}
+            >
+              Save Name
             </button>
           </div>
         </div>

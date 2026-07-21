@@ -73,12 +73,50 @@ export const GoalSetup: React.FC = () => {
     }
   }
 
+  const [qExperience, setQExperience] = useState('')
+  const [qFocus, setQFocus] = useState('')
+  const [qLearnStyle, setQLearnStyle] = useState('')
+
+  const isNextDisabled = () => {
+    if (step === 1) {
+      if (selectedGoalId === 'custom-01') return !customGoal.trim()
+      return !goal
+    }
+    if (step === 1.5) {
+      return !qExperience.trim() || !qFocus.trim() || !qLearnStyle.trim()
+    }
+    if (step === 2) {
+      return !target
+    }
+    return false
+  }
+
   const handleNext = () => {
-    if (step < 4) setStep(step + 1)
+    if (step === 1 && selectedGoalId === 'custom-01') {
+      if (!customGoal.trim()) {
+        alert('Please enter your custom goal title.')
+        return
+      }
+      setStep(1.5)
+    } else if (step === 1.5) {
+      if (!qExperience.trim() || !qFocus.trim() || !qLearnStyle.trim()) {
+        alert('Please answer all 3 questions so Sensei can customize your roadmap!')
+        return
+      }
+      setStep(2)
+    } else if (step < 4) {
+      setStep(step + 1)
+    }
   }
 
   const handleBack = () => {
-    if (step > 1) setStep(step - 1)
+    if (step === 2 && selectedGoalId === 'custom-01') {
+      setStep(1.5)
+    } else if (step === 1.5) {
+      setStep(1)
+    } else if (step > 1) {
+      setStep(step - 1)
+    }
   }
 
   const selectedGoalDetails = React.useMemo(() => {
@@ -93,7 +131,10 @@ export const GoalSetup: React.FC = () => {
   const handleFinish = async () => {
     setIsGenerating(true)
     const finalGoal = selectedGoalId === 'custom-01' ? customGoal : goal
-    const finalTarget = target === 'Other' ? customTarget : target
+    let finalTarget = target === 'Other' ? customTarget : target
+    if (selectedGoalId === 'custom-01') {
+      finalTarget = `Target: ${finalTarget} | Experience Level: ${qExperience} | Core Focus Areas: ${qFocus} | Preferred Learning Style: ${qLearnStyle}`
+    }
     
     try {
       await createGoalMutation.mutateAsync({
@@ -285,6 +326,70 @@ export const GoalSetup: React.FC = () => {
                         />
                       </motion.div>
                     )}
+                  </motion.div>
+                )}
+
+                {step === 1.5 && (
+                  <motion.div
+                    key="step1.5"
+                    variants={slideVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="flex flex-col gap-6"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <h2 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
+                        Sensei Interview <Sparkles className={`w-5 h-5 ${getColorClass('text')}`} />
+                      </h2>
+                      <p className="text-sm text-zinc-400">
+                        Help me personalize your curriculum for <strong className="text-zinc-200">"{customGoal}"</strong>:
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                      {/* Question 1: Experience */}
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                          1. What is your experience level with this topic?
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={qExperience}
+                          onChange={(e) => setQExperience(e.target.value)}
+                          placeholder="e.g. Absolute beginner, self-taught basic Python, 1 year professional experience..."
+                          className="glass-input text-sm resize-none bg-zinc-950/60 border border-white/5 rounded-xl p-3 text-zinc-300 focus:border-white/20 transition-all focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Question 2: Focus */}
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                          2. Any specific tools, sub-topics, or frameworks to prioritize?
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={qFocus}
+                          onChange={(e) => setQFocus(e.target.value)}
+                          placeholder="e.g. React hooks, SQL databases, algorithms, data structures..."
+                          className="glass-input text-sm resize-none bg-zinc-950/60 border border-white/5 rounded-xl p-3 text-zinc-300 focus:border-white/20 transition-all focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Question 3: Learning Style */}
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                          3. How do you learn best?
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={qLearnStyle}
+                          onChange={(e) => setQLearnStyle(e.target.value)}
+                          placeholder="e.g. Hands-on projects (preferred), video tutorials, reading dry documentation..."
+                          className="glass-input text-sm resize-none bg-zinc-950/60 border border-white/5 rounded-xl p-3 text-zinc-300 focus:border-white/20 transition-all focus:outline-none"
+                        />
+                      </div>
+                    </div>
                   </motion.div>
                 )}
 
@@ -569,7 +674,7 @@ export const GoalSetup: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  disabled={!goal || (selectedGoalId === 'custom-01' && !customGoal)}
+                  disabled={isNextDisabled()}
                   className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all ${getColorClass('btn')} disabled:opacity-40 disabled:pointer-events-none`}
                 >
                   Next <ArrowRight className="w-4 h-4" />

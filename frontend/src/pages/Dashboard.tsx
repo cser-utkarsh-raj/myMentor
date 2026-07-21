@@ -16,10 +16,12 @@ import {
 } from 'lucide-react'
 import { useActiveGoal, useGoalAnalytics, useTriggerRecovery } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
+import { useAuthStore } from '../store/authStore'
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { accentColor } = useUIStore()
+  const { userName } = useAuthStore()
   
   // Queries
   const { data: activeGoal, isLoading: isLoadingGoal } = useActiveGoal()
@@ -150,7 +152,7 @@ export const Dashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400">
-            {greeting}, Mentor Client
+            {greeting}, {userName}
           </h2>
           <p className="text-zinc-500 font-medium mt-1">
             Track metrics and conquer your mission for Day {activeDay?.day_number || 1}.

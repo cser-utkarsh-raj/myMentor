@@ -22,12 +22,17 @@ export const useAuthStore = create<AuthState>()(
       isInitialized: false,
       isDemoMode: false,
       activeGoalId: null,
-      setSession: (session) => set({ 
-        session, 
-        user: session?.user || null, 
-        isInitialized: true,
-        isDemoMode: false
-      }),
+      userName: 'Mentor Client',
+      setSession: (session) => {
+        const metadataName = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || session?.user?.email?.split('@')[0]
+        set({ 
+          session, 
+          user: session?.user || null, 
+          isInitialized: true,
+          isDemoMode: false,
+          userName: metadataName || 'Mentor Client'
+        })
+      },
       setDemoMode: (isDemo) => set({ 
         isDemoMode: isDemo, 
         session: null, 
@@ -35,7 +40,8 @@ export const useAuthStore = create<AuthState>()(
         isInitialized: true 
       }),
       setActiveGoalId: (goalId) => set({ activeGoalId: goalId }),
-      clearSession: () => set({ session: null, user: null, isDemoMode: false, activeGoalId: null })
+      setUserName: (name) => set({ userName: name }),
+      clearSession: () => set({ session: null, user: null, isDemoMode: false, activeGoalId: null, userName: 'Mentor Client' })
     }),
     {
       name: 'mymentor-auth-storage',

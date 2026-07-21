@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
   const xpPercentage = (levelXpProgress / 1000) * 100
   
   return (
-    <aside className="w-80 h-screen fixed left-0 top-0 glass-panel border-r border-white/10 flex flex-col justify-between p-6 z-40">
+    <aside className="w-80 h-screen fixed left-0 top-0 glass-panel border-r border-white/10 flex flex-col justify-between p-6 z-40 overflow-y-auto custom-scrollbar">
       <div className="flex flex-col gap-8 w-full">
         {/* Brand Logo */}
         <div className="flex items-center gap-3 px-2 cursor-pointer" onClick={() => navigate('/app')}>

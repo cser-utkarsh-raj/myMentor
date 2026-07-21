@@ -130,7 +130,14 @@ Return ONLY valid JSON, no markdown formatting, no code blocks."""
                 contents=prompt,
                 config=config,
             )
-            result_text = response.text or "{}"
+            result_text = (response.text or "{}").strip()
+            # Remove markdown code block fences if present
+            if result_text.startswith("```"):
+                first_newline = result_text.find("\n")
+                if first_newline != -1:
+                    result_text = result_text[first_newline:].strip()
+                if result_text.endswith("```"):
+                    result_text = result_text[:-3].strip()
             return json.loads(result_text)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse AI roadmap JSON: {e}")
@@ -191,7 +198,15 @@ Return ONLY valid JSON."""
                 contents=prompt,
                 config=config,
             )
-            return json.loads(response.text or "{}")
+            result_text = (response.text or "{}").strip()
+            # Remove markdown code block fences if present
+            if result_text.startswith("```"):
+                first_newline = result_text.find("\n")
+                if first_newline != -1:
+                    result_text = result_text[first_newline:].strip()
+                if result_text.endswith("```"):
+                    result_text = result_text[:-3].strip()
+            return json.loads(result_text)
         except Exception as e:
             logger.error(f"PDF summarization failed: {e}")
             return {"summary": "Failed to generate summary.", "key_concepts": [], "flashcards": []}
