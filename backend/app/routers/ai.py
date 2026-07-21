@@ -56,7 +56,7 @@ def ai_status():
     """Check if AI features are available."""
     return {
         "ai_available": AIService.is_available(),
-        "model": "gemini-flash-latest" if AIService.is_available() else None,
+        "model": "gemini-3.5-flash" if AIService.is_available() else None,
         "features": ["chat", "roadmap", "explain", "pdf_summary", "daily_tip"] if AIService.is_available() else []
     }
 

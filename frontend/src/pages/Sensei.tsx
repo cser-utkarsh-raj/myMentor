@@ -13,7 +13,7 @@ import {
   Copy,
   Check
 } from 'lucide-react'
-import { useSenseiChat, useAIStatus, useDailyTip, useActiveGoal } from '../hooks/useApi'
+import { useSenseiChat, useAIStatus, useActiveGoal } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 interface Message {
@@ -27,11 +27,6 @@ export const Sensei: React.FC = () => {
   const { data: activeGoal } = useActiveGoal()
   const { data: aiStatus } = useAIStatus()
   const chatMutation = useSenseiChat()
-  const { data: dailyTipData } = useDailyTip({
-    goal_title: activeGoal?.title || '',
-    current_topic: '',
-    streak: activeGoal?.streak || 0
-  })
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -144,17 +139,11 @@ export const Sensei: React.FC = () => {
             <h1 className="text-2xl font-bold text-white">Sensei</h1>
             <p className="text-sm text-zinc-500">
               {aiStatus?.ai_available
-                ? 'AI-powered learning mentor • Gemini 2.0 Flash'
+                ? 'AI-powered learning mentor • Gemini 3.5 Flash'
                 : 'AI not configured — add GEMINI_API_KEY to backend .env'}
             </p>
           </div>
         </div>
-        {dailyTipData?.tip && (
-          <div className={`max-w-sm p-3 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
-            <p className="text-xs text-zinc-400 font-semibold mb-1">💡 Daily Tip</p>
-            <p className="text-xs text-zinc-300 leading-relaxed">{dailyTipData.tip}</p>
-          </div>
-        )}
       </div>
 
       {/* Messages area */}

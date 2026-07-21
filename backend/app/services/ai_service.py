@@ -48,7 +48,7 @@ class AIService:
 
         try:
             response = client.models.generate_content(
-                model="gemini-flash-latest",
+                model="gemini-3.5-flash",
                 contents=contents,
                 config=config,
             )
@@ -126,7 +126,7 @@ Return ONLY valid JSON, no markdown formatting, no code blocks."""
                 response_mime_type="application/json",
             )
             response = client.models.generate_content(
-                model="gemini-flash-latest",
+                model="gemini-3.5-flash",
                 contents=prompt,
                 config=config,
             )
@@ -187,7 +187,7 @@ Return ONLY valid JSON."""
                 response_mime_type="application/json",
             )
             response = client.models.generate_content(
-                model="gemini-flash-latest",
+                model="gemini-3.5-flash",
                 contents=prompt,
                 config=config,
             )

@@ -16,34 +16,54 @@ class RoadmapService:
         """
         logger.info(f"Starting roadmap generation for Goal ID: {goal.id} ({goal.title})")
         
-        # 1. Map goal title to resource filename
-        filename = "custom_goal.json"
-        title_lower = goal.title.lower()
+        # 1. Map goal title to resource template (or query AI)
+        template = None
         
-        if "backend" in title_lower or "software" in title_lower or "developer" in title_lower:
-            filename = "backend_developer.json"
-        elif "ai & machine learning" in title_lower or "python" in title_lower:
-            filename = "learn_python.json"
-        elif "creative design" in title_lower or "react" in title_lower or "frontend" in title_lower:
-            filename = "learn_react.json"
-        elif "data science" in title_lower:
-            filename = "data_science.json"
-        
-        # Feel free to add more mappings here
-        
-        resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", filename)
-        
-        # Fallback if file doesn't exist
-        if not os.path.exists(resource_path):
-            logger.warning(f"Roadmap configuration not found at {resource_path}. Falling back to custom_goal.json")
-            resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", "custom_goal.json")
+        from app.services.ai_service import AIService
+        if AIService.is_available():
+            logger.info("Gemini AI is available. Generating dynamic smart roadmap...")
+            try:
+                ai_roadmap = AIService.generate_smart_roadmap(
+                    goal_title=goal.title,
+                    target=goal.target or "None",
+                    daily_hours=goal.daily_hours,
+                    timeline_days=goal.timeline_days
+                )
+                if ai_roadmap and ai_roadmap.get("tracks"):
+                    template = ai_roadmap
+                    logger.info("Successfully generated roadmap using Gemini AI.")
+            except Exception as e:
+                logger.error(f"AI roadmap generation failed: {e}. Falling back to static templates.")
+
+        if not template:
+            # Fallback to static rule-based templates
+            filename = "custom_goal.json"
+            title_lower = goal.title.lower()
             
-        try:
-            with open(resource_path, "r", encoding="utf-8") as f:
-                template = json.load(f)
-        except Exception as e:
-            logger.error(f"Failed to read roadmap template: {e}")
-            return False
+            if "backend" in title_lower or "software" in title_lower or "developer" in title_lower:
+                filename = "backend_developer.json"
+            elif "ai & machine learning" in title_lower or "python" in title_lower:
+                filename = "learn_python.json"
+            elif "creative design" in title_lower or "react" in title_lower or "frontend" in title_lower:
+                filename = "learn_react.json"
+            elif "data science" in title_lower:
+                filename = "data_science.json"
+            
+            # Feel free to add more mappings here
+            
+            resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", filename)
+            
+            # Fallback if file doesn't exist
+            if not os.path.exists(resource_path):
+                logger.warning(f"Roadmap configuration not found at {resource_path}. Falling back to custom_goal.json")
+                resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", "custom_goal.json")
+                
+            try:
+                with open(resource_path, "r", encoding="utf-8") as f:
+                    template = json.load(f)
+            except Exception as e:
+                logger.error(f"Failed to read roadmap template: {e}")
+                return False
 
         # 2. Extract steps to distribute
         # Collect all steps in a flat list with their parent structures
