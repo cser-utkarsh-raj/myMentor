@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { BookOpen, ExternalLink, ShieldAlert, Sparkles, Filter, Search, Star, Edit2 } from 'lucide-react'
-import { useResources, useUpdateResource } from '../hooks/useApi'
+import { useResources, useUpdateResource, useActiveGoal } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const Resources: React.FC = () => {
   const { accentColor } = useUIStore()
-  const { data: library, isLoading } = useResources()
+  const { data: activeGoal } = useActiveGoal()
+  const { data: library, isLoading } = useResources(activeGoal?.id || null)
   const updateResourceMutation = useUpdateResource()
   
   const [selectedFilter, setSelectedFilter] = useState<string>('ALL')
@@ -88,13 +89,16 @@ export const Resources: React.FC = () => {
       else if (libName === 'python_interview_40') displayName = 'Python 40'
       else if (libName === 'sql_25') displayName = 'SQL 25'
       else if (libName === 'java_core') displayName = 'Core Java'
+      else if (libName === 'custom_resources') displayName = activeGoal?.title || 'Custom AI'
 
-      items.forEach((item) => {
-        flat.push({
-          ...item,
-          libraryGroup: displayName
+      if (Array.isArray(items)) {
+        items.forEach((item: any) => {
+          flat.push({
+            ...item,
+            libraryGroup: displayName
+          })
         })
-      })
+      }
     })
 
     return flat
@@ -109,7 +113,14 @@ export const Resources: React.FC = () => {
     return Array.from(cats).sort()
   }, [flatResources])
   const filterOptions = ['ALL', 'BOOKMARKS', ...dynamicCategories]
-  const platformOptions = ['ALL', 'LeetCode', 'HackerRank', 'Internal', 'GitHub', 'YouTube']
+  
+  const platformOptions = React.useMemo(() => {
+    const plats = new Set<string>()
+    flatResources.forEach(item => {
+      if (item.platform) plats.add(item.platform)
+    })
+    return ['ALL', ...Array.from(plats).sort()]
+  }, [flatResources])
   const difficultyOptions = ['ALL', 'Easy', 'Medium', 'Hard']
   
   const filteredItems = flatResources.filter(item => {

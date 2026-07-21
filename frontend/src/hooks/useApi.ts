@@ -341,11 +341,12 @@ export const useGoalLibrary = () => {
   })
 }
 
-export function useResources() {
+export function useResources(goalId: number | null) {
   return useQuery<Record<string, any[]>>({
-    queryKey: ['resources'],
+    queryKey: ['resources', goalId],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/resources/`, {
+      const url = goalId ? `${API_BASE}/resources/?goal_id=${goalId}` : `${API_BASE}/resources/`
+      const res = await fetch(url, {
         headers: getHeaders()
       })
       if (!res.ok) await handleApiError(res, 'Failed to fetch resource library')
