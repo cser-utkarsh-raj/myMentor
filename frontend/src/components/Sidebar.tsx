@@ -12,7 +12,8 @@ import {
   Award,
   Zap,
   ChevronRight,
-  Target
+  Target,
+  Sparkles
 } from 'lucide-react'
 import { useUIStore, AccentColor } from '../store/uiStore'
 import { Goal } from '../hooks/useApi'
@@ -54,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
     { name: 'Progress', path: '/app/progress', icon: BarChart2 },
     { name: 'Resources', path: '/app/resources', icon: BookOpen },
     { name: 'PDFs', path: '/app/pdfs', icon: FileText },
+    { name: 'Sensei', path: '/app/sensei', icon: Sparkles },
     { name: 'Settings', path: '/app/settings', icon: Settings },
     { name: 'New Goal', path: '/setup', icon: Target },
   ]

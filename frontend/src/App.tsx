@@ -16,6 +16,7 @@ const Progress = lazy(() => import('./pages/Progress').then(module => ({ default
 const PDFs = lazy(() => import('./pages/PDFs').then(module => ({ default: module.PDFs })))
 const Resources = lazy(() => import('./pages/Resources').then(module => ({ default: module.Resources })))
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })))
+const Sensei = lazy(() => import('./pages/Sensei').then(module => ({ default: module.Sensei })))
 const GoalSetup = lazy(() => import('./pages/GoalSetup').then(module => ({ default: module.GoalSetup })))
 const Login = lazy(() => import('./pages/Login').then(module => ({ default: module.Login })))
 const Signup = lazy(() => import('./pages/Signup').then(module => ({ default: module.Signup })))
@@ -157,6 +158,7 @@ const AppContent: React.FC = () => {
               <Route path="/progress" element={<Progress />} />
               <Route path="/pdfs" element={<PDFs />} />
               <Route path="/resources" element={<Resources />} />
+              <Route path="/sensei" element={<Sensei />} />
               <Route path="/settings" element={<Settings />} />
             </Routes>
           </ProtectedLayout>

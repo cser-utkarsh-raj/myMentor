@@ -7,7 +7,7 @@ from app.database.session import engine
 from app.database.base_class import Base
 # Make sure models are loaded to register them on Base metadata
 from app.database import base  # noqa
-from app.routers import goals, tasks, timer, pdfs, resources, system
+from app.routers import goals, tasks, timer, pdfs, resources, system, ai
 
 # Automatically generate database tables for local SQLite/PostgreSQL development
 try:
@@ -40,6 +40,7 @@ app.include_router(timer.router, prefix=settings.API_V1_STR)
 app.include_router(pdfs.router, prefix=settings.API_V1_STR)
 app.include_router(resources.router, prefix=settings.API_V1_STR)
 app.include_router(system.router, prefix=settings.API_V1_STR)
+app.include_router(ai.router, prefix=settings.API_V1_STR)
 
 @app.get("/health")
 @app.get("/api/v1/health")

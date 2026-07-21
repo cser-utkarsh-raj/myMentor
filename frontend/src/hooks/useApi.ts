@@ -413,3 +413,110 @@ export function useBackupDatabase() {
     }
   })
 }
+
+// ==========================================
+// AI / SENSEI HOOKS
+// ==========================================
+
+export function useAIStatus() {
+  return useQuery<{ ai_available: boolean; model: string | null; features: string[] }>({
+    queryKey: ['aiStatus'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/ai/status`, {
+        headers: getHeaders()
+      })
+      if (!res.ok) return { ai_available: false, model: null, features: [] }
+      return res.json()
+    },
+    staleTime: 60000
+  })
+}
+
+export function useSenseiChat() {
+  return useMutation<
+    { response: string; ai_available: boolean },
+    Error,
+    { messages: Array<{ role: string; text: string }>; goal_context?: string }
+  >({
+    mutationFn: async (chatData) => {
+      const res = await fetch(`${API_BASE}/ai/chat`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(chatData)
+      })
+      if (!res.ok) await handleApiError(res, 'Sensei chat failed')
+      return res.json()
+    }
+  })
+}
+
+export function useExplainTopic() {
+  return useMutation<
+    { explanation: string },
+    Error,
+    { topic: string; context?: string; difficulty?: string }
+  >({
+    mutationFn: async (data) => {
+      const res = await fetch(`${API_BASE}/ai/explain`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      })
+      if (!res.ok) await handleApiError(res, 'Failed to explain topic')
+      return res.json()
+    }
+  })
+}
+
+export function useAIRoadmap() {
+  return useMutation<
+    { roadmap: any },
+    Error,
+    { goal_title: string; target?: string; daily_hours?: number; timeline_days?: number }
+  >({
+    mutationFn: async (data) => {
+      const res = await fetch(`${API_BASE}/ai/generate-roadmap`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      })
+      if (!res.ok) await handleApiError(res, 'AI roadmap generation failed')
+      return res.json()
+    }
+  })
+}
+
+export function useDailyTip(params: { goal_title: string; current_topic?: string; streak?: number }) {
+  return useQuery<{ tip: string; ai_generated: boolean }>({
+    queryKey: ['dailyTip', params.goal_title],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/ai/daily-tip`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(params)
+      })
+      if (!res.ok) return { tip: 'Stay consistent and keep learning! 🔥', ai_generated: false }
+      return res.json()
+    },
+    enabled: !!params.goal_title,
+    staleTime: 1000 * 60 * 60 // 1 hour
+  })
+}
+
+export function useSummarizePDF() {
+  return useMutation<
+    { summary: string; key_concepts: string[]; flashcards: Array<{ question: string; answer: string }> },
+    Error,
+    { text_content: string; filename: string }
+  >({
+    mutationFn: async (data) => {
+      const res = await fetch(`${API_BASE}/ai/summarize-pdf`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      })
+      if (!res.ok) await handleApiError(res, 'PDF summarization failed')
+      return res.json()
+    }
+  })
+}
