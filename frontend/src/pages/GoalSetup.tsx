@@ -39,7 +39,7 @@ export const GoalSetup: React.FC = () => {
   const [timelineDays, setTimelineDays] = useState(45)
   const [isGenerating, setIsGenerating] = useState(false)
   
-  const { data: categorizedGoals, isLoading: isLibraryLoading } = useGoalLibrary()
+  const { data: categorizedGoals, isLoading: isLibraryLoading, isError: isLibraryError, refetch: refetchLibrary } = useGoalLibrary()
 
   const targetsList = [
     { name: 'Career Transition / New Job', val: 'New Job' },
@@ -225,11 +225,12 @@ export const GoalSetup: React.FC = () => {
             <div className="flex items-center justify-between w-full border-b border-white/5 pb-4">
               <div className="flex items-center gap-2">
                 <span className={`text-xs font-bold uppercase tracking-widest ${getColorClass('text')}`}>
-                  Step {step} of 4
+                  Step {step === 1.5 ? '1.5' : step} of 4
                 </span>
                 <span className="text-zinc-500">•</span>
                 <span className="text-xs text-zinc-400 font-semibold">
                   {step === 1 && 'Choose Your Goal'}
+                  {step === 1.5 && 'Sensei Onboarding Interview'}
                   {step === 2 && 'Set Target Performance'}
                   {step === 3 && 'Configure Timeline & Commitment'}
                   {step === 4 && 'Journey Overview'}
@@ -269,7 +270,19 @@ export const GoalSetup: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                      {isLibraryLoading ? (
+                      {isLibraryError ? (
+                        <div className="flex flex-col items-center justify-center p-8 gap-4 text-center">
+                          <span className="text-2xl">⚠️</span>
+                          <p className="text-sm text-zinc-400">Failed to load learning profiles. Is the backend server running?</p>
+                          <button
+                            type="button"
+                            onClick={() => refetchLibrary()}
+                            className="px-5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 text-zinc-300 hover:text-white transition-all text-xs font-bold cursor-pointer"
+                          >
+                            Retry Connection
+                          </button>
+                        </div>
+                      ) : isLibraryLoading ? (
                         <div className="flex justify-center p-8">
                           <Loader2 className={`w-8 h-8 animate-spin ${getColorClass('text')}`} />
                         </div>

@@ -106,15 +106,15 @@ Generate a JSON roadmap with this EXACT structure:
 }}
 
 Rules:
-- Create 3-5 tracks covering different aspects of the goal
-- Each track should have 2-4 modules
-- Each module should have 2-5 steps
-- Steps should have 1-3 resources each
-- Total steps should roughly match the timeline ({timeline_days} days)
-- Resources should include real platforms (YouTube, documentation sites, practice platforms)
+- Create exactly 3 tracks covering different aspects of the goal
+- Each track should have 1-2 modules
+- Each module should have 1-2 steps
+- Keep the total count of steps across the entire roadmap between 6 and 10. The backend will automatically scale these steps to fit the user's {timeline_days}-day timeline.
+- Steps should have 1-2 resources each
+- Resources must be specific to the topic (e.g. if the topic is Agriculture, include agricultural journals, farming YouTube channels, cultivation manuals, crop science documentation)
 - Scale difficulty progressively from Easy to Hard
-- Make it practical with projects and hands-on exercises
-- Content should be specific and actionable, not generic
+- Make it highly practical with projects and hands-on exercises
+- Content must be specific and actionable, not generic placeholder templates
 
 Return ONLY valid JSON, no markdown formatting, no code blocks."""
 

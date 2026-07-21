@@ -29,6 +29,23 @@ export const Dashboard: React.FC = () => {
   const triggerRecoveryMutation = useTriggerRecovery()
   const [recoverySuccess, setRecoverySuccess] = useState(false)
 
+  const parseTarget = (rawTarget: string | undefined) => {
+    if (!rawTarget) return { displayTarget: 'None', details: null }
+    if (rawTarget.includes(' | Experience Level:')) {
+      const parts = rawTarget.split(' | ')
+      const displayTarget = parts[0].replace('Target: ', '')
+      const details = {
+        experience: parts.find(p => p.startsWith('Experience Level:'))?.replace('Experience Level: ', '') || '',
+        focus: parts.find(p => p.startsWith('Core Focus Areas:'))?.replace('Core Focus Areas: ', '') || '',
+        style: parts.find(p => p.startsWith('Preferred Learning Style:'))?.replace('Preferred Learning Style: ', '') || ''
+      }
+      return { displayTarget, details }
+    }
+    return { displayTarget: rawTarget, details: null }
+  }
+
+  const { displayTarget, details: targetDetails } = parseTarget(activeGoal?.target)
+
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
     switch (accentColor) {
       case 'cyan':
@@ -270,7 +287,7 @@ export const Dashboard: React.FC = () => {
           <div className="flex gap-8 mt-6 border-t border-white/5 pt-4 w-full justify-center">
             <div className="flex flex-col items-center">
               <span className="text-xs text-zinc-500 font-semibold">Goal Status</span>
-              <span className={`text-xs font-bold mt-1 ${getColorClass('text')}`}>{activeGoal.target}</span>
+              <span className={`text-xs font-bold mt-1 ${getColorClass('text')}`}>{displayTarget}</span>
             </div>
             <div className="w-[1px] bg-white/5" />
             <div className="flex flex-col items-center">
@@ -279,6 +296,31 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* If custom goal has interview details, display them beautifully */}
+        {targetDetails && (
+          <div className="glass-panel rounded-2xl p-5 border border-white/5 bg-zinc-950/15 flex flex-col gap-3.5 text-left">
+            <div className="flex items-center gap-2">
+              <Sparkles className={`w-4 h-4 ${getColorClass('text')}`} />
+              <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Sensei Learning Profile</h4>
+            </div>
+            
+            <div className="flex flex-col gap-2.5 text-xs">
+              <div className="flex flex-col gap-1">
+                <span className="text-zinc-500 font-medium uppercase tracking-wider text-[9px]">Experience Level</span>
+                <span className="text-zinc-300 font-semibold">{targetDetails.experience}</span>
+              </div>
+              <div className="flex flex-col gap-1 mt-1">
+                <span className="text-zinc-500 font-medium uppercase tracking-wider text-[9px]">Core Focus Areas</span>
+                <span className="text-zinc-300 font-semibold leading-relaxed">{targetDetails.focus}</span>
+              </div>
+              <div className="flex flex-col gap-1 mt-1">
+                <span className="text-zinc-500 font-medium uppercase tracking-wider text-[9px]">Preferred Learning Style</span>
+                <span className="text-zinc-300 font-semibold">{targetDetails.style}</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Highlight Grid (Streak, hours, xp, questions) */}
         <div className="lg:col-span-2 grid grid-cols-2 gap-4">
