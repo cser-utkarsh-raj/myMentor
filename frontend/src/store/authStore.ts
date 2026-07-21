@@ -7,8 +7,10 @@ interface AuthState {
   user: User | null
   isInitialized: boolean
   isDemoMode: boolean
+  activeGoalId: number | null
   setSession: (session: Session | null) => void
   setDemoMode: (isDemo: boolean) => void
+  setActiveGoalId: (goalId: number | null) => void
   clearSession: () => void
 }
 
@@ -19,6 +21,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isInitialized: false,
       isDemoMode: false,
+      activeGoalId: null,
       setSession: (session) => set({ 
         session, 
         user: session?.user || null, 
@@ -31,7 +34,8 @@ export const useAuthStore = create<AuthState>()(
         user: null, 
         isInitialized: true 
       }),
-      clearSession: () => set({ session: null, user: null, isDemoMode: false })
+      setActiveGoalId: (goalId) => set({ activeGoalId: goalId }),
+      clearSession: () => set({ session: null, user: null, isDemoMode: false, activeGoalId: null })
     }),
     {
       name: 'mymentor-auth-storage',

@@ -13,18 +13,35 @@ import {
   Zap,
   ChevronRight,
   Target,
-  Sparkles
+  Sparkles,
+  Plus
 } from 'lucide-react'
 import { useUIStore, AccentColor } from '../store/uiStore'
-import { Goal } from '../hooks/useApi'
+import { Goal, useGoals } from '../hooks/useApi'
+import { useAuthStore } from '../store/authStore'
 
 interface SidebarProps {
   goal: Goal | null
 }
 
+const getProfileColor = (id: number) => {
+  const colors = [
+    'bg-red-600 hover:bg-red-500 text-white',
+    'bg-blue-600 hover:bg-blue-500 text-white',
+    'bg-emerald-600 hover:bg-emerald-500 text-white',
+    'bg-amber-500 hover:bg-amber-400 text-black',
+    'bg-purple-600 hover:bg-purple-500 text-white',
+    'bg-pink-600 hover:bg-pink-500 text-white',
+    'bg-cyan-600 hover:bg-cyan-500 text-white'
+  ]
+  return colors[id % colors.length]
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
   const navigate = useNavigate()
   const { accentColor } = useUIStore()
+  const { data: goalsList } = useGoals()
+  const { setActiveGoalId } = useAuthStore()
   
   // Theme color resolver helper
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'glow') => {
@@ -79,6 +96,46 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
               myMentor
             </h1>
             <span className="text-xs text-zinc-500 font-medium">Enterprise V1</span>
+          </div>
+        </div>
+
+        {/* Netflix-style Profile Switcher */}
+        <div className="flex flex-col gap-2.5 px-2 pb-4 border-b border-white/5">
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Learning Profiles</p>
+          <div className="flex flex-wrap gap-2.5 items-center">
+            {goalsList?.map((g) => {
+              const isActive = g.id === goal?.id
+              const initial = g.title.trim().charAt(0).toUpperCase()
+              return (
+                <button
+                  key={g.id}
+                  onClick={() => {
+                    setActiveGoalId(g.id)
+                  }}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm transition-all duration-300 relative group cursor-pointer ${getProfileColor(g.id)} ${
+                    isActive 
+                      ? `ring-2 ${accentColor === 'purple' ? 'ring-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.4)]' : accentColor === 'cyan' ? 'ring-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.4)]' : 'ring-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]'} ring-offset-2 ring-offset-zinc-950 scale-105` 
+                      : 'opacity-40 hover:opacity-100 hover:scale-105'
+                  }`}
+                  title={g.title}
+                >
+                  {initial}
+                  {/* Tooltip */}
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 bg-zinc-900 border border-white/10 px-2 py-1 rounded text-[10px] font-bold text-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-xl">
+                    {g.title}
+                  </div>
+                </button>
+              )
+            })}
+            
+            {/* Add Goal profile */}
+            <button
+              onClick={() => navigate('/setup')}
+              className="w-9 h-9 rounded-lg border border-dashed border-white/20 hover:border-white/40 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-all duration-200 cursor-pointer hover:scale-105"
+              title="Add New Goal Profile"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
           </div>
         </div>
         

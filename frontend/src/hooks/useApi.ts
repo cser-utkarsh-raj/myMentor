@@ -161,13 +161,42 @@ export const useTriggerRecovery = () => {
 }
 
 export function useActiveGoal() {
+  const { activeGoalId, setActiveGoalId } = useAuthStore()
   return useQuery<Goal | null>({
-    queryKey: ['activeGoal'],
+    queryKey: ['activeGoal', activeGoalId],
     queryFn: async () => {
+      if (activeGoalId) {
+        const res = await fetch(`${API_BASE}/goals/${activeGoalId}`, {
+          headers: getHeaders()
+        })
+        if (res.ok) {
+          return res.json()
+        } else {
+          setActiveGoalId(null)
+        }
+      }
+      
       const res = await fetch(`${API_BASE}/goals/active`, {
         headers: getHeaders()
       })
       if (!res.ok) return null
+      const data = await res.json()
+      if (data && data.id) {
+        setActiveGoalId(data.id)
+      }
+      return data
+    }
+  })
+}
+
+export function useGoals() {
+  return useQuery<Goal[]>({
+    queryKey: ['goals'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/goals/`, {
+        headers: getHeaders()
+      })
+      if (!res.ok) return []
       return res.json()
     }
   })
@@ -217,6 +246,7 @@ export function useGoalBadges(goalId: number | undefined) {
 
 export function useCreateGoal() {
   const queryClient = useQueryClient()
+  const { setActiveGoalId } = useAuthStore()
   return useMutation<Goal, Error, { title: string; target: string; active_mode: string; daily_hours: number; timeline_days: number }>({
     mutationFn: async (goalData) => {
       const res = await fetch(`${API_BASE}/goals/`, {
@@ -228,14 +258,18 @@ export function useCreateGoal() {
       return res.json()
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['activeGoal'], data)
+      if (data && data.id) {
+        setActiveGoalId(data.id)
+      }
       queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
+      queryClient.invalidateQueries({ queryKey: ['goals'] })
     }
   })
 }
 
 export function useDeleteGoal() {
   const queryClient = useQueryClient()
+  const { setActiveGoalId } = useAuthStore()
   return useMutation<void, Error, number>({
     mutationFn: async (goalId) => {
       const res = await fetch(`${API_BASE}/goals/${goalId}`, {
@@ -245,7 +279,9 @@ export function useDeleteGoal() {
       if (!res.ok) await handleApiError(res, 'Failed to delete goal')
     },
     onSuccess: () => {
+      setActiveGoalId(null)
       queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
+      queryClient.invalidateQueries({ queryKey: ['goals'] })
     }
   })
 }
