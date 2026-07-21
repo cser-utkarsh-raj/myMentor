@@ -18,13 +18,8 @@ def get_current_user(request: Request, credentials: HTTPAuthorizationCredentials
             alg = header.get("alg", "HS256")
             
             if alg == "RS256":
-                # For RS256 asymmetric keys (like Google Auth), decode without signature verification if local secret is HMAC
-                payload = jwt.decode(
-                    token,
-                    settings.JWT_SECRET,
-                    algorithms=["RS256"],
-                    options={"verify_signature": False, "verify_aud": False}
-                )
+                # For RS256 asymmetric keys (like Google Auth), decode without signature verification
+                payload = jwt.get_unverified_claims(token)
             else:
                 payload = jwt.decode(
                     token,
