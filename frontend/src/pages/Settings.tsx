@@ -9,15 +9,31 @@ import {
   Settings as SettingsIcon,
   RefreshCw,
   Lock,
-  Cloud
+  Cloud,
+  LogOut
 } from 'lucide-react'
 import { useActiveGoal, useDeleteGoal } from '../hooks/useApi'
 import { useUIStore, AccentColor } from '../store/uiStore'
+import { useAuthStore } from '../store/authStore'
+import { supabase } from '../lib/supabase'
+import { useNavigate } from 'react-router-dom'
 
 export const Settings: React.FC = () => {
   const { accentColor, setAccentColor } = useUIStore()
   const { data: activeGoal, refetch } = useActiveGoal()
   const deleteGoalMutation = useDeleteGoal()
+  const clearSession = useAuthStore(state => state.clearSession)
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {
+      console.error("SignOut error:", e)
+    }
+    clearSession()
+    navigate('/login')
+  }
 
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
     switch (accentColor) {
@@ -120,6 +136,29 @@ export const Settings: React.FC = () => {
               <div className="w-3.5 h-3.5 rounded-full bg-emerald-500" /> Forest Emerald
             </button>
           </div>
+        </div>
+
+        {/* Account Management Card */}
+        <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-zinc-950/15 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="flex gap-4">
+            <div className={`p-3 rounded-2xl ${getColorClass('bg')} border ${getColorClass('border')} text-zinc-200 shrink-0`}>
+              <LogOut className={`w-6 h-6 ${getColorClass('text')}`} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="font-bold text-zinc-200 text-sm">Account Session</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                Log out of your current session. Your progress and goal configurations are safely stored in the database.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-2 ${getColorClass('btn')}`}
+          >
+            <LogOut className="w-4 h-4" /> Sign Out / Log Out
+          </button>
         </div>
 
         {/* Profile statistics metadata */}

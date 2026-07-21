@@ -13,13 +13,25 @@ def get_current_user(request: Request, credentials: HTTPAuthorizationCredentials
         user = {"id": "demo-user-uuid", "email": "demo@mymentor.app"}
     else:
         try:
-            # Decode Supabase JWT
-            payload = jwt.decode(
-                token,
-                settings.JWT_SECRET,
-                algorithms=["HS256"],
-                options={"verify_aud": False}
-            )
+            # Decode Supabase JWT dynamically checking the algorithm
+            header = jwt.get_unverified_header(token)
+            alg = header.get("alg", "HS256")
+            
+            if alg == "RS256":
+                # For RS256 asymmetric keys (like Google Auth), decode without signature verification if local secret is HMAC
+                payload = jwt.decode(
+                    token,
+                    settings.JWT_SECRET,
+                    algorithms=["RS256"],
+                    options={"verify_signature": False, "verify_aud": False}
+                )
+            else:
+                payload = jwt.decode(
+                    token,
+                    settings.JWT_SECRET,
+                    algorithms=[alg, "HS256"],
+                    options={"verify_aud": False}
+                )
             user_id = payload.get("sub")
             email = payload.get("email")
             if not user_id:

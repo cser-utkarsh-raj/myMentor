@@ -67,7 +67,7 @@ export const Dashboard: React.FC = () => {
         </div>
         <button
           type="button"
-          onClick={() => navigate('/settings')}
+          onClick={() => navigate('/app/settings')}
           className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all cursor-pointer ${getColorClass('btn')}`}
         >
           Get Started Onboarding <ArrowRight className="w-4 h-4" />
@@ -160,7 +160,7 @@ export const Dashboard: React.FC = () => {
         {/* Quick Study Launch button */}
         <button
           type="button"
-          onClick={() => navigate('/today')}
+          onClick={() => navigate('/app/today')}
           className={`flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all cursor-pointer ${getColorClass('btn')}`}
         >
           <Play className="w-4 h-4 fill-zinc-950" /> Start Today's Mission
@@ -375,7 +375,7 @@ export const Dashboard: React.FC = () => {
             
             <button 
               type="button"
-              onClick={() => navigate('/today')}
+              onClick={() => navigate('/app/today')}
               className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950/60 hover:bg-zinc-900 border border-white/5 hover:border-white/10 text-left transition-all mt-2 cursor-pointer group"
             >
               <div className="flex items-center gap-3">
@@ -415,7 +415,7 @@ export const Dashboard: React.FC = () => {
                   <div 
                     key={t.id}
                     className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950/30 border border-white/5 hover:border-white/10 hover:bg-zinc-950/50 transition-all cursor-pointer"
-                    onClick={() => navigate('/today')}
+                    onClick={() => navigate('/app/today')}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full border border-white/10 bg-zinc-900 flex items-center justify-center font-bold text-xs text-zinc-400`}>
