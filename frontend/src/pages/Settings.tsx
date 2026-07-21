@@ -19,13 +19,21 @@ import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 
 export const Settings: React.FC = () => {
-  const { accentColor, setAccentColor } = useUIStore()
+  const { accentColor, setAccentColor, setGoalTheme } = useUIStore()
   const { data: activeGoal, refetch } = useActiveGoal()
   const deleteGoalMutation = useDeleteGoal()
   const clearSession = useAuthStore(state => state.clearSession)
   const { userName, setUserName } = useAuthStore()
   const [tempName, setTempName] = React.useState(userName)
   const navigate = useNavigate()
+
+  const handleSetTheme = (color: AccentColor) => {
+    if (activeGoal?.id) {
+      setGoalTheme(activeGoal.id, color)
+    } else {
+      setAccentColor(color)
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -51,6 +59,12 @@ export const Settings: React.FC = () => {
         if (type === 'border') return 'border-emerald-500/20'
         if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
         return 'rgba(16, 185, 129, 0.4)'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+        return 'rgba(59, 130, 246, 0.4)'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'
@@ -102,7 +116,7 @@ export const Settings: React.FC = () => {
             {/* Purple preset */}
             <button
               type="button"
-              onClick={() => setAccentColor('purple')}
+              onClick={() => handleSetTheme('purple')}
               className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
                 accentColor === 'purple' 
                   ? 'bg-purple-500/10 border-purple-500/40 text-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
@@ -112,10 +126,23 @@ export const Settings: React.FC = () => {
               <div className="w-3.5 h-3.5 rounded-full bg-purple-500" /> Purple Violet
             </button>
 
+            {/* Blue preset */}
+            <button
+              type="button"
+              onClick={() => handleSetTheme('blue')}
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                accentColor === 'blue' 
+                  ? 'bg-blue-500/10 border-blue-500/40 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.15)]' 
+                  : 'bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60'
+              }`}
+            >
+              <div className="w-3.5 h-3.5 rounded-full bg-blue-500" /> Ocean Blue
+            </button>
+
             {/* Cyan preset */}
             <button
               type="button"
-              onClick={() => setAccentColor('cyan')}
+              onClick={() => handleSetTheme('cyan')}
               className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
                 accentColor === 'cyan' 
                   ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)]' 
@@ -128,7 +155,7 @@ export const Settings: React.FC = () => {
             {/* Emerald preset */}
             <button
               type="button"
-              onClick={() => setAccentColor('emerald')}
+              onClick={() => handleSetTheme('emerald')}
               className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
                 accentColor === 'emerald' 
                   ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
@@ -255,9 +282,9 @@ export const Settings: React.FC = () => {
                 <ShieldAlert className="w-6 h-6" />
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="font-bold text-zinc-200 text-sm">CAUTION ZONE: Reset Application Data</h3>
+                <h3 className="font-bold text-zinc-200 text-sm">CAUTION ZONE: Delete Active Goal Profile</h3>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  Permanently delete current goal, reset roadmap levels, study statistics history, and achievements.
+                  Permanently delete your current active learning profile "{activeGoal.title}" and all its roadmap history.
                 </p>
               </div>
             </div>
@@ -267,7 +294,7 @@ export const Settings: React.FC = () => {
               onClick={handleResetApp}
               className="px-5 py-3 rounded-2xl text-xs font-bold bg-red-500 hover:bg-red-400 text-black shadow-[0_0_15px_rgba(239,68,68,0.2)] transition-all shrink-0 cursor-pointer flex items-center gap-2"
             >
-              <Trash2 className="w-4 h-4" /> Reset App data
+              <Trash2 className="w-4 h-4" /> Delete Goal Profile
             </button>
           </div>
         )}

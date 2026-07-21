@@ -56,6 +56,12 @@ export const Sensei: React.FC = () => {
         if (type === 'border') return 'border-emerald-500/30'
         if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black'
         return 'from-emerald-500/20 to-teal-500/20'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/30'
+        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black'
+        return 'from-blue-500/20 to-sky-500/20'
       default:
         if (type === 'text') return 'text-purple-400'
         if (type === 'bg') return 'bg-purple-500/10'

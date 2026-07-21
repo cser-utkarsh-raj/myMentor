@@ -42,6 +42,12 @@ export const Progress: React.FC = () => {
         if (type === 'border') return 'border-emerald-500/20'
         if (type === 'fill') return '#10b981'
         return 'rgba(16, 185, 129, 0.4)'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        if (type === 'fill') return '#3b82f6'
+        return 'rgba(59, 130, 246, 0.4)'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'
@@ -106,14 +112,17 @@ export const Progress: React.FC = () => {
     if (xp === 0) return 'fill-zinc-900 border-zinc-800'
     if (xp < 30) {
       return accentColor === 'purple' ? 'fill-purple-950/40' :
-             accentColor === 'cyan' ? 'fill-cyan-950/40' : 'fill-emerald-950/40'
+             accentColor === 'cyan' ? 'fill-cyan-950/40' :
+             accentColor === 'blue' ? 'fill-blue-950/40' : 'fill-emerald-950/40'
     }
     if (xp < 100) {
       return accentColor === 'purple' ? 'fill-purple-800/60' :
-             accentColor === 'cyan' ? 'fill-cyan-800/60' : 'fill-emerald-800/60'
+             accentColor === 'cyan' ? 'fill-cyan-800/60' :
+             accentColor === 'blue' ? 'fill-blue-800/60' : 'fill-emerald-800/60'
     }
     return accentColor === 'purple' ? 'fill-purple-500 shadow-lg' :
-           accentColor === 'cyan' ? 'fill-cyan-500 shadow-lg' : 'fill-emerald-500 shadow-lg'
+           accentColor === 'cyan' ? 'fill-cyan-500 shadow-lg' :
+           accentColor === 'blue' ? 'fill-blue-500 shadow-lg' : 'fill-emerald-500 shadow-lg'
   }
 
   return (
@@ -200,9 +209,9 @@ export const Progress: React.FC = () => {
               <span>Less Active</span>
               <div className="flex gap-1 items-center">
                 <div className="w-2.5 h-2.5 rounded bg-zinc-900 border border-white/5" />
-                <div className={`w-2.5 h-2.5 rounded ${accentColor === 'purple' ? 'bg-purple-950/40' : accentColor === 'cyan' ? 'bg-cyan-950/40' : 'bg-emerald-950/40'}`} />
-                <div className={`w-2.5 h-2.5 rounded ${accentColor === 'purple' ? 'bg-purple-800/60' : accentColor === 'cyan' ? 'bg-cyan-800/60' : 'bg-emerald-800/60'}`} />
-                <div className={`w-2.5 h-2.5 rounded ${accentColor === 'purple' ? 'bg-purple-500' : accentColor === 'cyan' ? 'bg-cyan-500' : 'bg-emerald-500'}`} />
+                <div className={`w-2.5 h-2.5 rounded ${accentColor === 'purple' ? 'bg-purple-950/40' : accentColor === 'cyan' ? 'bg-cyan-950/40' : accentColor === 'blue' ? 'bg-blue-950/40' : 'bg-emerald-950/40'}`} />
+                <div className={`w-2.5 h-2.5 rounded ${accentColor === 'purple' ? 'bg-purple-800/60' : accentColor === 'cyan' ? 'bg-cyan-800/60' : accentColor === 'blue' ? 'bg-blue-800/60' : 'bg-emerald-800/60'}`} />
+                <div className={`w-2.5 h-2.5 rounded ${accentColor === 'purple' ? 'bg-purple-500' : accentColor === 'cyan' ? 'bg-cyan-500' : accentColor === 'blue' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
               </div>
               <span>Highly Active (+100 XP)</span>
             </div>
@@ -255,7 +264,8 @@ export const Progress: React.FC = () => {
                     className={`h-full rounded-full transition-all duration-500 ${
                       percentage === 100 ? 'bg-emerald-500' :
                       accentColor === 'purple' ? 'bg-purple-500' :
-                      accentColor === 'cyan' ? 'bg-cyan-500' : 'bg-emerald-500'
+                      accentColor === 'cyan' ? 'bg-cyan-500' :
+                      accentColor === 'blue' ? 'bg-blue-500' : 'bg-emerald-500'
                     }`}
                     style={{ width: `${percentage}%` }}
                   />

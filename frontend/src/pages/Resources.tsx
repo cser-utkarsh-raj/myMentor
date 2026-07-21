@@ -40,6 +40,12 @@ export const Resources: React.FC = () => {
         if (type === 'border') return 'border-emerald-500/20'
         if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
         return 'rgba(16, 185, 129, 0.4)'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+        return 'rgba(59, 130, 246, 0.4)'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'

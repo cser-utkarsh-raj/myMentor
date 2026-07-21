@@ -39,7 +39,7 @@ const getProfileColor = (id: number) => {
 
 export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
   const navigate = useNavigate()
-  const { accentColor } = useUIStore()
+  const { accentColor, setAccentColor, goalThemes } = useUIStore()
   const { data: goalsList } = useGoals()
   const { setActiveGoalId } = useAuthStore()
   
@@ -56,6 +56,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
         if (type === 'bg') return 'bg-emerald-500/10'
         if (type === 'border') return 'border-emerald-500/20'
         return 'rgba(16, 185, 129, 0.4)'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        return 'rgba(59, 130, 246, 0.4)'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'
@@ -95,7 +100,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
             <h1 className="text-xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
               myMentor
             </h1>
-            <span className="text-xs text-zinc-500 font-medium">Enterprise V1</span>
           </div>
         </div>
 
@@ -111,10 +115,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                   key={g.id}
                   onClick={() => {
                     setActiveGoalId(g.id)
+                    const savedTheme = goalThemes[String(g.id)]
+                    if (savedTheme) {
+                      setAccentColor(savedTheme)
+                    }
                   }}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm transition-all duration-300 relative group cursor-pointer ${getProfileColor(g.id)} ${
                     isActive 
-                      ? `ring-2 ${accentColor === 'purple' ? 'ring-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.4)]' : accentColor === 'cyan' ? 'ring-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.4)]' : 'ring-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]'} ring-offset-2 ring-offset-zinc-950 scale-105` 
+                      ? `ring-2 ${accentColor === 'purple' ? 'ring-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.4)]' : accentColor === 'cyan' ? 'ring-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.4)]' : accentColor === 'emerald' ? 'ring-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]' : 'ring-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]'} ring-offset-2 ring-offset-zinc-950 scale-105` 
                       : 'opacity-40 hover:opacity-100 hover:scale-105'
                   }`}
                   title={g.title}
@@ -164,6 +172,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                   className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${
                     accentColor === 'purple' ? 'from-purple-500 to-indigo-500' :
                     accentColor === 'cyan' ? 'from-cyan-500 to-blue-500' :
+                    accentColor === 'blue' ? 'from-blue-500 to-sky-500' :
                     'from-emerald-500 to-teal-500'
                   }`}
                   style={{ width: `${xpPercentage}%` }}

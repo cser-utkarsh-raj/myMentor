@@ -63,6 +63,12 @@ export const GoalSetup: React.FC = () => {
         if (type === 'border') return 'border-emerald-500/20'
         if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)]'
         return 'rgba(16, 185, 129, 0.4)'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+        return 'rgba(59, 130, 246, 0.4)'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'
@@ -242,7 +248,7 @@ export const GoalSetup: React.FC = () => {
                     key={s}
                     className={`w-6 h-1.5 rounded-full transition-all duration-300 ${
                       s <= step 
-                        ? (accentColor === 'purple' ? 'bg-purple-500' : accentColor === 'cyan' ? 'bg-cyan-500' : 'bg-emerald-500') 
+                        ? (accentColor === 'purple' ? 'bg-purple-500' : accentColor === 'cyan' ? 'bg-cyan-500' : accentColor === 'emerald' ? 'bg-emerald-500' : 'bg-blue-500') 
                         : 'bg-zinc-800'
                     }`}
                   />
@@ -517,7 +523,7 @@ export const GoalSetup: React.FC = () => {
                           onChange={(e) => setDailyHours(parseFloat(e.target.value))}
                           className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
                           style={{
-                            accentColor: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : '#10b981'
+                            accentColor: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6'
                           }}
                         />
                         <div className="flex justify-between text-[10px] font-bold text-zinc-600">
@@ -546,7 +552,7 @@ export const GoalSetup: React.FC = () => {
                           onChange={(e) => setTimelineDays(parseInt(e.target.value))}
                           className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
                           style={{
-                            accentColor: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : '#10b981'
+                            accentColor: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6'
                           }}
                         />
                         <div className="flex justify-between text-[10px] font-bold text-zinc-600">

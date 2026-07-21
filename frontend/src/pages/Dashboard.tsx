@@ -60,6 +60,12 @@ export const Dashboard: React.FC = () => {
         if (type === 'border') return 'border-emerald-500/20'
         if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
         return 'from-emerald-500/20 to-teal-500/20'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+        return 'from-blue-500/20 to-sky-500/20'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'
@@ -246,7 +252,7 @@ export const Dashboard: React.FC = () => {
         <div className="lg:col-span-1 glass-panel rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden border border-white/5 bg-zinc-950/20">
           <div 
             className="absolute w-44 h-44 rounded-full blur-[80px] opacity-15 pointer-events-none -z-10"
-            style={{ background: `radial-gradient(circle, ${accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : '#10b981'} 0%, transparent 70%)` }}
+            style={{ background: `radial-gradient(circle, ${accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6'} 0%, transparent 70%)` }}
           />
           <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">Overall Progress</h3>
           
@@ -267,7 +273,7 @@ export const Dashboard: React.FC = () => {
                 r={radius}
                 className="transition-all duration-700 ease-out"
                 style={{
-                  stroke: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : '#10b981',
+                  stroke: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6',
                   strokeWidth: '10',
                   fill: 'transparent',
                   strokeDasharray: circumference,
@@ -297,30 +303,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* If custom goal has interview details, display them beautifully */}
-        {targetDetails && (
-          <div className="glass-panel rounded-2xl p-5 border border-white/5 bg-zinc-950/15 flex flex-col gap-3.5 text-left">
-            <div className="flex items-center gap-2">
-              <Sparkles className={`w-4 h-4 ${getColorClass('text')}`} />
-              <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Sensei Learning Profile</h4>
-            </div>
-            
-            <div className="flex flex-col gap-2.5 text-xs">
-              <div className="flex flex-col gap-1">
-                <span className="text-zinc-500 font-medium uppercase tracking-wider text-[9px]">Experience Level</span>
-                <span className="text-zinc-300 font-semibold">{targetDetails.experience}</span>
-              </div>
-              <div className="flex flex-col gap-1 mt-1">
-                <span className="text-zinc-500 font-medium uppercase tracking-wider text-[9px]">Core Focus Areas</span>
-                <span className="text-zinc-300 font-semibold leading-relaxed">{targetDetails.focus}</span>
-              </div>
-              <div className="flex flex-col gap-1 mt-1">
-                <span className="text-zinc-500 font-medium uppercase tracking-wider text-[9px]">Preferred Learning Style</span>
-                <span className="text-zinc-300 font-semibold">{targetDetails.style}</span>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Highlight Grid (Streak, hours, xp, questions) */}
         <div className="lg:col-span-2 grid grid-cols-2 gap-4">

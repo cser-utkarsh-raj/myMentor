@@ -29,6 +29,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         if (type === 'bg') return 'bg-emerald-500/10'
         if (type === 'border') return 'border-emerald-500/20'
         return 'rgba(16, 185, 129, 0.4)'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        return 'rgba(59, 130, 246, 0.4)'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'

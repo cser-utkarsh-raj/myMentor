@@ -31,6 +31,12 @@ export const Roadmap: React.FC = () => {
         if (type === 'border') return 'border-emerald-500/20'
         if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
         return 'rgba(16, 185, 129, 0.2)'
+      case 'blue':
+        if (type === 'text') return 'text-blue-400'
+        if (type === 'bg') return 'bg-blue-500/10'
+        if (type === 'border') return 'border-blue-500/20'
+        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+        return 'rgba(59, 130, 246, 0.2)'
       case 'purple':
       default:
         if (type === 'text') return 'text-purple-400'
@@ -139,6 +145,7 @@ export const Roadmap: React.FC = () => {
                         cardStyle = `border-zinc-700/60 hover:border-white/20 bg-zinc-900/40 hover:bg-zinc-900/80 cursor-pointer`
                         if (accentColor === 'purple') borderGlow = 'shadow-[0_0_15px_rgba(168,85,247,0.15)] hover:border-purple-500/30'
                         else if (accentColor === 'cyan') borderGlow = 'shadow-[0_0_15px_rgba(6,182,212,0.15)] hover:border-cyan-500/30'
+                        else if (accentColor === 'blue') borderGlow = 'shadow-[0_0_15px_rgba(59,130,246,0.15)] hover:border-blue-500/30'
                         else borderGlow = 'shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:border-emerald-500/30'
                       }
 
@@ -186,7 +193,8 @@ export const Roadmap: React.FC = () => {
                                   className={`h-full rounded-full transition-all duration-300 ${
                                     day.is_completed ? 'bg-emerald-500' :
                                     accentColor === 'purple' ? 'bg-purple-500' :
-                                    accentColor === 'cyan' ? 'bg-cyan-500' : 'bg-emerald-500'
+                                    accentColor === 'cyan' ? 'bg-cyan-500' :
+                                    accentColor === 'blue' ? 'bg-blue-500' : 'bg-emerald-500'
                                   }`}
                                   style={{ width: `${(completedCount / (totalCount || 1)) * 100}%` }}
                                 />

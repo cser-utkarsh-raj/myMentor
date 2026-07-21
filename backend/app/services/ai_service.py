@@ -110,6 +110,7 @@ Rules:
 - Each track should have 1-2 modules
 - Each module should have 1-2 steps
 - Keep the total count of steps across the entire roadmap between 6 and 10. The backend will automatically scale these steps to fit the user's {timeline_days}-day timeline.
+- If the user's timeline ({timeline_days} days) is short (less than 14 days), skip general introductory steps (like "Planning Phase" or "Initial Setup") and start with core actionable material immediately.
 - Steps should have 1-2 resources each
 - Resources must be specific to the topic (e.g. if the topic is Agriculture, include agricultural journals, farming YouTube channels, cultivation manuals, crop science documentation)
 - Scale difficulty progressively from Easy to Hard
