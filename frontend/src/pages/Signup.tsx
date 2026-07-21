@@ -14,6 +14,14 @@ export const Signup: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
+  // Redirect to app if already authenticated
+  React.useEffect(() => {
+    const { session, isDemoMode } = useAuthStore.getState()
+    if (session || isDemoMode) {
+      navigate('/app')
+    }
+  }, [navigate])
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)

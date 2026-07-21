@@ -15,6 +15,14 @@ export const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Redirect to app if already authenticated
+  React.useEffect(() => {
+    const { session, isDemoMode } = useAuthStore.getState()
+    if (session || isDemoMode) {
+      navigate('/app')
+    }
+  }, [navigate])
+
   // Handle automatic demo mode login if URL has ?demo=true
   React.useEffect(() => {
     const params = new URLSearchParams(location.search)
