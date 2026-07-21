@@ -29,7 +29,7 @@ export const Dashboard: React.FC = () => {
   const triggerRecoveryMutation = useTriggerRecovery()
   const [recoverySuccess, setRecoverySuccess] = useState(false)
 
-  const parseTarget = (rawTarget: string | undefined) => {
+  const parseTarget = (rawTarget: string | undefined | null) => {
     if (!rawTarget) return { displayTarget: 'None', details: null }
     if (rawTarget.includes(' | Experience Level:')) {
       const parts = rawTarget.split(' | ')

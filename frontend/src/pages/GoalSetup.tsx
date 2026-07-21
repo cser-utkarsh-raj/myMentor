@@ -42,11 +42,36 @@ export const GoalSetup: React.FC = () => {
   const { data: categorizedGoals, isLoading: isLibraryLoading, isError: isLibraryError, refetch: refetchLibrary } = useGoalLibrary()
 
   const targetsList = [
-    { name: 'Career Transition / New Job', val: 'New Job' },
-    { name: 'Interview Preparation', val: 'Interviews' },
-    { name: 'Core Skill Mastery', val: 'Mastery' },
-    { name: 'Side Project Build', val: 'Product Launch' },
-    { name: 'No Specific Target', val: 'None' }
+    { 
+      name: 'Interview Preparation', 
+      val: 'Interviews', 
+      badge: '⚡ High Intensity', 
+      desc: 'Focuses on high-frequency interview questions, speed drills, system design interview rounds, and LeetCode problem sets.' 
+    },
+    { 
+      name: 'Career Transition / New Job', 
+      val: 'New Job', 
+      badge: '💼 Production Portfolio', 
+      desc: 'Focuses on production-ready capstone projects, enterprise standards, and resume-ready deliverables.' 
+    },
+    { 
+      name: 'Side Project Build / Fast Launch', 
+      val: 'Product Launch', 
+      badge: '🚀 Fast Scaffolding', 
+      desc: 'Focuses on fast-paced practical building, hands-on assembly, and shipping working features quickly.' 
+    },
+    { 
+      name: 'Core Skill Mastery', 
+      val: 'Mastery', 
+      badge: '🧠 Deep Theory', 
+      desc: 'Focuses on foundational mechanics, architecture deep-dives, and advanced technical edge-cases.' 
+    },
+    { 
+      name: 'Casual / Flexible Learning', 
+      val: 'None', 
+      badge: '☕ Low Pressure', 
+      desc: 'Focuses on gentle daily overviews, foundational concepts, and flexible study pace.' 
+    }
   ]
 
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
@@ -439,16 +464,26 @@ export const GoalSetup: React.FC = () => {
                               setTarget(t.val)
                               if (t.val !== 'Other') setCustomTarget('')
                             }}
-                            className={`flex items-center justify-between p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                            className={`flex flex-col gap-1.5 p-4 rounded-xl border text-left transition-all cursor-pointer ${
                               isSelected 
                                 ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20` 
                                 : 'bg-zinc-950/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10'
                             }`}
                           >
-                            <span className={`font-semibold text-sm ${isSelected ? 'text-white' : 'text-zinc-300'}`}>
-                              {t.name}
-                            </span>
-                            {isSelected && <CheckCircle2 className={`w-5 h-5 ${getColorClass('text')}`} />}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-zinc-200'}`}>
+                                  {t.name}
+                                </span>
+                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border ${
+                                  isSelected ? `${getColorClass('bg')} ${getColorClass('text')} ${getColorClass('border')}` : 'bg-zinc-900 text-zinc-400 border-white/5'
+                                }`}>
+                                  {t.badge}
+                                </span>
+                              </div>
+                              {isSelected && <CheckCircle2 className={`w-5 h-5 ${getColorClass('text')}`} />}
+                            </div>
+                            <p className="text-xs text-zinc-400 leading-relaxed">{t.desc}</p>
                           </button>
                         )
                       })}

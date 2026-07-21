@@ -8,6 +8,24 @@ from app.core.logger import logger
 from typing import List, Optional
 
 class PDFService:
+
+    @staticmethod
+    def extract_text_from_pdf(file_path: str, max_pages: int = 5) -> str:
+        """Extract text from the first few pages of a PDF using pypdf."""
+        try:
+            from pypdf import PdfReader
+            reader = PdfReader(file_path)
+            text = ""
+            pages_to_read = min(max_pages, len(reader.pages))
+            for i in range(pages_to_read):
+                page_text = reader.pages[i].extract_text()
+                if page_text:
+                    text += page_text + "\n"
+            return text.strip()
+        except Exception as e:
+            logger.error(f"Failed to extract text from PDF {file_path}: {e}")
+            return ""
+
     @staticmethod
     def upload_pdf(db: Session, file: UploadFile, category: str, user_id: str) -> PDF:
         logger.info(f"Uploading file: {file.filename} in category: {category} for user: {user_id}")
@@ -52,6 +70,25 @@ class PDFService:
         db.refresh(db_pdf)
         
         logger.info(f"PDF uploaded and registered in DB with ID: {db_pdf.id}")
+
+        # Extract text automatically after upload
+        try:
+            extracted = PDFService.extract_text_from_pdf(file_path)
+            if extracted:
+                db_pdf.extracted_text = extracted
+                db_pdf.extraction_status = "success"
+                logger.info(f"Text extracted successfully from {filename} ({len(extracted)} chars)")
+            else:
+                db_pdf.extraction_status = "empty"
+                logger.info(f"No text could be extracted from {filename} (image-based or empty PDF)")
+            db.commit()
+            db.refresh(db_pdf)
+        except Exception as e:
+            logger.error(f"Text extraction failed for {filename}: {e}")
+            db_pdf.extraction_status = "failed"
+            db.commit()
+            db.refresh(db_pdf)
+
         return db_pdf
 
     @staticmethod
@@ -105,3 +142,27 @@ class PDFService:
         db.commit()
         db.refresh(db_pdf)
         return db_pdf
+
+    @staticmethod
+    def get_pdf_context_for_user(db: Session, user_id: str, max_pdfs: int = 3, max_chars_per_pdf: int = 2000) -> str:
+        """Build a text context string from the user's uploaded PDFs for AI consumption."""
+        try:
+            pdfs = db.query(PDF).filter(
+                PDF.user_id == user_id,
+                PDF.is_archived == False,
+                PDF.extraction_status == "success"
+            ).order_by(PDF.upload_date.desc()).limit(max_pdfs).all()
+
+            if not pdfs:
+                return ""
+
+            context_parts = []
+            for pdf in pdfs:
+                if pdf.extracted_text:
+                    excerpt = pdf.extracted_text[:max_chars_per_pdf]
+                    context_parts.append(f"--- Uploaded PDF: {pdf.filename} ---\n{excerpt}")
+
+            return "\n\n".join(context_parts)
+        except Exception as e:
+            logger.error(f"Error building PDF context: {e}")
+            return ""

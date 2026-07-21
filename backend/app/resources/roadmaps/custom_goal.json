@@ -1,48 +1,48 @@
 {
   "title": "Custom Goal Roadmap",
-  "target": "Personal Development",
+  "target": "Personal Mastery",
   "tracks": [
     {
       "title": "Core Foundations",
-      "description": "Establish key concepts, research materials, and organize practice schedules.",
+      "description": "Master key terminology, fundamental concepts, and essential principles.",
       "order": 1,
       "milestones": [
         {
-          "title": "Initial Setup & Research",
-          "description": "Map out goals and set up learning space.",
+          "title": "Foundational Knowledge",
+          "description": "Build a deep understanding of core theory and principles.",
           "order": 1,
           "steps": [
             {
-              "title": "Planning Phase",
+              "title": "Foundational Principles & Key Terms",
               "resources": [
                 {
-                  "title": "Define Core Scope & Materials",
-                  "category": "Planning",
-                  "platform": "Internal",
+                  "title": "Core Terminology & Domain Overview",
+                  "category": "Theory",
+                  "platform": "Documentation",
                   "difficulty": "Easy",
-                  "estimated_time_mins": 30,
-                  "notes": "List the key concepts, books, online tutorials, or mentors you will study to learn this skill."
+                  "estimated_time_mins": 45,
+                  "notes": "Study the essential vocabulary, core frameworks, and key principles of this discipline."
                 },
                 {
-                  "title": "Set Up Practice Workspace",
-                  "category": "Planning",
-                  "platform": "Internal",
+                  "title": "Historical Context & Best Practices",
+                  "category": "Theory",
+                  "platform": "Documentation",
                   "difficulty": "Easy",
                   "estimated_time_mins": 30,
-                  "notes": "Organize your practice area, calendar slots, and notebooks to ensure distraction-free learning sessions."
+                  "notes": "Understand proven methodologies and industry standards."
                 }
               ]
             },
             {
-              "title": "Core Concepts Review",
+              "title": "Core Concepts Deep Dive",
               "resources": [
                 {
-                  "title": "Review Fundamental Principles",
+                  "title": "Review Fundamental Mechanics",
                   "category": "Theory",
-                  "platform": "Internal",
+                  "platform": "YouTube",
                   "difficulty": "Easy",
                   "estimated_time_mins": 60,
-                  "notes": "Study the basic terminology, rules, safety guidelines, and core concepts of this domain."
+                  "notes": "Study detailed video walkthroughs and architectural diagrams."
                 }
               ]
             }
@@ -56,41 +56,41 @@
       "order": 2,
       "milestones": [
         {
-          "title": "Implementation & Drills",
-          "description": "Apply concepts in practical training scenarios.",
+          "title": "Implementation & Real-World Projects",
+          "description": "Apply concepts in practical exercises.",
           "order": 1,
           "steps": [
             {
-              "title": "Active Practice Phase",
+              "title": "Hands-on Practice & Exercises",
               "resources": [
                 {
-                  "title": "Structured Practice Session",
+                  "title": "Guided Exercise Session",
                   "category": "Practice",
-                  "platform": "Internal",
+                  "platform": "GitHub",
                   "difficulty": "Medium",
                   "estimated_time_mins": 120,
-                  "notes": "Spend dedicated time performing active practice, drills, or step-by-step simulations of the core skill."
+                  "notes": "Spend dedicated time performing active practice and real-world implementation."
                 },
                 {
-                  "title": "Document Insights & Learning",
+                  "title": "Self-Assessment & Code/Work Review",
                   "category": "Review",
                   "platform": "Internal",
                   "difficulty": "Easy",
                   "estimated_time_mins": 30,
-                  "notes": "Write down what worked well, what was difficult, and key tips you want to remember for next time."
+                  "notes": "Analyze your solutions, document insights, and refine techniques."
                 }
               ]
             },
             {
-              "title": "First Major Milestone",
+              "title": "Practical Evaluation Milestone",
               "resources": [
                 {
-                  "title": "Complete Practical Demo / Evaluation",
-                  "category": "Evaluation",
+                  "title": "Complete Capstone Demo / Assessment",
+                  "category": "Project",
                   "platform": "Internal",
-                  "difficulty": "Medium",
+                  "difficulty": "Hard",
                   "estimated_time_mins": 120,
-                  "notes": "Complete a real-world test case, perform a dry run, or construct a simple demonstration of your progress."
+                  "notes": "Build a comprehensive real-world project demonstrating full mastery of the topic."
                 }
               ]
             }

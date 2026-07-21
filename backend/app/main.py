@@ -9,20 +9,21 @@ from app.database.base_class import Base
 from app.database import base  # noqa
 from app.routers import goals, tasks, timer, pdfs, resources, system, ai
 
-# Automatically generate database tables for local SQLite/PostgreSQL development
-try:
-    logger.info("Initializing database tables...")
-    Base.metadata.create_all(bind=engine)
-    logger.info("Database tables initialized successfully.")
-except Exception as e:
-    logger.error(f"Error initializing database tables: {e}")
-
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Enterprise-grade AI-powered learning roadmap platform backend.",
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
+
+@app.on_event("startup")
+def on_startup():
+    try:
+        logger.info("Initializing database tables...")
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables initialized successfully.")
+    except Exception as e:
+        logger.error(f"Error initializing database tables: {e}")
 
 # CORS configuration for Vite Frontend integration
 app.add_middleware(

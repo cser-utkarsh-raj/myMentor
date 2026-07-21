@@ -141,3 +141,5 @@ class PDF(Base):
     category = Column(String, nullable=False)
     tags = Column(String, nullable=True)
     is_archived = Column(Boolean, default=False)
+    extracted_text = Column(Text, nullable=True)
+    extraction_status = Column(String, default="pending")  # pending, success, failed, empty

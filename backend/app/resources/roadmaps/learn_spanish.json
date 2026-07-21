@@ -1,0 +1,87 @@
+{
+  "title": "Spanish Language Conversational Mastery",
+  "target": "Fluent Conversational Speaker (B2/C1)",
+  "tracks": [
+    {
+      "title": "Phonetics, Essential Vocabulary & Daily Phrases",
+      "description": "Master Spanish pronunciation rules, core 1,000 vocabulary words, and daily greetings.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Vowel Sounds & Essential Vocabulary",
+          "description": "Establish clear pronunciation habits and fundamental conversational building blocks.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Spanish Pronunciation & High-Frequency Words",
+              "resources": [
+                {
+                  "title": "Spanish Pronunciation & Daily Vocabulary Tutorial",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Master Spanish vowel clarity, rolled R sounds, and top 500 essential words."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Grammar Foundations & Verb Tense Mechanics",
+      "description": "Understand Present, Past (Preterite/Imperfect), and Future verb conjugations.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "Sentence Construction & Conjugation Patterns",
+          "description": "Form complete complex sentences and utilize regular/irregular verb patterns.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Present & Past Verb Tenses Masterclass",
+              "resources": [
+                {
+                  "title": "Complete Spanish Grammar & Conjugation Guide",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Master Ser vs Estar, Preterite vs Imperfect, and direct object pronouns."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Conversational Immersion & Listening Drills",
+      "description": "Engage in active listening with native podcasts, dialog simulations, and speech practice.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Active Speaking & Native Comprehension",
+          "description": "Build rapid listening comprehension and natural spoken phrasing.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Native Speed Conversation & Listening Drills",
+              "resources": [
+                {
+                  "title": "Spanish Intermediate Immersion Podcast & Video",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 60,
+                  "notes": "Listen to native Spanish conversations, shadowing speech rhythm and idioms."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

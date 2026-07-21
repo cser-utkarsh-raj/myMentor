@@ -1,6 +1,14 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from pydantic import Field
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
+for env_path in [ROOT_DIR / ".env", BASE_DIR / ".env", BASE_DIR / ".env.local", Path(".env"), Path("/app/.env")]:
+    if env_path.exists():
+        load_dotenv(env_path, override=True)
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "myMentor"
@@ -24,13 +32,11 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     
-    # API Keys (V2 Expansion Placeholders)
+    # API Keys
     OPENAI_API_KEY: str | None = None
-    GEMINI_API_KEY: str | None = None
+    GEMINI_API_KEY: str | None = Field(default_factory=lambda: os.getenv("GEMINI_API_KEY"))
 
     class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
         case_sensitive = True
         extra = "ignore"
 

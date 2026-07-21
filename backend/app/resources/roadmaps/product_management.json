@@ -1,0 +1,87 @@
+{
+  "title": "Product Management & Growth Strategy",
+  "target": "Lead Product Manager / Head of Product",
+  "tracks": [
+    {
+      "title": "Product Discovery & User Needs Validation",
+      "description": "Formulate product hypothesis, interview users, and validate product-market fit.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Market Hypothesis & Opportunity Solution Trees",
+          "description": "Identify high-value user problems and define value propositions.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Continuous Product Discovery",
+              "resources": [
+                {
+                  "title": "Continuous Discovery Habits Book & Video",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Learn opportunity solution trees, customer interview techniques, and rapid testing."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Agile Execution & Feature Prioritization",
+      "description": "Write PRDs, manage sprint backlogs, and prioritize features using RICE & Kano models.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "Roadmapping & Backlog Refinement",
+          "description": "Translate strategy into actionable user stories and sprint cycles.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Product Requirement Documents (PRD) & RICE Scoring",
+              "resources": [
+                {
+                  "title": "Product Management PRD Template & Masterclass",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Draft comprehensive PRDs, define acceptance criteria, and calculate RICE scores."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Product Analytics & Growth Metrics",
+      "description": "Define North Star metrics, analyze user cohorts, and optimize conversion funnels.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Funnel Optimization & Growth Loops",
+          "description": "Drive user activation, retention, and referral metrics.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Retention Cohort Analysis & A/B Testing",
+              "resources": [
+                {
+                  "title": "Product Analytics & Growth Funnel Walkthrough",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Analyze Mixpanel/Amplitude cohort graphs, retention curves, and A/B test significance."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

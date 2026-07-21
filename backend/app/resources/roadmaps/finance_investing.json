@@ -1,0 +1,87 @@
+{
+  "title": "Financial Literacy & Investment Strategy",
+  "target": "Financial Analyst / Portfolio Manager",
+  "tracks": [
+    {
+      "title": "Financial Statements & Accounting Mechanics",
+      "description": "Analyze Income Statements, Balance Sheets, and Cash Flow Statements.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Financial Report Analysis",
+          "description": "Evaluate company profitability, liquidity, and financial health.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "3-Statement Financial Model Analysis",
+              "resources": [
+                {
+                  "title": "Financial Accounting & Statement Reading",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Deconstruct 10-K filings, net income, operating cash flow, and debt ratios."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Fundamental Valuation & Asset Classes",
+      "description": "Perform Discounted Cash Flow (DCF) valuation and evaluate stocks, bonds, and ETFs.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "Intrinsic Valuation & Modeling",
+          "description": "Estimate intrinsic company value and compare price-to-earnings multiples.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Discounted Cash Flow (DCF) Valuation Model",
+              "resources": [
+                {
+                  "title": "Valuation: Measuring and Managing Value",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Calculate WACC, terminal growth rates, and projected free cash flows."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Portfolio Construction & Risk Management",
+      "description": "Build asset allocation strategies, manage risk, and optimize personal wealth.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Portfolio Optimization & Risk Controls",
+          "description": "Diversify investments across asset classes and rebalance allocations.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Asset Allocation & Index Investing Strategy",
+              "resources": [
+                {
+                  "title": "The Intelligent Investor & Modern Portfolio Theory",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Understand Sharpe ratio, market beta, rebalancing frequency, and index funds."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

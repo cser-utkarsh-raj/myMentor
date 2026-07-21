@@ -8,9 +8,11 @@ interface AuthState {
   isInitialized: boolean
   isDemoMode: boolean
   activeGoalId: number | null
+  userName: string
   setSession: (session: Session | null) => void
   setDemoMode: (isDemo: boolean) => void
   setActiveGoalId: (goalId: number | null) => void
+  setUserName: (name: string) => void
   clearSession: () => void
 }
 
@@ -24,13 +26,13 @@ export const useAuthStore = create<AuthState>()(
       activeGoalId: null,
       userName: 'Mentor Client',
       setSession: (session) => {
-        const metadataName = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || session?.user?.email?.split('@')[0]
+        const metadataName = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || session?.user?.email?.split('@')[0] || 'Mentor Client'
         set({ 
           session, 
           user: session?.user || null, 
           isInitialized: true,
           isDemoMode: false,
-          userName: metadataName || 'Mentor Client'
+          userName: metadataName
         })
       },
       setDemoMode: (isDemo) => set({ 
@@ -40,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
         isInitialized: true 
       }),
       setActiveGoalId: (goalId) => set({ activeGoalId: goalId }),
-      setUserName: (name) => set({ userName: name }),
+      setUserName: (name: string) => set({ userName: name }),
       clearSession: () => set({ session: null, user: null, isDemoMode: false, activeGoalId: null, userName: 'Mentor Client' })
     }),
     {

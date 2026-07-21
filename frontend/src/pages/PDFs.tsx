@@ -12,7 +12,7 @@ import {
   RefreshCcw,
   Tag
 } from 'lucide-react'
-import { usePDFs, useUploadPDF, useDeletePDF, useTogglePDFArchive, useUpdatePDFTags } from '../hooks/useApi'
+import { usePDFs, useUploadPDF, useDeletePDF, useTogglePDFArchive, useUpdatePDFTags, useActiveGoal } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const PDFs: React.FC = () => {
@@ -20,13 +20,30 @@ export const PDFs: React.FC = () => {
   
   // Queries & Mutations
   const { data: pdfs, isLoading } = usePDFs()
+  const { data: activeGoal } = useActiveGoal()
   const uploadPDFMutation = useUploadPDF()
   const deletePDFMutation = useDeletePDF()
   const toggleArchiveMutation = useTogglePDFArchive()
   const updateTagsMutation = useUpdatePDFTags()
 
+  // Dynamic categories from active goal tracks
+  const categories = React.useMemo(() => {
+    const cats: { value: string; label: string }[] = [
+      { value: 'General', label: 'General' }
+    ]
+    if (activeGoal?.tracks && activeGoal.tracks.length > 0) {
+      activeGoal.tracks.forEach((track: any) => {
+        if (track.title) {
+          cats.push({ value: track.title, label: track.title })
+        }
+      })
+    }
+    cats.push({ value: 'Other', label: 'Other Reference' })
+    return cats
+  }, [activeGoal])
+
   // State
-  const [category, setCategory] = useState('Resume')
+  const [category, setCategory] = useState('General')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
   
@@ -167,13 +184,9 @@ export const PDFs: React.FC = () => {
                 onChange={(e) => setCategory(e.target.value)}
                 className="glass-input text-sm"
               >
-                <option value="Resume">Resume / Portfolio</option>
-                <option value="DSA">Data Structures & Algorithms</option>
-                <option value="SQL">Database & SQL Notes</option>
-                <option value="Python">Python Basics</option>
-                <option value="React">React UI</option>
-                <option value="DevOps">Containers & DevOps</option>
-                <option value="Other">Other Reference</option>
+                {categories.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
               </select>
             </div>
 
@@ -222,10 +235,7 @@ export const PDFs: React.FC = () => {
             </button>
           </form>
 
-          {/* Prompt banner for V2 */}
-          <div className="p-4 rounded-2xl bg-zinc-900/30 border border-white/5 text-[11px] text-zinc-500 leading-relaxed">
-            📢 **V2 Expansion Point**: Uploaded files will be parsed dynamically using Gemini embeddings to extract custom flashcards, quiz tasks, and auto-populate your learning roadmap check-ins!
-          </div>
+
         </div>
       </div>
 

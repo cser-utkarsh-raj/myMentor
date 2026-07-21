@@ -1,0 +1,87 @@
+{
+  "title": "Digital Marketing & Brand Strategy",
+  "target": "Growth Marketer / Marketing Director",
+  "tracks": [
+    {
+      "title": "SEO, Keyword Research & Organic Growth",
+      "description": "Master search engine optimization, on-page technical SEO, and backlink strategies.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Search Intent & Technical SEO",
+          "description": "Optimize web content to rank on Google search result pages.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "SEO Fundamentals & Keyword Clustering",
+              "resources": [
+                {
+                  "title": "SEO Full Course for Beginners",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Master keyword intent, meta tags, schema markup, and Google Search Console."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Paid Acquisition & Campaign Optimization",
+      "description": "Run Google Ads, Meta (Facebook/Instagram) Ads, and manage Return on Ad Spend (ROAS).",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "Paid Media Strategy & Creative Testing",
+          "description": "Structure ad campaigns, target audiences, and optimize cost-per-acquisition.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Google & Meta Paid Ad Campaigns",
+              "resources": [
+                {
+                  "title": "Media Buying & Paid Ad Acquisition Course",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Configure conversion pixels, A/B ad creative testing, and bidding strategies."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Conversion Rate Optimization & Funnels",
+      "description": "Design high-converting landing pages, email drip sequences, and retention funnels.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Funnel Analytics & Email Retention",
+          "description": "Maximize customer lifetime value (LTV) and reduce churn.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Email Lifecycle Marketing & Landing Page CRO",
+              "resources": [
+                {
+                  "title": "Digital Marketing Growth Handbook",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Build automated email welcome flows, cart abandonment triggers, and landing page copy."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

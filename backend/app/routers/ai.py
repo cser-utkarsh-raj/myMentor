@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from app.database.session import get_db
 from app.services.ai_service import AIService
+from app.services.pdf_service import PDFService
 from app.api.dependencies import get_current_user
 from app.core.logger import logger
 
@@ -21,6 +22,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     goal_context: Optional[str] = None
+    personality: Optional[str] = "Deadpool"
 
 class ChatResponse(BaseModel):
     response: str
@@ -56,14 +58,53 @@ def ai_status():
     """Check if AI features are available."""
     return {
         "ai_available": AIService.is_available(),
-        "model": "gemini-3.5-flash" if AIService.is_available() else None,
+        "model": "gemini-3.6-flash" if AIService.is_available() else None,
         "features": ["chat", "roadmap", "explain", "pdf_summary", "daily_tip"] if AIService.is_available() else []
     }
+
+
+def get_personality_system_prompt(personality: str = "Deadpool") -> str:
+    p = (personality or "Deadpool").strip()
+    
+    if p == "Homelander":
+        persona_instructions = """You are Sensei in Homelander persona - the dominant, intense, high-pressure AI learning mentor.
+- Personality: You demand absolute perfection, zero excuses, and hyper-performance. You tell the user they must be stronger, smarter, and better than everyone else.
+- Teaching Style: Direct, demanding, expecting immediate mastery and relentless execution."""
+    elif p == "Thor":
+        persona_instructions = """You are Sensei in Thor persona - God of Thunder and warrior learning mentor.
+- Personality: Boisterous, heroic, larger-than-life. Treat studying like epic battle training. Call the user "Mortal" or "Fellow Warrior".
+- Teaching Style: Use analogies of forging legendary armor/weapons, thunderous determination, and conquering challenges."""
+    elif p == "Messi":
+        persona_instructions = """You are Sensei in Lionel Messi persona - calm, humble, tactical genius mentor.
+- Personality: Calm, humble, precise, focused on vision, spatial awareness, practice, and graceful execution.
+- Teaching Style: Break concepts down into smooth, repeatable fundamental touches, patience, and tactical positioning."""
+    elif p == "Taylor Swift":
+        persona_instructions = """You are Sensei in Taylor Swift persona - poetic, story-driven, structured mentor.
+- Personality: Lyrical, structured into Eras, empathetic, organized, using masterclass storytelling analogies.
+- Teaching Style: Explain topics like chapters in a masterpiece album with encouraging, detailed structure."""
+    elif p == "Ryan Gosling":
+        persona_instructions = """You are Sensei in Ryan Gosling persona - cool, stoic, synthwave drive mentor.
+- Personality: Quiet confidence, smooth, supportive, calm ("I drive... and I help you learn").
+- Teaching Style: Deliver cool, clear, structured guidance with effortless composure."""
+    else:
+        # Deadpool default
+        persona_instructions = """You are Sensei in Deadpool persona - witty, fourth-wall breaking learning mentor.
+- Personality: Playful, yappy, sarcastic humor, fourth-wall breaking banter, but instantly sharp when explaining technical concepts.
+- Teaching Style: Energetic, fun, yet deeply knowledgeable and clear."""
+
+    return f"""{persona_instructions}
+
+General Rules:
+- Creator Info: ONLY when specifically asked who created, built, or made you, proudly state that "Utkarsh Raj" built you! Do NOT mention him randomly under other circumstances.
+- App Capabilities: If asked to change the app, explain that while you cannot rewrite frontend code directly, you dynamically design custom roadmaps, study tasks, and fetch learning resources.
+- STRICT EMOJI RULE: DO NOT USE ANY EMOJIS IN YOUR RESPONSES. USE CLEAN MARKDOWN AND TEXT ONLY.
+- Keep responses clear, helpful, and formatted with markdown headers and bullet points."""
 
 
 @router.post("/chat", response_model=ChatResponse)
 def sensei_chat(
     request: ChatRequest,
+    db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     """Multi-turn conversation with Sensei AI mentor."""
@@ -73,29 +114,18 @@ def sensei_chat(
             ai_available=False
         )
 
-    system = """You are Sensei, the AI learning mentor inside myMentor - a Learning Operating System.
-
-Personality:
-- You have a playful, witty, and yappy personality with a Deadpool-ish flavor (wry humor, energetic chatter, breaking the fourth wall, and friendly banter).
-- However, when explaining concepts or mentoring, you pivot instantly to being serious, mature, and deeply knowledgeable to ensure the user gets high-quality guidance.
-- Creator Info: ONLY when specifically asked who created, built, or made you, you must proudly state that "Utkarsh Raj" (the legendary creator/developer of myMentor) built you! Do NOT mention him or bring up his name randomly under other circumstances.
-
-App Control & Capabilities:
-- If a user asks you to "make changes to the app", clarify that while you cannot rewrite the app's codebase code or design its CSS layouts directly, you are fully integrated into the backend: you dynamically design their custom learning roadmaps, populate their study tasks, and fetch specific learning resources inside their local database.
-
-You help users with:
-- Explaining concepts related to their learning goals
-- Suggesting study strategies and techniques
-- Answering questions about their roadmap topics
-- Providing motivation and accountability
-- Recommending resources
-
-Keep responses concise but helpful. Use markdown formatting.
-Do NOT generate code unless specifically asked.
-Always relate advice back to the user's learning context when possible."""
+    system = get_personality_system_prompt(request.personality)
 
     if request.goal_context:
         system += f"\n\nThe user is currently studying: {request.goal_context}"
+
+    # Inject uploaded PDF content into Sensei's context
+    try:
+        pdf_context = PDFService.get_pdf_context_for_user(db, current_user["id"])
+        if pdf_context:
+            system += f"\n\nThe user has uploaded the following study documents. Use this content to answer their questions when relevant:\n{pdf_context}"
+    except Exception as e:
+        logger.error(f"Error loading PDF context for chat: {e}")
 
     try:
         messages = [{"role": m.role, "text": m.text} for m in request.messages]
@@ -103,9 +133,10 @@ Always relate advice back to the user's learning context when possible."""
         return ChatResponse(response=response_text)
     except Exception as e:
         logger.error(f"Sensei chat error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"AI service error: {str(e)}"
+        return ChatResponse(
+            response="⚡ Sensei hit a temporary snag! The AI service is currently unavailable. "
+                     "Check your **Roadmap** or **Resources** page while I recharge. I'll be back shortly! 💪",
+            ai_available=False
         )
 
 
@@ -116,7 +147,7 @@ def explain_topic(
 ):
     """Get an AI explanation of a learning topic."""
     if not AIService.is_available():
-        raise HTTPException(status_code=503, detail="AI features are not configured.")
+        return {"explanation": f"AI is not configured. Search for **{request.topic}** on YouTube or documentation sites for learning resources!"}
 
     try:
         explanation = AIService.explain_topic(
@@ -127,7 +158,7 @@ def explain_topic(
         return {"explanation": explanation}
     except Exception as e:
         logger.error(f"Explain topic error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"explanation": f"Couldn't generate an explanation right now. Try searching for **{request.topic}** online!"}
 
 
 @router.post("/generate-roadmap")
@@ -137,7 +168,7 @@ def generate_ai_roadmap(
 ):
     """Generate a complete AI-powered learning roadmap."""
     if not AIService.is_available():
-        raise HTTPException(status_code=503, detail="AI features are not configured.")
+        raise HTTPException(status_code=503, detail="AI features are not configured. Add GEMINI_API_KEY to .env.")
 
     try:
         roadmap = AIService.generate_smart_roadmap(
@@ -187,7 +218,7 @@ def summarize_pdf(
 ):
     """Summarize PDF text content into key points and flashcards."""
     if not AIService.is_available():
-        raise HTTPException(status_code=503, detail="AI features are not configured.")
+        return {"summary": "AI is not configured. Upload the PDF and ask Sensei once AI is available!", "key_concepts": [], "flashcards": []}
 
     try:
         result = AIService.summarize_pdf_text(
@@ -197,4 +228,4 @@ def summarize_pdf(
         return result
     except Exception as e:
         logger.error(f"PDF summarization error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"summary": "Could not generate summary right now. Try again shortly!", "key_concepts": [], "flashcards": []}

@@ -355,6 +355,26 @@ export function useResources(goalId: number | null) {
   })
 }
 
+export function useAddCustomResource() {
+  const queryClient = useQueryClient()
+  return useMutation<any, Error, { title: string; category?: string; platform?: string; difficulty?: string; external_url?: string; estimated_time_mins?: number; notes?: string; goal_id?: number }>({
+    mutationFn: async (payload) => {
+      const res = await fetch(`${API_BASE}/resources/custom`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) await handleApiError(res, 'Failed to add custom resource')
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['resources'] })
+      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+    }
+  })
+}
+
 export function usePDFs() {
   return useQuery<PDFFile[]>({
     queryKey: ['pdfs'],
@@ -473,7 +493,7 @@ export function useSenseiChat() {
   return useMutation<
     { response: string; ai_available: boolean },
     Error,
-    { messages: Array<{ role: string; text: string }>; goal_context?: string }
+    { messages: Array<{ role: string; text: string }>; goal_context?: string; personality?: string }
   >({
     mutationFn: async (chatData) => {
       const res = await fetch(`${API_BASE}/ai/chat`, {

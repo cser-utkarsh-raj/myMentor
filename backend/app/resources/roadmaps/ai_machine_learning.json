@@ -1,0 +1,142 @@
+{
+  "title": "AI & Machine Learning Engineer",
+  "target": "AI Researcher / ML Systems Engineer",
+  "tracks": [
+    {
+      "title": "Data Manipulation & Exploratory Analysis",
+      "description": "Master Python data science libraries: NumPy, Pandas, and data visualization.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Array Mechanics & Data Wrangling",
+          "description": "Clean, transform, and analyze datasets with NumPy and Pandas.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "NumPy Matrix Operations & Vectorization",
+              "resources": [
+                {
+                  "title": "NumPy Full Course for Machine Learning",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Master vector indexing, broadcasting, dot products, and array slicing."
+                },
+                {
+                  "title": "Pandas Data Cleaning & Aggregation Manual",
+                  "category": "Theory",
+                  "platform": "Documentation",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Perform GroupBy queries, handle missing values, and transform DataFrames."
+                }
+              ]
+            },
+            {
+              "title": "Exploratory Data Analysis (EDA) Project",
+              "resources": [
+                {
+                  "title": "Exploratory Data Analysis Walkthrough",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 90,
+                  "notes": "Build correlation matrices, histograms, and outlier detection plots on Kaggle data."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Supervised & Unsupervised Machine Learning",
+      "description": "Implement classical algorithms, feature engineering, and model evaluation metrics.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "Core Algorithmic Foundations",
+          "description": "Train linear models, decision trees, ensemble methods, and clustering algorithms.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Regression & Classification Mathematics",
+              "resources": [
+                {
+                  "title": "Scikit-Learn Machine Learning Course",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Understand linear regression, logistic classification, and decision trees."
+                },
+                {
+                  "title": "Hands-On Machine Learning Book",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Study hyperparameter tuning, cross-validation, and ROC-AUC metrics."
+                }
+              ]
+            },
+            {
+              "title": "Ensemble Models & Feature Engineering",
+              "resources": [
+                {
+                  "title": "Random Forests & XGBoost Masterclass",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 60,
+                  "notes": "Train gradient boosted decision trees and analyze feature importance scores."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Deep Neural Networks & LLM Integration",
+      "description": "Build deep learning architectures with PyTorch and fine-tune Large Language Models.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Deep Learning & Transformer Models",
+          "description": "Construct neural nets, convolution layers, and Transformer models.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "PyTorch Neural Net Architecture",
+              "resources": [
+                {
+                  "title": "Deep Learning with PyTorch Tutorial",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 75,
+                  "notes": "Build custom PyTorch modules, backpropagation loops, and loss functions."
+                }
+              ]
+            },
+            {
+              "title": "Fine-Tuning LLMs & RAG Pipeline",
+              "resources": [
+                {
+                  "title": "Building RAG Applications & Fine-Tuning LLMs",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 120,
+                  "notes": "Implement vector embeddings, semantic search, and prompt engineering."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

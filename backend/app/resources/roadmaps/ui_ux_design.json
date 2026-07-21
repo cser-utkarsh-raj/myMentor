@@ -1,0 +1,95 @@
+{
+  "title": "UI/UX Design & Product Aesthetics",
+  "target": "Senior UI/UX Designer",
+  "tracks": [
+    {
+      "title": "UX Research & User Journey Mapping",
+      "description": "Conduct user interviews, create empathy maps, and design wireframe user flows.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "User Discovery & Information Architecture",
+          "description": "Structure user navigation and synthesize qualitative research insights.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "User Persona Creation & Flow Diagrams",
+              "resources": [
+                {
+                  "title": "UX Design & User Research Fundamentals",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Define user personas, map pain points, and construct wireframe sitemaps."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Visual Layout, Typography & Color Systems",
+      "description": "Master visual hierarchy, grid systems, typography pairing, and accessible color palettes.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "Visual Aesthetics & Interface Rules",
+          "description": "Craft clean, accessible UI screens following modern design principles.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Typography Systems & Color Harmony",
+              "resources": [
+                {
+                  "title": "Refactoring UI & Interface Design Book",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Master spacing, visual hierarchy, font scaling, and contrast ratios."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Figma Interactive Design Systems",
+      "description": "Construct reusable Figma components, auto-layout variants, and interactive prototypes.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Component Architecture & Prototyping",
+          "description": "Build production-ready design tokens and clickable prototypes.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Figma Auto-Layout & Component Variants",
+              "resources": [
+                {
+                  "title": "Figma Advanced Masterclass Tutorial",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Create responsive auto-layout containers, component properties, and design tokens."
+                },
+                {
+                  "title": "Complete Mobile App Prototype Project",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Build a multi-screen interactive mobile app prototype with animated micro-interactions."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

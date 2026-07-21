@@ -8,6 +8,14 @@ from typing import Dict, Any, List
 
 class RoadmapService:
     @staticmethod
+    def _should_include_step(step_title: str | None, module_title: str | None, timeline_days: int) -> bool:
+        combined = f"{step_title or ''} {module_title or ''}".lower()
+        skip_markers = ["planning phase", "initial setup", "setup & research", "define core scope", "set up practice workspace"]
+        if any(marker in combined for marker in skip_markers):
+            return False
+        return True
+
+    @staticmethod
     def generate_roadmap(db: Session, goal: Goal) -> bool:
         """
         Loads the rule-based roadmap JSON matching the goal title,
@@ -40,14 +48,30 @@ class RoadmapService:
             filename = "custom_goal.json"
             title_lower = goal.title.lower()
             
-            if "backend" in title_lower or "software" in title_lower or "developer" in title_lower:
+            if "full-stack" in title_lower or "fullstack" in title_lower or "full stack" in title_lower:
+                filename = "fullstack_developer.json"
+            elif "backend" in title_lower or "api design" in title_lower:
                 filename = "backend_developer.json"
-            elif "ai & machine learning" in title_lower or "python" in title_lower:
+            elif "ai" in title_lower or "machine learning" in title_lower:
+                filename = "ai_machine_learning.json"
+            elif "python" in title_lower:
                 filename = "learn_python.json"
-            elif "creative design" in title_lower or "react" in title_lower or "frontend" in title_lower:
-                filename = "learn_react.json"
-            elif "data science" in title_lower:
+            elif "data science" in title_lower or "data analytics" in title_lower:
                 filename = "data_science.json"
+            elif "devops" in title_lower or "cloud" in title_lower:
+                filename = "devops_cloud.json"
+            elif "cybersecurity" in title_lower or "ethical hacking" in title_lower or "security" in title_lower:
+                filename = "cybersecurity.json"
+            elif "ui/ux" in title_lower or "ui" in title_lower or "ux" in title_lower or "creative design" in title_lower:
+                filename = "ui_ux_design.json"
+            elif "product management" in title_lower or "product manager" in title_lower:
+                filename = "product_management.json"
+            elif "financial" in title_lower or "finance" in title_lower or "investing" in title_lower:
+                filename = "finance_investing.json"
+            elif "digital marketing" in title_lower or "marketing" in title_lower:
+                filename = "digital_marketing.json"
+            elif "spanish" in title_lower or "language" in title_lower:
+                filename = "learn_spanish.json"
             
             # Feel free to add more mappings here
             
@@ -71,6 +95,14 @@ class RoadmapService:
         for track_idx, track_temp in enumerate(template.get("tracks", [])):
             for module_idx, module_temp in enumerate(track_temp.get("modules", track_temp.get("milestones", []))):
                 for step_idx, step_temp in enumerate(module_temp.get("steps", [])):
+                    if not RoadmapService._should_include_step(
+                        step_title=step_temp.get("title"),
+                        module_title=module_temp.get("title"),
+                        timeline_days=goal.timeline_days,
+                    ):
+                        logger.info(f"Skipping introductory step: {step_temp.get('title')}")
+                        continue
+
                     flat_steps.append({
                         "track_title": track_temp.get("title"),
                         "track_desc": track_temp.get("description"),
@@ -139,7 +171,7 @@ class RoadmapService:
             for day_idx in range(allocated_days_count):
                 day_num = day_start + day_idx
                 if allocated_days_count > 1:
-                    day_title = f"{step_info['step_title']} (Part {day_idx + 1}/{allocated_days_count})"
+                    day_title = f"{step_info['step_title']} (Day {day_idx + 1}/{allocated_days_count})"
                 else:
                     day_title = step_info["step_title"]
                 

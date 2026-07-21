@@ -1,0 +1,126 @@
+{
+  "title": "DevOps & Cloud Infrastructure",
+  "target": "Senior DevOps / Cloud Architect",
+  "tracks": [
+    {
+      "title": "Linux & Containerization",
+      "description": "Master Bash scripting, Linux permissions, and Docker multi-container environments.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Linux Kernel & Docker Foundations",
+          "description": "Configure server environments and containerize microservices.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Linux Administration & Shell Automation",
+              "resources": [
+                {
+                  "title": "Linux Command Line & Bash Scripting Course",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Master systemd, permissions, process monitoring, and shell scripting."
+                }
+              ]
+            },
+            {
+              "title": "Docker Multi-Container Orchestration",
+              "resources": [
+                {
+                  "title": "Docker & Docker Compose Deep Dive",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Write production Dockerfiles, manage volume mounts, and configure bridge networks."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Cloud Architecture & Infrastructure as Code",
+      "description": "Deploy infrastructure on AWS using Terraform and cloud-native blueprints.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "AWS Services & Terraform Automation",
+          "description": "Provision EC2, VPC, S3, and RDS resources programmatically.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "AWS Core Services Architecture",
+              "resources": [
+                {
+                  "title": "AWS Solutions Architect Full Course",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 75,
+                  "notes": "Understand VPC subnets, security groups, IAM roles, and load balancers."
+                }
+              ]
+            },
+            {
+              "title": "Terraform Infrastructure as Code (IaC)",
+              "resources": [
+                {
+                  "title": "Terraform AWS Automated Infrastructure Project",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Provision automated VPC, DB instances, and auto-scaling groups with Terraform modules."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CI/CD Pipelines & Kubernetes Orchestration",
+      "description": "Automate build pipelines and deploy cluster workloads to Kubernetes.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Automated Delivery & Cluster Management",
+          "description": "Construct CI/CD workflows and manage Kubernetes pods & ingress.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "GitHub Actions & Automated Testing Pipelines",
+              "resources": [
+                {
+                  "title": "CI/CD Pipeline Automation Masterclass",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 60,
+                  "notes": "Configure automated testing, container scanning, and deployment stages."
+                }
+              ]
+            },
+            {
+              "title": "Kubernetes Cluster Deployment & Ingress",
+              "resources": [
+                {
+                  "title": "Kubernetes (K8s) Production Architecture",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Deploy deployments, services, ingress controllers, and Helm charts."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

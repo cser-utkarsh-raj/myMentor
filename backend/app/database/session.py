@@ -6,17 +6,24 @@ from typing import Generator
 
 # Check if we are using SQLite to configure check_same_thread
 connect_args = {}
+engine_kwargs = {"pool_pre_ping": True}
+
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
     logger.warning("Using SQLite database for local execution fallback.")
 else:
-    logger.info("Initializing PostgreSQL database connections.")
+    logger.info("Initializing PostgreSQL database connections with connection pooling.")
+    engine_kwargs.update({
+        "pool_size": 20,
+        "max_overflow": 30,
+        "pool_recycle": 1800
+    })
 
 try:
     engine = create_engine(
         settings.DATABASE_URL,
         connect_args=connect_args,
-        pool_pre_ping=True  # Important for PostgreSQL to check connection health
+        **engine_kwargs
     )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     logger.info("Database engine established successfully.")

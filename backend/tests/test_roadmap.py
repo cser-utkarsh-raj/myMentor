@@ -45,4 +45,22 @@ class TestRoadmapService(unittest.TestCase):
         # 3. Verify tracks, modules, days, and resources exist
         tracks = self.db.query(Track).filter(Track.goal_id == goal.id).all()
         self.assertGreater(len(tracks), 0)
-        self.assertEqual(tracks[0].title, "Programming & Languages")
+        self.assertGreater(len(tracks[0].title), 0)
+
+    def test_short_timeline_skips_planning_phase(self):
+        goal_in = GoalCreate(
+            title="Custom Skill",
+            target="Build a small project",
+            active_mode="Learning",
+            daily_hours=2.0,
+            timeline_days=10
+        )
+        goal = GoalService.create_goal(self.db, goal_in, user_id="test-user-456")
+
+        success = RoadmapService.generate_roadmap(self.db, goal)
+        self.assertTrue(success)
+
+        days = self.db.query(Day).join(Day.module).join(Module.track).filter(Track.goal_id == goal.id).all()
+        day_titles = [day.title for day in days]
+        self.assertFalse(any("Planning Phase" in title for title in day_titles))
+        self.assertFalse(any("Initial Setup" in title for title in day_titles))

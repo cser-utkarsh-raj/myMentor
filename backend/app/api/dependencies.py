@@ -45,12 +45,7 @@ def get_current_user(request: Request, credentials: HTTPAuthorizationCredentials
                     detail=f"Could not validate credentials: {str(e)}"
                 )
 
-    # Enforce read-only constraint for demo account on database writes ONLY in production (PostgreSQL)
-    if "sqlite" not in settings.DATABASE_URL.lower():
-        if request.method in ("POST", "PUT", "DELETE", "PATCH") and user.get("email") == "demo@mymentor.app":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Demo account is read-only in production. Database modifications are disabled."
-            )
+    # NOTE: Demo account write restriction removed for local Docker development.
+    # Re-enable this block only when deploying a publicly hosted demo environment.
 
     return user

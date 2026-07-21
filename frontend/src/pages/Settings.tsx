@@ -10,16 +10,17 @@ import {
   RefreshCw,
   Lock,
   Cloud,
-  LogOut
+  LogOut,
+  Sparkles
 } from 'lucide-react'
 import { useActiveGoal, useDeleteGoal } from '../hooks/useApi'
-import { useUIStore, AccentColor } from '../store/uiStore'
+import { useUIStore, AccentColor, SenseiPersonality } from '../store/uiStore'
 import { useAuthStore } from '../store/authStore'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 
 export const Settings: React.FC = () => {
-  const { accentColor, setAccentColor, setGoalTheme } = useUIStore()
+  const { accentColor, setAccentColor, setGoalTheme, senseiPersonality, setSenseiPersonality } = useUIStore()
   const { data: activeGoal, refetch } = useActiveGoal()
   const deleteGoalMutation = useDeleteGoal()
   const clearSession = useAuthStore(state => state.clearSession)
@@ -249,28 +250,84 @@ export const Settings: React.FC = () => {
           </div>
         )}
 
-        {/* Future expansion placeholders */}
+        {/* Real User Useful Settings: Mentor Personality & Export Data */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Auth */}
-          <div className="glass-panel p-5 rounded-2xl border border-white/5 bg-zinc-950/10 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-zinc-650" />
-              <h4 className="font-bold text-zinc-500 text-sm">V2 Authentication</h4>
+          {/* Sensei Personality Selector */}
+          <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-zinc-950/20 flex flex-col gap-4 col-span-1 md:col-span-2">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Sparkles className={`w-5 h-5 ${getColorClass('text')}`} />
+                <h4 className="font-bold text-white text-base">Sensei Mentor Personality & Voice</h4>
+              </div>
+              <p className="text-xs text-zinc-400">
+                Choose Sensei's active personality, teaching philosophy, and typing style. NO emojis will be used in responses.
+              </p>
             </div>
-            <p className="text-[11px] text-zinc-650 leading-relaxed">
-              Secure OAuth2 flow and JWT refresh token authorization. Keep all work sandboxed locally in V1.
-            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-1">
+              {[
+                { name: 'Deadpool', tag: 'Witty & Playful', desc: 'Fourth-wall breaking banter, sarcastic humor, technically sharp explanations.' },
+                { name: 'Homelander', tag: 'Intense & Demanding', desc: 'Dominant, high-pressure, demands absolute perfection and zero excuses.' },
+                { name: 'Thor', tag: 'God of Thunder', desc: 'Boisterous warrior mentor, treats study sessions like epic battle training.' },
+                { name: 'Messi', tag: 'Tactical Genius', desc: 'Calm, humble, precise, focusing on spatial vision and graceful execution.' },
+                { name: 'Taylor Swift', tag: 'Poetic & Structured', desc: 'Lyrical storytelling, organized in Eras, deeply empathetic and structured.' },
+                { name: 'Ryan Gosling', tag: 'Quiet & Cool', desc: 'Stoic confidence, synthwave drive energy, calm and smooth mentorship.' }
+              ].map((p) => {
+                const isSelected = senseiPersonality === p.name
+                return (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => setSenseiPersonality(p.name as SenseiPersonality)}
+                    className={`flex flex-col gap-1.5 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                      isSelected 
+                        ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.3)]` 
+                        : 'bg-zinc-900/40 border-white/5 hover:bg-zinc-900/80 hover:border-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-zinc-200'}`}>
+                        {p.name}
+                      </span>
+                      <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded border ${
+                        isSelected ? `${getColorClass('bg')} ${getColorClass('text')} ${getColorClass('border')}` : 'bg-zinc-950 text-zinc-500 border-white/5'
+                      }`}>
+                        {p.tag}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">{p.desc}</p>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
-          {/* Cloud Sync */}
-          <div className="glass-panel p-5 rounded-2xl border border-white/5 bg-zinc-950/10 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <Cloud className="w-4 h-4 text-zinc-650" />
-              <h4 className="font-bold text-zinc-500 text-sm">V2 Cloud Sync</h4>
+          {/* Export Portfolio / Progress Data */}
+          <div className="glass-panel p-5 rounded-2xl border border-white/5 bg-zinc-950/20 flex flex-col justify-between gap-3">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Clock className={`w-4.5 h-4.5 ${getColorClass('text')}`} />
+                <h4 className="font-bold text-white text-sm">Export Goal Summary & Notes</h4>
+              </div>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Download your active roadmap timeline, checklist logs, and study notes as a JSON file.
+              </p>
             </div>
-            <p className="text-[11px] text-zinc-650 leading-relaxed">
-              Automatic sync to Neon remote databases, backing up checklists, files, and statistics.
-            </p>
+            <button
+              type="button"
+              onClick={() => {
+                if (!activeGoal) return
+                const blob = new Blob([JSON.stringify(activeGoal, null, 2)], { type: 'application/json' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `mymentor_${activeGoal.title.toLowerCase().replace(/\s+/g, '_')}_summary.json`
+                a.click()
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all w-fit cursor-pointer ${getColorClass('btn')}`}
+            >
+              📥 Download Roadmap Data (.json)
+            </button>
           </div>
         </div>
 

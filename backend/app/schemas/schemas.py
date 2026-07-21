@@ -208,6 +208,7 @@ class PDFResponse(PDFBase):
     id: int
     file_path: str
     upload_date: datetime
+    extraction_status: Optional[str] = None
 
     class Config:
         from_attributes = True

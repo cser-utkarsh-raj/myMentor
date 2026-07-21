@@ -23,7 +23,7 @@ interface Message {
 }
 
 export const Sensei: React.FC = () => {
-  const { accentColor } = useUIStore()
+  const { accentColor, senseiPersonality } = useUIStore()
   const { data: activeGoal } = useActiveGoal()
   const { data: aiStatus } = useAIStatus()
   const chatMutation = useSenseiChat()
@@ -71,8 +71,8 @@ export const Sensei: React.FC = () => {
     }
   }
 
-  const handleSend = async () => {
-    const trimmed = input.trim()
+  const handleSendPrompt = async (promptText: string) => {
+    const trimmed = promptText.trim()
     if (!trimmed || chatMutation.isPending) return
 
     const userMessage: Message = { role: 'user', text: trimmed, timestamp: new Date() }
@@ -84,7 +84,8 @@ export const Sensei: React.FC = () => {
       const chatHistory = newMessages.map(m => ({ role: m.role, text: m.text }))
       const result = await chatMutation.mutateAsync({
         messages: chatHistory,
-        goal_context: activeGoal?.title || undefined
+        goal_context: activeGoal?.title || undefined,
+        personality: senseiPersonality
       })
 
       setMessages(prev => [
@@ -97,6 +98,10 @@ export const Sensei: React.FC = () => {
         { role: 'model', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date() }
       ])
     }
+  }
+
+  const handleSend = () => {
+    handleSendPrompt(input)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -113,10 +118,26 @@ export const Sensei: React.FC = () => {
   }
 
   const quickPrompts = [
-    { icon: Lightbulb, text: 'Explain my current topic', prompt: `Explain the key concepts I should focus on for ${activeGoal?.title || 'my learning goal'}` },
-    { icon: BookOpen, text: 'Study strategy tips', prompt: 'What are the most effective study strategies for deep learning and retention?' },
-    { icon: Zap, text: 'Motivation boost', prompt: 'I\'m feeling unmotivated today. Give me a quick pep talk and help me get started.' },
-    { icon: RefreshCw, text: 'Review techniques', prompt: 'What are the best spaced repetition and active recall techniques I should use?' },
+    { 
+      text: 'Explain Today\'s Key Concept', 
+      prompt: `Explain the key concepts I should focus on for ${activeGoal?.title || 'my learning goal'}`, 
+      icon: Lightbulb 
+    },
+    { 
+      text: 'Quiz Me On My Roadmap', 
+      prompt: `Give me 3 practice quiz questions based on ${activeGoal?.title || 'my active topics'} to test my knowledge`, 
+      icon: BookOpen 
+    },
+    { 
+      text: 'Study & Retention Tips', 
+      prompt: 'What are the most effective study strategies for deep learning and active recall retention?', 
+      icon: Zap 
+    },
+    { 
+      text: 'Summarize My Materials', 
+      prompt: 'Summarize the core takeaways and key concepts from my uploaded study documents and PDFs', 
+      icon: RefreshCw 
+    },
   ]
 
   const renderMarkdown = (text: string) => {
@@ -135,7 +156,7 @@ export const Sensei: React.FC = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]">
-      {/* Header */}
+      {/* Header - Clean persona subtitle */}
       <div className="flex items-center justify-between pb-6 border-b border-white/5">
         <div className="flex items-center gap-4">
           <div className={`p-3 rounded-2xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
@@ -143,10 +164,8 @@ export const Sensei: React.FC = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Sensei</h1>
-            <p className="text-sm text-zinc-500">
-              {aiStatus?.ai_available
-                ? 'AI-powered learning mentor • Gemini 3.5 Flash'
-                : 'AI not configured — add GEMINI_API_KEY to backend .env'}
+            <p className="text-sm text-zinc-400 font-semibold mt-0.5">
+              Persona: {senseiPersonality}
             </p>
           </div>
         </div>
@@ -160,26 +179,26 @@ export const Sensei: React.FC = () => {
               <div className={`inline-flex p-5 rounded-3xl ${getColorClass('bg')} border ${getColorClass('border')} mb-4`}>
                 <Bot className={`w-10 h-10 ${getColorClass('text')}`} />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Hey there! I'm Sensei 👋</h2>
+              <h2 className="text-xl font-bold text-white mb-2">Sensei</h2>
               <p className="text-sm text-zinc-400 max-w-md">
                 Your AI learning companion. Ask me anything about your studies,
-                get explanations, study tips, or just chat about your progress.
+                get explanations, study tips, or quiz yourself on your roadmap.
               </p>
             </div>
 
-            {/* Quick prompts */}
-            <div className="grid grid-cols-2 gap-3 w-full max-w-lg">
+            {/* Quick prompts - Styled cards with text that execute on click */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
               {quickPrompts.map((qp, idx) => (
                 <button
                   key={idx}
-                  onClick={() => {
-                    setInput(qp.prompt)
-                    inputRef.current?.focus()
-                  }}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-zinc-900/60 border border-white/5 hover:bg-zinc-800/60 hover:border-white/10 transition-all text-left group"
+                  type="button"
+                  onClick={() => handleSendPrompt(qp.prompt)}
+                  className="flex items-center gap-3.5 p-4 rounded-2xl bg-zinc-900/60 border border-white/5 hover:bg-zinc-800/80 hover:border-white/20 transition-all text-left group cursor-pointer"
                 >
-                  <qp.icon className={`w-5 h-5 ${getColorClass('text')} group-hover:scale-110 transition-transform`} />
-                  <span className="text-sm text-zinc-300 font-medium">{qp.text}</span>
+                  <div className={`p-2.5 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} group-hover:scale-105 transition-transform shrink-0`}>
+                    <qp.icon className={`w-5 h-5 ${getColorClass('text')}`} />
+                  </div>
+                  <span className="text-xs font-bold text-zinc-200 group-hover:text-white transition-colors">{qp.text}</span>
                 </button>
               ))}
             </div>
@@ -195,93 +214,93 @@ export const Sensei: React.FC = () => {
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'model' && (
-                  <div className={`w-8 h-8 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} flex items-center justify-center flex-shrink-0 mt-1`}>
+                  <div className={`w-8 h-8 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} flex items-center justify-center shrink-0 mt-1`}>
                     <Bot className={`w-4 h-4 ${getColorClass('text')}`} />
                   </div>
                 )}
-                <div className={`max-w-[70%] ${msg.role === 'user'
-                  ? 'bg-zinc-800 border border-white/10 rounded-2xl rounded-br-md'
-                  : `bg-gradient-to-br ${getColorClass('gradient')} border ${getColorClass('border')} rounded-2xl rounded-bl-md`
-                } p-4`}>
+
+                <div className={`group relative max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed ${
+                  msg.role === 'user'
+                    ? `${getColorClass('btn')} text-black font-medium rounded-br-none`
+                    : 'bg-zinc-900/90 border border-white/10 text-zinc-200 rounded-bl-none'
+                }`}>
                   {msg.role === 'model' ? (
-                    <div
-                      className="text-sm text-zinc-200 leading-relaxed prose-invert"
+                    <div 
+                      className="prose prose-invert prose-sm max-w-none text-zinc-200"
                       dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.text) }}
                     />
                   ) : (
-                    <p className="text-sm text-zinc-200 leading-relaxed">{msg.text}</p>
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
                   )}
+
                   {msg.role === 'model' && (
-                    <div className="flex justify-end mt-2">
-                      <button
-                        onClick={() => handleCopy(msg.text, idx)}
-                        className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
-                      >
-                        {copiedIdx === idx ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleCopy(msg.text, idx)}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-zinc-800/80 border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-zinc-700 cursor-pointer"
+                      title="Copy response"
+                    >
+                      {copiedIdx === idx ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                      )}
+                    </button>
                   )}
                 </div>
+
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center shrink-0 mt-1">
                     <User className="w-4 h-4 text-zinc-400" />
                   </div>
                 )}
               </motion.div>
             ))}
+
+            {chatMutation.isPending && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex gap-3 justify-start"
+              >
+                <div className={`w-8 h-8 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} flex items-center justify-center shrink-0`}>
+                  <Bot className={`w-4 h-4 ${getColorClass('text')}`} />
+                </div>
+                <div className="bg-zinc-900/90 border border-white/10 rounded-2xl rounded-bl-none p-4 flex items-center gap-3 text-zinc-400 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+                  <span>Sensei is thinking...</span>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         )}
-
-        {chatMutation.isPending && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex gap-3 items-start"
-          >
-            <div className={`w-8 h-8 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} flex items-center justify-center`}>
-              <Bot className={`w-4 h-4 ${getColorClass('text')}`} />
-            </div>
-            <div className={`p-4 rounded-2xl rounded-bl-md bg-gradient-to-br ${getColorClass('gradient')} border ${getColorClass('border')}`}>
-              <div className="flex items-center gap-2">
-                <Loader2 className={`w-4 h-4 animate-spin ${getColorClass('text')}`} />
-                <span className="text-sm text-zinc-400">Sensei is thinking...</span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input area */}
-      <div className="border-t border-white/5 pt-4">
-        <div className="flex gap-3 items-end">
-          <div className="flex-1 relative">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Sensei anything about your learning journey..."
-              rows={1}
-              className="w-full bg-zinc-900/80 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-white/20 resize-none"
-              style={{ minHeight: '48px', maxHeight: '120px' }}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement
-                target.style.height = 'auto'
-                target.style.height = Math.min(target.scrollHeight, 120) + 'px'
-              }}
-            />
-          </div>
+      <div className="pt-4 border-t border-white/5">
+        <div className="relative flex items-center">
+          <textarea
+            ref={inputRef}
+            rows={1}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask Sensei anything about your learning journey..."
+            className="w-full bg-zinc-950/60 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 text-sm text-white placeholder-zinc-500 outline-none focus:border-white/20 transition-colors resize-none"
+          />
           <button
             onClick={handleSend}
             disabled={!input.trim() || chatMutation.isPending}
-            className={`p-3 rounded-xl ${getColorClass('btn')} transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg`}
+            className={`absolute right-2 p-2 rounded-xl transition-all cursor-pointer ${
+              input.trim() && !chatMutation.isPending
+                ? `${getColorClass('btn')}`
+                : 'text-zinc-650 cursor-not-allowed'
+            }`}
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-[10px] text-zinc-600 mt-2 text-center">
+        <p className="text-[10px] text-zinc-650 text-center mt-2">
           Sensei is powered by Gemini AI. Responses may not always be accurate.
         </p>
       </div>

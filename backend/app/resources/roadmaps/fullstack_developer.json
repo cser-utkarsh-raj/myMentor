@@ -1,0 +1,158 @@
+{
+  "title": "Full-Stack Software Engineer",
+  "target": "30 LPA / Senior Software Engineer",
+  "tracks": [
+    {
+      "title": "Modern Frontend UI Engineering",
+      "description": "Master React 19, TypeScript, state management, and modern component design.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "React Core & Component Architecture",
+          "description": "Build responsive interactive interfaces with clean component composition.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "TypeScript & React State Mechanics",
+              "resources": [
+                {
+                  "title": "React & TypeScript Full Course",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Learn typed props, useState, useEffect hooks, and component lifecycle."
+                },
+                {
+                  "title": "Official React Documentation & Patterns",
+                  "category": "Theory",
+                  "platform": "Documentation",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 45,
+                  "notes": "Study conditional rendering, key props, and state lifting."
+                }
+              ]
+            },
+            {
+              "title": "Client State & API Data Fetching",
+              "resources": [
+                {
+                  "title": "TanStack Query (React Query) Masterclass",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Master async data fetching, caching, invalidation, and optimistic updates."
+                },
+                {
+                  "title": "Build a Real-Time Dashboard UI",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 90,
+                  "notes": "Construct a responsive dashboard with chart widgets and dark mode."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Scalable Backend & Database Architecture",
+      "description": "Design high-performance REST APIs, relational schemas, and authentication systems.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "API Design & Relational Persistence",
+          "description": "Implement robust server endpoints and database query optimization.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Node.js / Python REST API Architecture",
+              "resources": [
+                {
+                  "title": "Building Production REST APIs",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Implement Express/FastAPI routes, middleware, validation, and error handling."
+                },
+                {
+                  "title": "Designing Data Intensive Applications",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Study database indexing, transactions, and concurrency patterns."
+                }
+              ]
+            },
+            {
+              "title": "PostgreSQL Schema & Security",
+              "resources": [
+                {
+                  "title": "PostgreSQL Database Performance Tuning",
+                  "category": "Theory",
+                  "platform": "Documentation",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 60,
+                  "notes": "Learn FOREIGN KEY cascades, indexing strategies, and query EXPLAIN ANALYZE."
+                },
+                {
+                  "title": "JWT Auth & Role-Based Access Control Project",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Build access token refresh flows, password hashing with bcrypt, and middleware guards."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "DevOps & Cloud Deployment",
+      "description": "Containerize full-stack apps and automate CI/CD cloud deployments.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "Containerization & Cloud Launch",
+          "description": "Package services into Docker containers and deploy to cloud platforms.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Docker Multi-Stage Containerization",
+              "resources": [
+                {
+                  "title": "Docker & Docker Compose Full Course",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 60,
+                  "notes": "Write multi-stage Dockerfiles and compose web, api, and database containers."
+                }
+              ]
+            },
+            {
+              "title": "Full-Stack Deployment & CI/CD Pipelines",
+              "resources": [
+                {
+                  "title": "GitHub Actions CI/CD Pipeline Automation",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Automate unit testing, docker build pushes, and cloud deployments."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

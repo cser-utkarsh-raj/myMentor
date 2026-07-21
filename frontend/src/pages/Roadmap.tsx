@@ -87,6 +87,16 @@ export const Roadmap: React.FC = () => {
     }
   }
 
+  const getTrackTheme = (trackIdx: number) => {
+    const themes = [
+      { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', glow: 'rgba(16, 185, 129, 0.4)', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+      { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', glow: 'rgba(168, 85, 247, 0.4)', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+      { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20', glow: 'rgba(6, 182, 212, 0.4)', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
+      { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', glow: 'rgba(245, 158, 11, 0.4)', badge: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+    ]
+    return themes[trackIdx % themes.length]
+  }
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-6xl mx-auto py-4">
       {/* Page Header */}
@@ -101,18 +111,20 @@ export const Roadmap: React.FC = () => {
 
       {/* Relational Hierarchy layout */}
       <div className="flex flex-col gap-10 mt-4">
-        {activeGoal.tracks && activeGoal.tracks.map((track) => (
+        {activeGoal.tracks && activeGoal.tracks.map((track, trackIdx) => {
+          const tTheme = getTrackTheme(trackIdx)
+          return (
           <div key={track.id} className="flex flex-col gap-6 border-b border-white/5 pb-10 last:border-0 last:pb-0">
             {/* Track Title banner */}
             <div className="flex flex-col gap-1.5 p-5 rounded-2xl bg-zinc-950/20 border border-white/5 relative overflow-hidden">
               <div 
                 className="absolute w-60 h-20 rounded-full blur-[60px] opacity-15 pointer-events-none -z-10"
-                style={{ background: `radial-gradient(circle, ${getColorClass('glow')} 0%, transparent 70%)` }}
+                style={{ background: `radial-gradient(circle, ${tTheme.glow} 0%, transparent 70%)` }}
               />
-              <span className={`text-[10px] font-bold uppercase tracking-widest ${getColorClass('text')}`}>
+              <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full border w-fit ${tTheme.badge}`}>
                 Track {track.order}
               </span>
-              <h3 className="text-xl font-bold text-white">{track.title}</h3>
+              <h3 className="text-xl font-bold text-white mt-1">{track.title}</h3>
               <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed mt-0.5">{track.description}</p>
             </div>
 
@@ -122,7 +134,7 @@ export const Roadmap: React.FC = () => {
                 <div key={ms.id} className="flex flex-col gap-4">
                   <div className="flex flex-col">
                     <h4 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-zinc-500" /> {ms.title}
+                      <BookOpen className={`w-4 h-4 ${tTheme.text}`} /> {ms.title}
                     </h4>
                     {ms.description && (
                       <p className="text-xs text-zinc-500 mt-1 max-w-xl">{ms.description}</p>
@@ -143,10 +155,7 @@ export const Roadmap: React.FC = () => {
                         borderGlow = 'shadow-[0_0_15px_rgba(16,185,129,0.15)]'
                       } else if (day.unlocked) {
                         cardStyle = `border-zinc-700/60 hover:border-white/20 bg-zinc-900/40 hover:bg-zinc-900/80 cursor-pointer`
-                        if (accentColor === 'purple') borderGlow = 'shadow-[0_0_15px_rgba(168,85,247,0.15)] hover:border-purple-500/30'
-                        else if (accentColor === 'cyan') borderGlow = 'shadow-[0_0_15px_rgba(6,182,212,0.15)] hover:border-cyan-500/30'
-                        else if (accentColor === 'blue') borderGlow = 'shadow-[0_0_15px_rgba(59,130,246,0.15)] hover:border-blue-500/30'
-                        else borderGlow = 'shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:border-emerald-500/30'
+                        borderGlow = `shadow-[0_0_15px_${tTheme.glow}] hover:border-white/30`
                       }
 
                       return (
@@ -165,7 +174,7 @@ export const Roadmap: React.FC = () => {
                               {day.is_completed ? (
                                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                               ) : day.unlocked ? (
-                                <Unlock className={`w-4 h-4 ${getColorClass('text')}`} />
+                                <Unlock className={`w-4 h-4 ${tTheme.text}`} />
                               ) : (
                                 <Lock className="w-4 h-4 text-zinc-600" />
                               )}
@@ -209,7 +218,8 @@ export const Roadmap: React.FC = () => {
               ))}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Day Details Modal Overlay */}

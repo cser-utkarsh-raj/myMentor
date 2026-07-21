@@ -1,0 +1,95 @@
+{
+  "title": "Cybersecurity & Ethical Hacking",
+  "target": "Security Analyst / Ethical Hacker",
+  "tracks": [
+    {
+      "title": "Computer Networking & Traffic Analysis",
+      "description": "Master TCP/IP protocols, DNS, subnetting, and packet analysis using Wireshark.",
+      "order": 1,
+      "milestones": [
+        {
+          "title": "Network Protocols & Packet Inspection",
+          "description": "Inspect network traffic, diagnose exploits, and map network topologies.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "TCP/IP Suite & Wireshark Deep Dive",
+              "resources": [
+                {
+                  "title": "Network Security & Wireshark Packet Analysis",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Easy",
+                  "estimated_time_mins": 60,
+                  "notes": "Capture packets, analyze 3-way handshakes, and spot unencrypted credentials."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Web Application Vulnerabilities & Penetration Testing",
+      "description": "Exploit OWASP Top 10 vulnerabilities: SQL Injection, XSS, CSRF, and SSRF using Burp Suite.",
+      "order": 2,
+      "milestones": [
+        {
+          "title": "OWASP Exploitation & Security Auditing",
+          "description": "Audit web applications and construct proof-of-concept exploits.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Burp Suite & OWASP Top 10 Exploitation",
+              "resources": [
+                {
+                  "title": "Web Application Penetration Testing Course",
+                  "category": "Video",
+                  "platform": "YouTube",
+                  "difficulty": "Medium",
+                  "estimated_time_mins": 75,
+                  "notes": "Intercept HTTP requests, exploit SQLi endpoints, and bypass auth guards."
+                },
+                {
+                  "title": "PortSwigger Web Security Academy Labs",
+                  "category": "Project",
+                  "platform": "GitHub",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Complete hands-on SQL Injection and Cross-Site Scripting lab exercises."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Network Defense & Incident Response",
+      "description": "Harden server configurations, configure firewalls, and analyze intrusion logs.",
+      "order": 3,
+      "milestones": [
+        {
+          "title": "System Hardening & SIEM Analysis",
+          "description": "Defend networks against active threats and maintain security compliance.",
+          "order": 1,
+          "steps": [
+            {
+              "title": "Linux Hardening & Log Auditing",
+              "resources": [
+                {
+                  "title": "Practical Cyber Defense & Log Analysis",
+                  "category": "Book",
+                  "platform": "Google Books",
+                  "difficulty": "Hard",
+                  "estimated_time_mins": 90,
+                  "notes": "Analyze syslog, auth.log, and web server access logs for intrusion indicators."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -5,7 +5,8 @@ import { Sidebar } from './components/Sidebar'
 import { CommandPalette } from './components/CommandPalette'
 import { useActiveGoal, useBackupDatabase } from './hooks/useApi'
 import { useAuthStore } from './store/authStore'
-import { supabase } from './lib/supabase'
+import { useUIStore } from './store/uiStore'
+import { supabase } from './lib/supabase' 
 import { Landing } from './pages/Landing'
 
 // Lazy loaded pages
@@ -26,7 +27,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: false
+      staleTime: 60000,
+      gcTime: 300000,
+      retry: 1
     }
   }
 })
@@ -57,16 +60,21 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return () => clearInterval(intervalId)
   }, [backupMutation])
 
+  const { isSidebarCollapsed, toggleSidebar } = useUIStore()
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
         setIsCommandPaletteOpen(prev => !prev)
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault()
+        toggleSidebar()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [toggleSidebar])
 
   if (isLoading) return <FallbackLoader />
 
@@ -78,7 +86,7 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   return (
     <div className="min-h-screen bg-[#09090b] flex">
       <Sidebar goal={activeGoal} />
-      <main className="flex-1 min-h-screen pl-80 p-8 overflow-y-auto">
+      <main className={`flex-1 min-h-screen ${isSidebarCollapsed ? 'pl-20' : 'pl-80'} p-8 overflow-y-auto transition-all duration-300`}>
         <Suspense fallback={<FallbackLoader />}>
           {children}
         </Suspense>
