@@ -58,7 +58,8 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       })
     }, 600000)
     return () => clearInterval(intervalId)
-  }, [backupMutation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const { isSidebarCollapsed, toggleSidebar } = useUIStore()
 

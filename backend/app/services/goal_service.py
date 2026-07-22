@@ -1,6 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from datetime import datetime, date, timedelta
-from app.models.models import Goal, Badge, DailyStatistic
+from app.models.models import Goal, Track, Module, Day, Badge, DailyStatistic
 from app.schemas.schemas import GoalCreate, GoalUpdate
 from app.core.logger import logger
 from typing import List, Optional
@@ -9,17 +9,32 @@ class GoalService:
     @staticmethod
     def get_goal(db: Session, goal_id: int) -> Optional[Goal]:
         logger.info(f"Fetching goal details for ID: {goal_id}")
-        return db.query(Goal).filter(Goal.id == goal_id).first()
+        return db.query(Goal).options(
+            selectinload(Goal.tracks)
+            .selectinload(Track.modules)
+            .selectinload(Module.days)
+            .selectinload(Day.resources)
+        ).filter(Goal.id == goal_id).first()
 
     @staticmethod
     def list_goals(db: Session, user_id: str) -> List[Goal]:
         logger.info(f"Fetching all goals for user: {user_id}")
-        return db.query(Goal).filter(Goal.user_id == user_id).order_by(Goal.created_at.desc()).all()
+        return db.query(Goal).options(
+            selectinload(Goal.tracks)
+            .selectinload(Track.modules)
+            .selectinload(Module.days)
+            .selectinload(Day.resources)
+        ).filter(Goal.user_id == user_id).order_by(Goal.created_at.desc()).all()
 
     @staticmethod
     def get_active_goal(db: Session, user_id: str) -> Optional[Goal]:
         logger.info(f"Fetching the currently active goal for user: {user_id}")
-        return db.query(Goal).filter(Goal.user_id == user_id).order_by(Goal.created_at.desc()).first()
+        return db.query(Goal).options(
+            selectinload(Goal.tracks)
+            .selectinload(Track.modules)
+            .selectinload(Module.days)
+            .selectinload(Day.resources)
+        ).filter(Goal.user_id == user_id).order_by(Goal.created_at.desc()).first()
 
     @staticmethod
     def create_goal(db: Session, goal_in: GoalCreate, user_id: str) -> Goal:
@@ -73,79 +88,92 @@ class GoalService:
             logger.info(f"Streak already active for today. Current streak: {db_goal.streak}")
             return db_goal
             
+        # Check if streak continues from yesterday or if it resets
         if db_goal.last_active_date == yesterday or db_goal.last_active_date is None:
-            # Increment streak
             db_goal.streak += 1
-            logger.info(f"Streak incremented! Streak: {db_goal.streak}")
         else:
-            # Streak broken, reset
-            logger.info(f"Streak broken. Last active was {db_goal.last_active_date}. Resetting streak to 1.")
-            db_goal.streak = 1
+            db_goal.streak = 1  # Reset streak if missed a day
             
-        # Update longest streak if exceeded
         if db_goal.streak > db_goal.longest_streak:
             db_goal.longest_streak = db_goal.streak
-            logger.info(f"New longest streak badge achieved! Longest streak: {db_goal.longest_streak}")
             
         db_goal.last_active_date = today
+        db.commit()
+        db.refresh(db_goal)
         
-        # Check for streak badges
+        # Award streak badges if applicable
         GoalService.check_and_award_streak_badges(db, db_goal)
         
+        return db_goal
+
+    @staticmethod
+    def update_mode(db: Session, goal_id: int, new_mode: str) -> Optional[Goal]:
+        """Updates the active learning mode for a goal."""
+        db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
+        if not db_goal:
+            return None
+            
+        db_goal.active_mode = new_mode
+        db.commit()
+        db.refresh(db_goal)
+        return db_goal
+
+    @staticmethod
+    def add_xp(db: Session, goal_id: int, amount: int) -> Optional[Goal]:
+        """Adds XP to a goal."""
+        db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
+        if not db_goal:
+            return None
+            
+        db_goal.xp += amount
         db.commit()
         db.refresh(db_goal)
         return db_goal
 
     @staticmethod
     def check_and_award_streak_badges(db: Session, goal: Goal):
-        """
-        Awards badges based on streak milestones (e.g., 1 day, 3 days, 7 days, 15 days).
-        """
-        streak = goal.streak
-        badges_to_check = [
-            (1, "First Step", "Started your learning journey by studying 1 day!", "streak-1"),
-            (3, "Three's Company", "Maintained a consistent study streak for 3 days!", "streak-3"),
-            (7, "Week Warrior", "Kept your learning fire burning for 7 days in a row!", "streak-7"),
-            (15, "Half-Month Habit", "An unstoppable 15-day learning streak!", "streak-15"),
-            (30, "Monthly Mastery", "Complete dedication. 30 days study streak!", "streak-30")
-        ]
+        """Checks streak milestones and awards badges."""
+        streak_milestones = {
+            3: ("Spark of Discipline", "Maintained a 3-day learning streak!", "Zap"),
+            7: ("Unstoppable Scholar", "Maintained a 7-day learning streak!", "Flame"),
+            14: ("Master of Consistency", "Maintained a 14-day learning streak!", "Award"),
+            30: ("Legendary Mentor Pupil", "Maintained a 30-day learning streak!", "Crown")
+        }
         
-        for streak_threshold, title, desc, icon in badges_to_check:
-            if streak >= streak_threshold:
-                # Check if badge already exists
-                exists = db.query(Badge).filter(
+        for streak_count, (title, description, icon) in streak_milestones.items():
+            if goal.streak >= streak_count:
+                existing_badge = db.query(Badge).filter(
                     Badge.goal_id == goal.id,
-                    Badge.icon_name == icon
+                    Badge.title == title
                 ).first()
                 
-                if not exists:
-                    new_badge = Badge(
+                if not existing_badge:
+                    badge = Badge(
                         goal_id=goal.id,
                         title=title,
-                        description=desc,
+                        description=description,
                         icon_name=icon,
                         unlocked_at=datetime.utcnow()
                     )
-                    db.add(new_badge)
-                    logger.info(f"Awarded Badge: '{title}' for streak of {streak_threshold} days!")
+                    db.add(badge)
                     
-                    # Award bonus XP for badges!
-                    goal.xp += 150
-
-                    # Also record badge XP in daily statistics for analytics consistency
-                    today = datetime.utcnow().date()
-                    daily_stat = db.query(DailyStatistic).filter(
+                    # Update Daily Statistics
+                    today_stat = db.query(DailyStatistic).filter(
                         DailyStatistic.goal_id == goal.id,
-                        DailyStatistic.date == today
+                        DailyStatistic.date == date.today()
                     ).first()
-                    if daily_stat:
-                        daily_stat.xp_gained += 150
-                    else:
-                        new_stat = DailyStatistic(
+                    
+                    if not today_stat:
+                        today_stat = DailyStatistic(
                             goal_id=goal.id,
-                            date=today,
-                            xp_gained=150,
-                            hours_studied=0.0,
-                            resources_completed=0
+                            date=date.today(),
+                            hours_spent=0.0,
+                            tasks_completed=0,
+                            xp_earned=50,
+                            streak_count=goal.streak
                         )
-                        db.add(new_stat)
+                        db.add(today_stat)
+                    else:
+                        today_stat.xp_earned += 50
+                        
+                    db.commit()

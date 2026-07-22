@@ -267,7 +267,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
       {/* Bottom Footer Info */}
       {!isSidebarCollapsed && (
         <div className="flex flex-col gap-2 border-t border-white/5 pt-4 text-center">
-          <p className="text-xs text-zinc-500 font-medium">Developed for resume excellence</p>
           <div className="flex justify-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Local Host Connected</span>

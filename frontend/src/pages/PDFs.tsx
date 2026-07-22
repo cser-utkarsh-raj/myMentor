@@ -7,7 +7,7 @@ import {
   FolderPlus, 
   ShieldAlert, 
   CheckCircle,
-  File,
+  File as FileIcon,
   Archive,
   RefreshCcw,
   Tag
@@ -267,7 +267,7 @@ export const PDFs: React.FC = () => {
                   <tr key={pdf.id} className={`hover:bg-white/5 transition-all ${pdf.is_archived ? 'opacity-50 grayscale' : ''}`}>
                     <td className="p-4 font-semibold text-zinc-200">
                       <div className="flex items-center gap-2">
-                        <File className="w-4 h-4 text-zinc-400 shrink-0" />
+                        <FileIcon className="w-4 h-4 text-zinc-400 shrink-0" />
                         <span className="truncate max-w-[150px]" title={pdf.filename}>
                           {pdf.filename}
                         </span>

@@ -192,7 +192,7 @@ class ResourceService:
         from app.services.ai_service import AIService
         if AIService.is_available():
             try:
-                prompt = f"""You are a curator of learning resources. Generate exactly 6 detailed, high-quality, real-world learning resources (books, YouTube one-shot tutorials, documentation sites, online manuals, journals) specifically for this learning goal: "{goal_title}".
+                prompt = f"""You are a curator of learning resources. Generate exactly 6 detailed, high-quality, real-world learning resources (such as YouTube one-shot tutorials, reference books, documentation sites, online manuals, and introductory articles/guides) specifically for this learning goal: "{goal_title}". Focus on high-yield introductory formats like one-shots, books, and articles.
                 
                 Generate a JSON array of resources with this exact format:
                 [
@@ -209,13 +209,11 @@ class ResourceService:
                 Return ONLY valid JSON, no markdown formatting, no code blocks."""
                 
                 from google.genai import types
-                client = AIService._get_client()
                 config = types.GenerateContentConfig(
                     temperature=0.7,
                     response_mime_type="application/json",
                 )
-                response = client.models.generate_content(
-                    model="gemini-3.6-flash",
+                response = AIService._generate(
                     contents=prompt,
                     config=config,
                 )

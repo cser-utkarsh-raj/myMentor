@@ -14,8 +14,13 @@ class AIService:
     _cache: Dict[str, Dict[str, Any]] = {}
     _cooldown_until = 0.0
     CACHE_TTL = 3600  # 1 hour
-    PRIMARY_MODEL = "gemini-3.5-flash"
-    FALLBACK_MODELS = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-2.0-flash"]
+    PRIMARY_MODEL = "gemini-2.0-flash"
+    FALLBACK_MODELS = [
+        "gemini-2.0-flash-lite",
+        "gemini-3.5-flash",
+        "gemini-3.6-flash",
+        "gemini-3.1-flash-lite"
+    ]
 
     @classmethod
     def _get_api_key(cls) -> Optional[str]:
@@ -36,7 +41,7 @@ class AIService:
 
     @classmethod
     def is_available(cls) -> bool:
-        return bool(cls._get_api_key())
+        return bool(cls._get_api_key()) and time.time() >= cls._cooldown_until
 
     @classmethod
     def _get_cached(cls, key: str) -> Optional[str]:
@@ -288,6 +293,11 @@ Material content:
 
 Return ONLY valid JSON."""
 
+        config = types.GenerateContentConfig(
+            temperature=0.6,
+            max_output_tokens=4096,
+            response_mime_type="application/json"
+        )
         try:
             response = cls._generate(contents=prompt, config=config)
             result_text = (response.text or "{}").strip()

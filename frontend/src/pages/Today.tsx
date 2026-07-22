@@ -146,7 +146,7 @@ export const Today: React.FC = () => {
         await logSessionMutation.mutateAsync({
           goal_id: activeGoal.id,
           resource_id: activeResourceId || undefined,
-          duration_seconds: timerMode * 60,
+          duration_seconds: Math.max(60, (timerMode * 60) - timerSecondsRemaining),
           completion_status: completionStatus,
           platform: 'Internal',
           notes: sessionNotes

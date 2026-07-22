@@ -15,7 +15,7 @@ def get_current_user(request: Request, credentials: HTTPAuthorizationCredentials
         try:
             # Decode Supabase JWT dynamically checking the algorithm
             header = jwt.get_unverified_header(token)
-            alg = header.get("alg", "HS256")
+            alg = header.get("alg", "HS256").upper()
             
             if alg == "RS256":
                 # For RS256 asymmetric keys (like Google Auth), decode without signature verification
@@ -24,7 +24,7 @@ def get_current_user(request: Request, credentials: HTTPAuthorizationCredentials
                 payload = jwt.decode(
                     token,
                     settings.JWT_SECRET,
-                    algorithms=[alg, "HS256"],
+                    algorithms=[alg],
                     options={"verify_aud": False}
                 )
             user_id = payload.get("sub")

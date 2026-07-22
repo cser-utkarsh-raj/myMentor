@@ -737,7 +737,8 @@ export const GoalSetup: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all ${getColorClass('btn')}`}
+                  disabled={isNextDisabled()}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all ${getColorClass('btn')} disabled:opacity-40 disabled:pointer-events-none`}
                 >
                   Review Journey <ArrowRight className="w-4 h-4" />
                 </button>

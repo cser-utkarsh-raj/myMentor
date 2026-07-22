@@ -22,6 +22,11 @@ def update_task(task_id: int, task_in: ResourceUpdate, db: Session = Depends(get
             detail=f"Resource with ID {task_id} not found."
         )
         
+    if not resource.day or not resource.day.module or not resource.day.module.track or not resource.day.module.track.goal:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Resource has corrupt or missing goal references."
+        )
     goal = resource.day.module.track.goal
     if goal.user_id != current_user["id"]:
         raise HTTPException(

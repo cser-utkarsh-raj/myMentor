@@ -1,7 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../store/authStore'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL
+  const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+  return `http://${host}:8000/api/v1`
+}
+const API_BASE = getApiBase()
 
 const getHeaders = (isMultipart = false) => {
   const { session, isDemoMode } = useAuthStore.getState()

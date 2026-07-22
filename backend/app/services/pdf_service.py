@@ -34,7 +34,7 @@ class PDFService:
         os.makedirs(settings.UPLOAD_FOLDER, exist_ok=True)
         
         # Avoid file collision: sanitize or prefix filename
-        filename = file.filename
+        filename = os.path.basename(file.filename) if file.filename else "document.pdf"
         file_path = os.path.join(settings.UPLOAD_FOLDER, filename)
         
         # If exists, append index

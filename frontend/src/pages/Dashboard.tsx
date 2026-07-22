@@ -92,7 +92,7 @@ export const Dashboard: React.FC = () => {
         </div>
         <button
           type="button"
-          onClick={() => navigate('/app/settings')}
+          onClick={() => navigate('/setup')}
           className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all cursor-pointer ${getColorClass('btn')}`}
         >
           Get Started Onboarding <ArrowRight className="w-4 h-4" />

@@ -19,7 +19,7 @@ def upload_pdf(
     """
     Uploads a PDF document to local storage and registers its metadata.
     """
-    if not file.filename.endswith(".pdf"):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only PDF documents are allowed."
