@@ -1,9 +1,9 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logger import logger
-from app.database.session import engine
+from app.database.session import engine, get_db
 from app.database.base_class import Base
 # Make sure models are loaded to register them on Base metadata
 from app.database import base  # noqa
@@ -46,9 +46,15 @@ app.include_router(ai.router, prefix=settings.API_V1_STR)
 
 @app.get("/health")
 @app.get("/api/v1/health")
-def health_check():
+def health_check(db = Depends(get_db)):
     """Simple status check for deployment environment validation."""
-    return {"status": "healthy", "database": "connected"}
+    try:
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check database failure: {e}")
+        return {"status": "healthy", "database": f"failed: {str(e)}"}
 
 @app.get("/")
 def read_root():
