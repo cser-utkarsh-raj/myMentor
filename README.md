@@ -107,6 +107,77 @@ myMentor/
 
 ---
 
+## 🔄 High-Level Application Workflows
+
+Here is how the main request-response lifecycles flow through the front and backend layers:
+
+### 1. Goal & Roadmap Generation Flow
+```mermaid
+sequenceDiagram
+    participant User as React Frontend
+    participant API as FastAPI Router
+    participant RM as RoadmapService
+    participant AI as AIService (Gemini)
+    participant DB as SQLite / PostgreSQL
+
+    User->>API: POST /api/v1/goals/ (Goal payload)
+    API->>RM: generate_roadmap(goal_id)
+    RM->>AI: generate_smart_roadmap(prompt)
+    alt Gemini AI Available & Under Quota
+        AI-->>RM: Custom JSON Roadmap (Milestones & Tasks)
+    else Rate Limited (429) or Key Missing
+        RM->>RM: Fall back to local template (custom_goal.json)
+        RM-->>RM: Distribute tasks evenly over user's timeline
+    end
+    RM->>DB: Bulk insert Tracks, Modules, Days, Resources
+    RM-->>API: Success Status
+    API-->>User: HTTP 201 Created (Instant redirect to /app)
+```
+
+### 2. Task Completion & Gamification Flow
+```mermaid
+sequenceDiagram
+    participant User as React Frontend
+    participant API as FastAPI Router
+    participant Task as ResourceTaskService
+    participant Goal as GoalService
+    participant DB as SQLite / PostgreSQL
+
+    User->>API: PUT /api/v1/tasks/{id} (is_completed: true)
+    API->>Task: update_resource(resource_id)
+    Task->>DB: Update completion status & completion time
+    Task->>Goal: update_streak(goal_id)
+    Goal->>DB: Increment streak & update last_active_date
+    Goal->>Goal: check_and_award_streak_badges()
+    alt Streak Milestone Met
+        Goal->>DB: Insert new Badge & award +50 XP bonus
+    end
+    Goal-->>API: Updated Goal & Streak payload
+    API-->>User: HTTP 200 OK (Updates global Zustand auth store)
+```
+
+### 3. Sensei AI Chat Context Flow
+```mermaid
+sequenceDiagram
+    participant User as React Frontend
+    participant API as FastAPI Router
+    participant PDF as PDFService
+    participant AI as AIService (Gemini)
+
+    User->>API: POST /api/v1/ai/chat (Message history)
+    API->>PDF: get_pdf_context_for_user(user_id)
+    PDF-->>API: Text snippet context (from uploaded PDFs)
+    API->>AI: chat(prompt + PDF Context)
+    AI->>AI: Try Primary (gemini-2.0-flash)
+    alt Primary rate limited / unavailable
+        AI->>AI: Try fallbacks (gemini-2.0-flash-lite, gemini-3.5-flash...)
+    end
+    AI-->>API: AI response text
+    API-->>User: HTTP 200 OK (Formatted Markdown output)
+```
+
+---
+
 ## ⚙️ Installation & Running Locally
 
 ### Prerequisites
