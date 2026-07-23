@@ -45,6 +45,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
   const { data: goalsList } = useGoals()
   const { setActiveGoalId } = useAuthStore()
   
+  const handleNavLinkClick = () => {
+    if (window.innerWidth < 768) {
+      if (!isSidebarCollapsed) {
+        toggleSidebar()
+      }
+    }
+  }
+  
   // Theme color resolver helper
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'glow') => {
     switch (accentColor) {
@@ -92,8 +100,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
 
   return (
     <aside 
-      className={`fixed left-0 top-0 h-screen glass-panel border-r border-white/10 flex flex-col justify-between z-40 overflow-y-auto custom-scrollbar transition-all duration-300 ${
-        isSidebarCollapsed ? 'w-20 p-3' : 'w-80 p-6'
+      className={`fixed top-0 h-screen glass-panel border-r border-white/10 flex flex-col justify-between z-40 overflow-y-auto custom-scrollbar transition-all duration-300 ${
+        isSidebarCollapsed 
+          ? 'w-20 p-3 left-0 max-md:-left-80 max-md:w-80 max-md:p-6' 
+          : 'w-80 p-6 left-0 max-md:left-0'
       }`}
     >
       <div className="flex flex-col gap-6 w-full">
@@ -101,7 +111,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
         <div className="flex items-center justify-between px-1">
           <div 
             className="flex items-center gap-3 cursor-pointer group" 
-            onClick={() => navigate('/app')}
+            onClick={() => {
+              navigate('/app')
+              handleNavLinkClick()
+            }}
             title="myMentor Dashboard"
           >
             <div className={`p-2.5 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} shadow-[0_0_15px_rgba(0,0,0,0.2)] shrink-0`}>
@@ -234,6 +247,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
               <NavLink
                 key={item.name}
                 to={item.path}
+                onClick={handleNavLinkClick}
                 className={({ isActive }) => 
                   `flex items-center ${isSidebarCollapsed ? 'justify-center p-3' : 'justify-between px-4 py-3'} rounded-xl text-sm font-semibold transition-all duration-200 group border relative ${
                     isActive 

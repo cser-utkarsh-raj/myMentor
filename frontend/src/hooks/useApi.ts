@@ -121,6 +121,7 @@ export interface PDFFile {
   category: string
   tags: string | null
   is_archived: boolean
+  extraction_status?: string
 }
 
 export interface AnalyticsDashboard {
@@ -407,6 +408,23 @@ export function useUploadPDF() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pdfs'] })
+    }
+  })
+}
+
+export function useGenerateRoadmapFromPDF() {
+  const queryClient = useQueryClient()
+  return useMutation<{ message: string; goal_id: number }, Error, number>({
+    mutationFn: async (pdfId) => {
+      const res = await fetch(`${API_BASE}/pdfs/${pdfId}/generate-roadmap`, {
+        method: 'POST',
+        headers: getHeaders()
+      })
+      if (!res.ok) await handleApiError(res, 'Failed to generate roadmap from PDF')
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
     }
   })
 }

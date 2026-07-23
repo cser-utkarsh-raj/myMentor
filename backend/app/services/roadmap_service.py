@@ -241,3 +241,164 @@ class RoadmapService:
     @staticmethod
     def get_roadmap_details(db: Session, goal_id: int) -> List[Track]:
         return db.query(Track).filter(Track.goal_id == goal_id).order_by(Track.order.asc()).all()
+
+    @staticmethod
+    def generate_roadmap_from_pdf_content(db: Session, goal: Goal, pdf_text: str) -> bool:
+        """
+        Generates a custom daily study roadmap dynamically based on an uploaded PDF's content.
+        Cleans up existing tracks for the goal before saving the new PDF-based tracks.
+        """
+        logger.info(f"Generating PDF roadmap for Goal ID: {goal.id} using PDF content.")
+        from app.services.ai_service import AIService
+        
+        template = None
+        try:
+            template = AIService.generate_roadmap_from_pdf(
+                goal_title=goal.title,
+                target=goal.target or "None",
+                daily_hours=goal.daily_hours,
+                timeline_days=goal.timeline_days,
+                pdf_extracted_text=pdf_text
+            )
+        except Exception as e:
+            logger.error(f"Failed to generate PDF roadmap via AI: {e}")
+            return False
+
+        if not template or not template.get("tracks"):
+            logger.error("No tracks returned from PDF AI roadmap generation.")
+            return False
+
+        # Clear existing roadmap data for this goal
+        try:
+            existing_tracks = db.query(Track).filter(Track.goal_id == goal.id).all()
+            for t in existing_tracks:
+                db.delete(t)
+            db.flush()
+        except Exception as de:
+            logger.error(f"Error clearing existing tracks for goal: {de}")
+            db.rollback()
+
+        # Save template to DB using same scaling logic
+        flat_steps = []
+        for track_idx, track_temp in enumerate(template.get("tracks", [])):
+            for module_idx, module_temp in enumerate(track_temp.get("modules", track_temp.get("milestones", []))):
+                for step_idx, step_temp in enumerate(module_temp.get("steps", [])):
+                    flat_steps.append({
+                        "track_title": track_temp.get("title"),
+                        "track_desc": track_temp.get("description"),
+                        "track_order": track_temp.get("order", track_idx + 1),
+                        "module_title": module_temp.get("title"),
+                        "module_desc": module_temp.get("description"),
+                        "module_order": module_temp.get("order", module_idx + 1),
+                        "step_title": step_temp.get("title"),
+                        "resources": step_temp.get("resources", step_temp.get("tasks", []))
+                    })
+
+        total_steps = len(flat_steps)
+        if total_steps == 0:
+            logger.error("No steps found in PDF roadmap template.")
+            return False
+
+        db_tracks: Dict[str, Track] = {}
+        db_modules: Dict[str, Module] = {}
+        N = goal.timeline_days
+
+        for i, step_info in enumerate(flat_steps):
+            day_start = int(round(i * N / total_steps)) + 1
+            day_end = int(round((i + 1) * N / total_steps))
+            if day_end < day_start:
+                day_end = day_start
+            allocated_days_count = day_end - day_start + 1
+
+            track_title = step_info["track_title"]
+            if track_title not in db_tracks:
+                track = Track(
+                    goal_id=goal.id,
+                    title=track_title,
+                    description=step_info["track_desc"],
+                    order=step_info["track_order"]
+                )
+                db.add(track)
+                db.flush()
+                db_tracks[track_title] = track
+            track_id = db_tracks[track_title].id
+
+            module_key = f"{track_title}::{step_info['module_title']}"
+            if module_key not in db_modules:
+                module = Module(
+                    track_id=track_id,
+                    title=step_info["module_title"],
+                    description=step_info["module_desc"],
+                    order=step_info["module_order"]
+                )
+                db.add(module)
+                db.flush()
+                db_modules[module_key] = module
+            module_id = db_modules[module_key].id
+
+            res_list = step_info["resources"]
+            res_count = len(res_list)
+
+            for day_idx in range(allocated_days_count):
+                day_num = day_start + day_idx
+                day_title = f"{step_info['step_title']} (Day {day_idx + 1}/{allocated_days_count})" if allocated_days_count > 1 else step_info["step_title"]
+                
+                db_day = Day(
+                    module_id=module_id,
+                    day_number=day_num,
+                    title=day_title,
+                    unlocked=(day_num == 1),
+                    is_completed=False,
+                    xp_rewarded=False
+                )
+                db.add(db_day)
+                db.flush()
+
+                if res_count > 0:
+                    t_start = int(round(day_idx * res_count / allocated_days_count))
+                    t_end = int(round((day_idx + 1) * res_count / allocated_days_count))
+                    day_res = res_list[t_start:t_end]
+                else:
+                    day_res = []
+
+                if len(day_res) > 0:
+                    for r_item in day_res:
+                        resource = Resource(
+                            day_id=db_day.id,
+                            title=r_item.get("title", "Resource"),
+                            category=r_item.get("category", "Theory"),
+                            platform=r_item.get("platform", "Course Material"),
+                            difficulty=r_item.get("difficulty", "Medium"),
+                            is_completed=False,
+                            notes=r_item.get("notes", ""),
+                            revision_count=0,
+                            estimated_duration_mins=r_item.get("estimated_time_mins", r_item.get("estimated_duration_mins", 30)),
+                            completed_at=None
+                        )
+                        db.add(resource)
+                else:
+                    review_variations = [
+                        {"title": f"Practical Drill: {step_info['step_title']}", "category": "Exercise", "notes": f"Implement a hands-on project or code example applying the concepts of {step_info['step_title']}."},
+                        {"title": f"Deep-Dive Study: {step_info['step_title']}", "category": "Theory", "notes": f"Read reference material, articles, or documentation regarding {step_info['step_title']}."},
+                        {"title": f"Active Recall Quiz: {step_info['step_title']}", "category": "Exercise", "notes": f"Create 3 flashcards or quiz questions covering key terminology of {step_info['step_title']}."},
+                        {"title": f"Study Notes Consolidation: {step_info['step_title']}", "category": "Theory", "notes": f"Summarize today's core takeaways and organize your notes for {step_info['step_title']}."},
+                        {"title": f"Review & Refine: {step_info['step_title']}", "category": "Projects", "notes": f"Re-read your notes, correct earlier mistakes, and cement your understanding of {step_info['step_title']}."}
+                    ]
+                    var = review_variations[(day_idx - 1) % len(review_variations)]
+                    resource = Resource(
+                        day_id=db_day.id,
+                        title=var["title"],
+                        category=var["category"],
+                        platform="Course Material",
+                        difficulty="Medium",
+                        is_completed=False,
+                        notes=var["notes"],
+                        revision_count=0,
+                        estimated_duration_mins=30,
+                        completed_at=None
+                    )
+                    db.add(resource)
+
+        db.commit()
+        logger.info(f"PDF Roadmap successfully generated and saved for Goal ID: {goal.id}")
+        return True

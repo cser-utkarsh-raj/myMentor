@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
   Upload, 
@@ -12,11 +13,12 @@ import {
   RefreshCcw,
   Tag
 } from 'lucide-react'
-import { usePDFs, useUploadPDF, useDeletePDF, useTogglePDFArchive, useUpdatePDFTags, useActiveGoal } from '../hooks/useApi'
+import { usePDFs, useUploadPDF, useDeletePDF, useTogglePDFArchive, useUpdatePDFTags, useActiveGoal, useGenerateRoadmapFromPDF } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
 export const PDFs: React.FC = () => {
   const { accentColor } = useUIStore()
+  const navigate = useNavigate()
   
   // Queries & Mutations
   const { data: pdfs, isLoading } = usePDFs()
@@ -25,6 +27,10 @@ export const PDFs: React.FC = () => {
   const deletePDFMutation = useDeletePDF()
   const toggleArchiveMutation = useTogglePDFArchive()
   const updateTagsMutation = useUpdatePDFTags()
+  const generateRoadmapFromPDFMutation = useGenerateRoadmapFromPDF()
+
+  // State
+  const [generatingRoadmapId, setGeneratingRoadmapId] = useState<number | null>(null)
 
   // Dynamic categories from active goal tracks
   const categories = React.useMemo(() => {
@@ -124,6 +130,22 @@ export const PDFs: React.FC = () => {
       setTimeout(() => setUploadStatus('idle'), 2000)
     } catch (e) {
       setUploadStatus('error')
+    }
+  }
+
+  const handleGenerateRoadmap = async (pdfId: number) => {
+    if (!window.confirm("This will clear your current roadmap and generate a new personalized study schedule based entirely on the contents of this PDF. Proceed?")) {
+      return
+    }
+    setGeneratingRoadmapId(pdfId)
+    try {
+      await generateRoadmapFromPDFMutation.mutateAsync(pdfId)
+      alert("Roadmap successfully generated from PDF! Sensei has structured your daily study tasks around the textbook chapters. Redirecting you to your new Roadmap.")
+      navigate('/app/roadmap')
+    } catch (e: any) {
+      alert("Failed to generate roadmap from PDF. Please make sure the PDF has been parsed successfully.")
+    } finally {
+      setGeneratingRoadmapId(null)
     }
   }
 
@@ -318,6 +340,19 @@ export const PDFs: React.FC = () => {
                     <td className="p-4 text-zinc-500">{formatDate(pdf.upload_date)}</td>
                     <td className="p-4 text-center">
                       <div className="flex gap-2 justify-center">
+                        <button
+                          type="button"
+                          disabled={pdf.extraction_status !== 'success' || generatingRoadmapId !== null}
+                          onClick={() => handleGenerateRoadmap(pdf.id)}
+                          className="p-2 rounded-lg bg-zinc-950/40 border border-white/5 hover:border-emerald-500/20 text-zinc-500 hover:text-emerald-400 transition-all cursor-pointer disabled:opacity-45 disabled:pointer-events-none"
+                          title={pdf.extraction_status === 'pending' ? 'Parsing PDF text...' : 'Generate Roadmap from PDF'}
+                        >
+                          {generatingRoadmapId === pdf.id ? (
+                            <div className="w-4 h-4 rounded-full border border-dashed border-emerald-400 animate-spin" />
+                          ) : (
+                            <FolderPlus className="w-4 h-4" />
+                          )}
+                        </button>
                         <button
                           type="button"
                           onClick={() => handleToggleArchive(pdf.id)}

@@ -392,3 +392,81 @@ Return ONLY valid JSON."""
         except Exception as e:
             logger.error(f"Failed to extract memory from conversation: {e}")
             return {}
+
+    @classmethod
+    def generate_roadmap_from_pdf(cls, goal_title: str, target: str, daily_hours: float, timeline_days: int, pdf_extracted_text: str) -> Dict[str, Any]:
+        """
+        Generate a complete learning roadmap based on PDF textbook/syllabus content.
+        """
+        # Crop to first 12,000 characters to prevent token limit issues
+        snippet = pdf_extracted_text[:12000] if pdf_extracted_text else ""
+        
+        prompt = f"""You are an expert learning architect. Create a structured learning roadmap based ON THE FOLLOWING UPLOADED STUDY MATERIAL / SYLLABUS:
+
+Uploaded Document Content Snippet:
+{snippet}
+
+Goal: {goal_title}
+Target Outcome: {target}
+Daily Study Hours: {daily_hours}
+Total Timeline: {timeline_days} days
+
+Generate a JSON roadmap with this EXACT structure:
+{{
+  "title": "Roadmap Title (based on uploaded material)",
+  "target": "{target}",
+  "tracks": [
+    {{
+      "title": "Track Name",
+      "description": "Track description",
+      "order": 1,
+      "modules": [
+        {{
+          "title": "Module Name",
+          "description": "Module description",  
+          "order": 1,
+          "steps": [
+            {{
+              "title": "Step/Day Title",
+              "resources": [
+                {{
+                  "title": "Resource name",
+                  "category": "Theory|Exercise|Video|Project",
+                  "platform": "YouTube|Book|Documentation|GitHub|Course Material",
+                  "difficulty": "Easy|Medium|Hard",
+                  "estimated_time_mins": 30,
+                  "notes": "Actionable task instructions based on the PDF content"
+                }}
+              ]
+            }}
+          ]
+        }}
+      ]
+    }}
+  ]
+}}
+
+Requirements:
+- Distribute the content topics found in the uploaded text snippet logically across {timeline_days} days.
+- Ensure the number of steps (days) matches the goal timeline of {timeline_days} days.
+- Return ONLY valid JSON.
+"""
+        config = types.GenerateContentConfig(
+            temperature=0.6,
+            max_output_tokens=8192,
+            response_mime_type="application/json"
+        )
+        try:
+            response = cls._generate(contents=prompt, config=config)
+            result_text = (response.text or "{}").strip()
+            # Remove markdown fences if present
+            if result_text.startswith("```"):
+                first_newline = result_text.find("\n")
+                if first_newline != -1:
+                    result_text = result_text[first_newline:].strip()
+                if result_text.endswith("```"):
+                    result_text = result_text[:-3].strip()
+            return json.loads(result_text)
+        except Exception as e:
+            logger.error(f"Failed to generate roadmap from PDF: {e}")
+            return {}
