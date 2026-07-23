@@ -211,14 +211,23 @@ class RoadmapService:
                         )
                         db.add(resource)
                 else:
+                    review_variations = [
+                        {"title": f"Practical Drill: {step_info['step_title']}", "category": "Exercise", "notes": f"Implement a small hands-on project or code example applying the core principles of {step_info['step_title']}."},
+                        {"title": f"Deep-Dive & Edge Cases: {step_info['step_title']}", "category": "Theory", "notes": f"Read advanced reference material, articles, or documentation regarding {step_info['step_title']}."},
+                        {"title": f"Active Recall Quiz: {step_info['step_title']}", "category": "Exercise", "notes": f"Set up 3 flashcards or quiz questions covering key terminology of {step_info['step_title']}."},
+                        {"title": f"Study Notes Consolidation: {step_info['step_title']}", "category": "Theory", "notes": f"Summarize today's core takeaways and organize your markdown notes for {step_info['step_title']}."},
+                        {"title": f"Review & Refine: {step_info['step_title']}", "category": "Projects", "notes": f"Re-read your notes, correct earlier mistakes, and cement your understanding of {step_info['step_title']}."}
+                    ]
+                    # Choose a variation based on the current day index in this step
+                    var = review_variations[(day_idx - 1) % len(review_variations)]
                     resource = Resource(
                         day_id=db_day.id,
-                        title=f"Review: {step_info['step_title']}",
-                        category="Projects",
+                        title=var["title"],
+                        category=var["category"],
                         platform="Internal",
                         difficulty="Medium",
                         is_completed=False,
-                        notes="Perform hands-on exercises and review concepts.",
+                        notes=var["notes"],
                         revision_count=0,
                         estimated_duration_mins=30,
                         completed_at=None

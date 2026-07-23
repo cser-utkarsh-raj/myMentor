@@ -123,10 +123,17 @@ export const GoalSetup: React.FC = () => {
   }
 
   const handleNext = () => {
-    if (step === 1 && selectedGoalId === 'custom-01') {
-      if (!customGoal.trim()) {
-        alert('Please enter your custom goal title.')
-        return
+    if (step === 1) {
+      if (selectedGoalId === 'custom-01') {
+        if (!customGoal.trim()) {
+          alert('Please enter your custom goal title.')
+          return
+        }
+      } else {
+        if (!goal.trim()) {
+          alert('Please select a goal first.')
+          return
+        }
       }
       setStep(1.5)
     } else if (step === 1.5) {
@@ -141,7 +148,7 @@ export const GoalSetup: React.FC = () => {
   }
 
   const handleBack = () => {
-    if (step === 2 && selectedGoalId === 'custom-01') {
+    if (step === 2) {
       setStep(1.5)
     } else if (step === 1.5) {
       setStep(1)
@@ -163,9 +170,9 @@ export const GoalSetup: React.FC = () => {
     setIsGenerating(true)
     const finalGoal = selectedGoalId === 'custom-01' ? customGoal : goal
     let finalTarget = target === 'Other' ? customTarget : target
-    if (selectedGoalId === 'custom-01') {
-      finalTarget = `Target: ${finalTarget} | Experience Level: ${qExperience} | Core Focus Areas: ${qFocus} | Preferred Learning Style: ${qLearnStyle}`
-    }
+    
+    // Always append onboarding interview answers to target so they scale the generated roadmap
+    finalTarget = `Target: ${finalTarget || 'None'} | Experience Level: ${qExperience} | Core Focus Areas: ${qFocus} | Preferred Learning Style: ${qLearnStyle}`
     
     try {
       await createGoalMutation.mutateAsync({
@@ -387,7 +394,7 @@ export const GoalSetup: React.FC = () => {
                         Sensei Interview <Sparkles className={`w-5 h-5 ${getColorClass('text')}`} />
                       </h2>
                       <p className="text-sm text-zinc-400">
-                        Help me personalize your curriculum for <strong className="text-zinc-200">"{customGoal}"</strong>:
+                        Help me personalize your curriculum for <strong className="text-zinc-200">"{selectedGoalId === 'custom-01' ? customGoal : goal}"</strong>:
                       </p>
                     </div>
 

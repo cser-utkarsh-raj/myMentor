@@ -160,7 +160,7 @@ export const useTriggerRecovery = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-      queryClient.invalidateQueries({ queryKey: ['goalAnalytics'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
     }
   })
 }
@@ -317,7 +317,7 @@ export function useLogStudySession() {
   const queryClient = useQueryClient()
   return useMutation<any, Error, { goal_id: number; resource_id?: number; duration_seconds: number; completion_status: boolean; platform?: string; notes?: string }>({
     mutationFn: async (sessionData) => {
-      const res = await fetch(`${API_BASE}/timer/sessions`, {
+      const res = await fetch(`${API_BASE}/study-sessions/`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(sessionData)
