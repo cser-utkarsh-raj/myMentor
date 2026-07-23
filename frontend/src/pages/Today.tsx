@@ -368,6 +368,25 @@ export const Today: React.FC = () => {
             </span>
           </div>
 
+          {/* Study Progress Indicator */}
+          <div className="w-full flex flex-col gap-2 mt-1 px-4">
+            <div className="flex justify-between text-[9px] text-zinc-500 font-black uppercase tracking-wider">
+              <span>Elapsed: {formatTime((timerMode * 60) - timerSecondsRemaining)}</span>
+              <span>Remaining: {formatTime(timerSecondsRemaining)}</span>
+            </div>
+            <div className="w-full h-1.5 bg-zinc-950/60 rounded-full overflow-hidden border border-white/5">
+              <div 
+                className={`h-full transition-all duration-1000 ${
+                  accentColor === 'cyan' ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]' :
+                  accentColor === 'emerald' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' :
+                  accentColor === 'blue' ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' :
+                  'bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]'
+                }`}
+                style={{ width: `${((timerMode * 60 - timerSecondsRemaining) / (timerMode * 60)) * 100}%` }}
+              />
+            </div>
+          </div>
+
           <div className="flex gap-3 w-full max-w-xs mt-1">
             {timerIsRunning ? (
               <button

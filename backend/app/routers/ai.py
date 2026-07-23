@@ -203,6 +203,17 @@ def sensei_chat(
                     memory_context += f"\n- Unlocked Badges/Achievements: {', '.join([b.title for b in badges])}"
             except Exception as be:
                 logger.error(f"Error fetching badges for memory: {be}")
+
+            # Get Persistent AI Memory records from DB
+            try:
+                from app.models.models import AIMemory
+                memories = db.query(AIMemory).filter(AIMemory.goal_id == goal.id).all()
+                if memories:
+                    memory_context += f"\n- Persistent Long-Term Memory Insights:"
+                    for m in memories:
+                        memory_context += f"\n  * {m.memory_type.capitalize()}: {m.content}"
+            except Exception as me:
+                logger.error(f"Error fetching persistent AIMemory: {me}")
                 
             system += memory_context
     except Exception as ge:
@@ -222,6 +233,34 @@ def sensei_chat(
     try:
         messages = [{"role": m.role, "text": m.text} for m in request.messages]
         response_text = AIService.chat(messages=messages, system_instruction=system)
+
+        # Summarize and save long-term memory every 10 messages
+        if goal and len(request.messages) >= 10 and len(request.messages) % 10 == 0:
+            try:
+                from app.models.models import AIMemory
+                extracted = AIService.summarize_and_extract_memory(request.messages, goal.title)
+                if extracted:
+                    for key, val in extracted.items():
+                        if val and val.strip() and val != "...":
+                            mem = db.query(AIMemory).filter(
+                                AIMemory.goal_id == goal.id,
+                                AIMemory.memory_type == key
+                            ).first()
+                            if mem:
+                                mem.content = val.strip()
+                            else:
+                                mem = AIMemory(
+                                    user_id=current_user["id"],
+                                    goal_id=goal.id,
+                                    memory_type=key,
+                                    content=val.strip()
+                                )
+                                db.add(mem)
+                    db.commit()
+                    logger.info(f"Successfully compiled and persisted AI memory summaries for Goal ID {goal.id}")
+            except Exception as se:
+                logger.error(f"Failed to persist conversation summary memory: {se}")
+
         return ChatResponse(response=response_text)
     except Exception as e:
         logger.error(f"Sensei chat error: {e}")

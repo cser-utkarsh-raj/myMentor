@@ -339,3 +339,56 @@ Make it specific, actionable, and encouraging. No generic platitudes."""
         except Exception as e:
             logger.error(f"Daily tip generation failed: {e}")
             return "Keep pushing forward! Consistency is the key to mastery. Every session compounds over time. 🔥"
+
+    @classmethod
+    def summarize_and_extract_memory(cls, messages: List[Any], goal_title: str) -> Dict[str, Any]:
+        """
+        Analyze recent chat messages and extract memory insights
+        (strengths, weaknesses, preferences, progress_summary).
+        """
+        chat_transcript = ""
+        for m in messages[-10:]:
+            role = getattr(m, 'role', m.get('role', 'user') if isinstance(m, dict) else 'user')
+            text = getattr(m, 'text', m.get('text', '') if isinstance(m, dict) else '')
+            chat_transcript += f"{role}: {text}\n"
+
+        prompt = f"""You are an AI learning architect monitoring a student studying: "{goal_title}".
+Analyze the following recent conversation history between the student and their mentor, and compile their profile state.
+Identify:
+1. Strengths: Concepts or skills the student grasps well.
+2. Weaknesses: Concepts, APIs, or issues the student is struggling with or has questions about.
+3. Preferences: Learning styles, favorite personalities, or technical choices mentioned.
+4. Progress Summary: A 1-2 sentence overview of what was covered and what the next lesson/step should focus on.
+
+Format your response as a valid JSON object:
+{{
+  "strengths": "...",
+  "weaknesses": "...",
+  "preferences": "...",
+  "progress_summary": "..."
+}}
+
+Conversation history:
+{chat_transcript}
+
+Return ONLY valid JSON."""
+
+        try:
+            config = types.GenerateContentConfig(
+                temperature=0.4,
+                max_output_tokens=1024,
+                response_mime_type="application/json"
+            )
+            response = cls._generate(contents=prompt, config=config)
+            result_text = (response.text or "{}").strip()
+            # Remove markdown code fences if present
+            if result_text.startswith("```"):
+                first_newline = result_text.find("\n")
+                if first_newline != -1:
+                    result_text = result_text[first_newline:].strip()
+                if result_text.endswith("```"):
+                    result_text = result_text[:-3].strip()
+            return json.loads(result_text)
+        except Exception as e:
+            logger.error(f"Failed to extract memory from conversation: {e}")
+            return {}

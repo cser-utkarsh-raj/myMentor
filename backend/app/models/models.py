@@ -22,6 +22,7 @@ class Goal(Base):
     study_sessions = relationship("StudySession", back_populates="goal", cascade="all, delete-orphan")
     daily_statistics = relationship("DailyStatistic", back_populates="goal", cascade="all, delete-orphan")
     badges = relationship("Badge", back_populates="goal", cascade="all, delete-orphan")
+    ai_memories = relationship("AIMemory", back_populates="goal", cascade="all, delete-orphan")
 
 
 class Track(Base):
@@ -143,3 +144,16 @@ class PDF(Base):
     is_archived = Column(Boolean, default=False)
     extracted_text = Column(Text, nullable=True)
     extraction_status = Column(String, default="pending")  # pending, success, failed, empty
+
+
+class AIMemory(Base):
+    __tablename__ = "aimemory"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=False, index=True)
+    goal_id = Column(Integer, ForeignKey("goal.id", ondelete="CASCADE"), nullable=False)
+    memory_type = Column(String, nullable=False)  # preference, weakness, strength, progress_summary
+    content = Column(Text, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    goal = relationship("Goal", back_populates="ai_memories")
