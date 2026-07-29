@@ -134,6 +134,7 @@ class GoalService:
     def check_and_award_streak_badges(db: Session, goal: Goal):
         """Checks streak milestones and awards badges."""
         streak_milestones = {
+            1: ("First Step", "Started your learning journey!", "Zap"),
             3: ("Spark of Discipline", "Maintained a 3-day learning streak!", "Zap"),
             7: ("Unstoppable Scholar", "Maintained a 7-day learning streak!", "Flame"),
             14: ("Master of Consistency", "Maintained a 14-day learning streak!", "Award"),
@@ -157,6 +158,9 @@ class GoalService:
                     )
                     db.add(badge)
                     
+                    # Award 150 XP to the goal
+                    goal.xp += 150
+                    
                     # Update Daily Statistics
                     today_stat = db.query(DailyStatistic).filter(
                         DailyStatistic.goal_id == goal.id,
@@ -167,13 +171,13 @@ class GoalService:
                         today_stat = DailyStatistic(
                             goal_id=goal.id,
                             date=date.today(),
-                            hours_spent=0.0,
+                            hours_studied=0.0,
                             tasks_completed=0,
-                            xp_earned=50,
-                            streak_count=goal.streak
+                            xp_gained=150,
+                            consistency_score=100.0
                         )
                         db.add(today_stat)
                     else:
-                        today_stat.xp_earned += 50
+                        today_stat.xp_gained += 150
                         
                     db.commit()
