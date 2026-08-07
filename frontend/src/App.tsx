@@ -131,12 +131,18 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const themeMap: Record<string, { hex: string; rgb: string }> = {
+      plasma: { hex: '#a855f7', rgb: '168, 85, 247' },
+      winter: { hex: '#06b6d4', rgb: '6, 182, 212' },
+      jungle: { hex: '#10b981', rgb: '16, 185, 129' },
+      volcano: { hex: '#f97316', rgb: '249, 115, 22' },
+      cyberpunk: { hex: '#f43f5e', rgb: '244, 63, 94' },
+      solar: { hex: '#facc15', rgb: '250, 204, 21' },
       purple: { hex: '#a855f7', rgb: '168, 85, 247' },
       cyan: { hex: '#06b6d4', rgb: '6, 182, 212' },
       emerald: { hex: '#10b981', rgb: '16, 185, 129' },
       blue: { hex: '#3b82f6', rgb: '59, 130, 246' }
     }
-    const current = themeMap[accentColor] || themeMap.purple
+    const current = themeMap[accentColor] || themeMap.plasma
     document.documentElement.style.setProperty('--accent-color', current.hex)
     document.documentElement.style.setProperty('--accent-rgb', current.rgb)
   }, [accentColor])

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
-export type AccentColor = 'purple' | 'cyan' | 'emerald' | 'blue'
+export type AccentColor = 'plasma' | 'winter' | 'jungle' | 'volcano' | 'cyberpunk' | 'solar' | 'purple' | 'cyan' | 'emerald' | 'blue'
 export type SenseiPersonality = 'Deadpool' | 'Homelander' | 'Thor' | 'Messi' | 'Taylor Swift' | 'Ryan Gosling'
 
 interface UIState {
@@ -18,7 +18,7 @@ interface UIState {
 export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
-      accentColor: 'purple',
+      accentColor: 'plasma',
       goalThemes: {},
       isSidebarCollapsed: false,
       senseiPersonality: 'Deadpool',

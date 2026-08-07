@@ -113,57 +113,107 @@ export const Settings: React.FC = () => {
           </h3>
           <p className="text-xs text-zinc-400">Choose a primary theme accent for glowing panels, active routes, and sliders.</p>
           
-          <div className="flex flex-wrap gap-3 mt-1">
-            {/* Purple preset */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-1">
+            {/* Plasma Vibe */}
             <button
               type="button"
-              onClick={() => handleSetTheme('purple')}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
-                accentColor === 'purple' 
-                  ? 'bg-purple-500/10 border-purple-500/40 text-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
-                  : 'bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60'
+              onClick={() => handleSetTheme('plasma')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                accentColor === 'plasma' || accentColor === 'purple'
+                  ? 'bg-purple-500/20 border-purple-500 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)] scale-[1.02]' 
+                  : 'bg-zinc-900/60 border-white/10 hover:border-white/20 hover:bg-zinc-900'
               }`}
             >
-              <div className="w-3.5 h-3.5 rounded-full bg-purple-500" /> Purple Violet
+              <div className="flex -space-x-1 shrink-0">
+                <div className="w-3.5 h-3.5 rounded-full bg-purple-500 border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-pink-500 border border-black" />
+              </div>
+              <span className="truncate">⚡ Plasma</span>
             </button>
 
-            {/* Blue preset */}
+            {/* Winter Vibe */}
             <button
               type="button"
-              onClick={() => handleSetTheme('blue')}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
-                accentColor === 'blue' 
-                  ? 'bg-blue-500/10 border-blue-500/40 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.15)]' 
-                  : 'bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60'
+              onClick={() => handleSetTheme('winter')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                accentColor === 'winter' || accentColor === 'cyan'
+                  ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.3)] scale-[1.02]' 
+                  : 'bg-zinc-900/60 border-white/10 hover:border-white/20 hover:bg-zinc-900'
               }`}
             >
-              <div className="w-3.5 h-3.5 rounded-full bg-blue-500" /> Ocean Blue
+              <div className="flex -space-x-1 shrink-0">
+                <div className="w-3.5 h-3.5 rounded-full bg-cyan-400 border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-blue-500 border border-black" />
+              </div>
+              <span className="truncate">❄️ Winter</span>
             </button>
 
-            {/* Cyan preset */}
+            {/* Jungle Vibe */}
             <button
               type="button"
-              onClick={() => handleSetTheme('cyan')}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
-                accentColor === 'cyan' 
-                  ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)]' 
-                  : 'bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60'
+              onClick={() => handleSetTheme('jungle')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                accentColor === 'jungle' || accentColor === 'emerald'
+                  ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-[1.02]' 
+                  : 'bg-zinc-900/60 border-white/10 hover:border-white/20 hover:bg-zinc-900'
               }`}
             >
-              <div className="w-3.5 h-3.5 rounded-full bg-cyan-500" /> Cyber Cyan
+              <div className="flex -space-x-1 shrink-0">
+                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-lime-400 border border-black" />
+              </div>
+              <span className="truncate">🌿 Jungle</span>
             </button>
 
-            {/* Emerald preset */}
+            {/* Volcano Vibe */}
             <button
               type="button"
-              onClick={() => handleSetTheme('emerald')}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
-                accentColor === 'emerald' 
-                  ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]' 
-                  : 'bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60'
+              onClick={() => handleSetTheme('volcano')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                accentColor === 'volcano' || accentColor === 'blue'
+                  ? 'bg-orange-500/20 border-orange-500 text-orange-300 shadow-[0_0_15px_rgba(249,115,22,0.3)] scale-[1.02]' 
+                  : 'bg-zinc-900/60 border-white/10 hover:border-white/20 hover:bg-zinc-900'
               }`}
             >
-              <div className="w-3.5 h-3.5 rounded-full bg-emerald-500" /> Forest Emerald
+              <div className="flex -space-x-1 shrink-0">
+                <div className="w-3.5 h-3.5 rounded-full bg-orange-500 border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-red-600 border border-black" />
+              </div>
+              <span className="truncate">🌋 Volcano</span>
+            </button>
+
+            {/* Cyberpunk Vibe */}
+            <button
+              type="button"
+              onClick={() => handleSetTheme('cyberpunk')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                accentColor === 'cyberpunk' 
+                  ? 'bg-rose-500/20 border-rose-500 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.3)] scale-[1.02]' 
+                  : 'bg-zinc-900/60 border-white/10 hover:border-white/20 hover:bg-zinc-900'
+              }`}
+            >
+              <div className="flex -space-x-1 shrink-0">
+                <div className="w-3.5 h-3.5 rounded-full bg-rose-500 border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-yellow-400 border border-black" />
+              </div>
+              <span className="truncate">🌆 Cyberpunk</span>
+            </button>
+
+            {/* Solar Flare Vibe */}
+            <button
+              type="button"
+              onClick={() => handleSetTheme('solar')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                accentColor === 'solar' 
+                  ? 'bg-yellow-500/20 border-yellow-500 text-yellow-300 shadow-[0_0_15px_rgba(250,204,21,0.3)] scale-[1.02]' 
+                  : 'bg-zinc-900/60 border-white/10 hover:border-white/20 hover:bg-zinc-900'
+              }`}
+            >
+              <div className="flex -space-x-1 shrink-0">
+                <div className="w-3.5 h-3.5 rounded-full bg-yellow-400 border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-amber-500 border border-black" />
+              </div>
+              <span className="truncate">☀️ Solar</span>
             </button>
           </div>
         </div>
