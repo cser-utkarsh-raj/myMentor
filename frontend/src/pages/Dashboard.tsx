@@ -125,6 +125,27 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
 
+      {/* Overall Goal Progress Banner */}
+      <div className="glass-panel rounded-3xl p-6 border border-white/10 bg-zinc-950/40 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`text-[10px] font-black uppercase tracking-widest ${theme.text}`}>Active Odyssey Goal</span>
+              <span className="text-[10px] font-bold text-zinc-500">• {analytics.days_remaining} Days Remaining</span>
+            </div>
+            <h3 className="text-xl font-bold text-white">{activeGoal.title}</h3>
+            {displayTarget && <p className="text-xs text-zinc-400 mt-0.5 font-medium">Target: {displayTarget}</p>}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl font-black font-mono text-white">{Math.round(analytics.overall_progress_percent)}%</span>
+            <span className="text-xs font-bold text-zinc-500 uppercase">Overall<br/>Progress</span>
+          </div>
+        </div>
+        <div className="w-full h-3 rounded-full bg-zinc-900 border border-white/10 overflow-hidden">
+          <div className={`h-full rounded-full transition-all duration-700 bg-gradient-to-r ${theme.gradient}`} style={{ width: `${Math.max(5, analytics.overall_progress_percent)}%` }} />
+        </div>
+      </div>
+
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between">
