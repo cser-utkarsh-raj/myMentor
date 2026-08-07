@@ -98,11 +98,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
             }}
             title="myMentor Dashboard"
           >
-            <div className={`p-2.5 rounded-xl ${theme.bg} border-2 border-black shadow-[3px_3px_0px_#000] shrink-0`}>
-              <Zap className={`w-6 h-6 ${theme.text}`} />
-            </div>
+            <img 
+              src="/mymentor-logo.svg" 
+              alt="myMentor Logo" 
+              className="w-9 h-9 shrink-0 drop-shadow-[3px_3px_0px_#000] group-hover:scale-105 transition-transform" 
+            />
             {!isSidebarCollapsed && (
-              <span className="font-extrabold text-xl tracking-tight text-white flex items-center gap-1.5">
+              <span className="font-extrabold text-xl tracking-tight text-white flex items-center gap-0.5">
                 my<span className={theme.text}>Mentor</span>
               </span>
             )}
@@ -111,8 +113,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
           <button 
             type="button"
             onClick={toggleSidebar}
-            className="p-2 rounded-xl bg-zinc-900 border-2 border-black hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all cursor-pointer shadow-[2px_2px_0px_#000]"
-            title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            className={`p-2 rounded-xl bg-zinc-900 border-2 border-black hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0px_#000] ${isSidebarCollapsed ? 'mx-auto mt-1' : ''}`}
+            title={isSidebarCollapsed ? "Expand Sidebar (Ctrl+B)" : "Collapse Sidebar (Ctrl+B)"}
           >
             {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
           </button>

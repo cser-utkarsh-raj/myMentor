@@ -59,11 +59,9 @@ export const Landing: React.FC = () => {
       {/* Navbar */}
       <nav className="fixed top-0 w-full z-50 bg-[#09090b]/80 backdrop-blur-xl border-b-2 border-black">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
-            <div className={`p-2 rounded-lg bg-black border-2 border-black ${theme.text} shadow-[2px_2px_0px_#000]`}>
-              <Zap className="w-5 h-5" />
-            </div>
-            <span className="text-xl font-black text-white tracking-tight">myMentor</span>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+            <img src="/mymentor-logo.svg" alt="myMentor Logo" className="w-8 h-8 drop-shadow-[2px_2px_0px_#000]" />
+            <span className="text-xl font-black text-white tracking-tight">my<span className={theme.text}>Mentor</span></span>
           </div>
           
           <div className="hidden md:flex items-center gap-8 text-sm font-bold">
