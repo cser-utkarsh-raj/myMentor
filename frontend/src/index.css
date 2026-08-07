@@ -176,8 +176,8 @@ body {
 
 /* ── Custom Scrollbar ──────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -185,13 +185,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--accent-color);
-  border: 2px solid #000000;
-  border-radius: 4px;
+  background: #272736;
+  border: 2px solid #070709;
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--theme-secondary);
+  background: var(--accent-color);
 }
 
 /* ── Heatmap (Progress Page) ────────────────────────────────────── */

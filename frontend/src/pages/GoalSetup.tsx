@@ -184,7 +184,7 @@ export const GoalSetup: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] flex flex-col justify-center items-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#09090b] flex flex-col justify-center items-center px-4 py-20 relative overflow-x-hidden w-full">
       {/* Background radial glow */}
       <div 
         className="absolute w-[600px] h-[600px] rounded-full blur-[140px] -z-10 pointer-events-none opacity-25"
@@ -197,8 +197,8 @@ export const GoalSetup: React.FC = () => {
       />
       
       {/* App brand header */}
-      <div className="absolute top-8 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/app')}>
-        <img src="/mymentor-logo.svg" alt="myMentor Logo" className="w-9 h-9 drop-shadow-[3px_3px_0px_#000]" />
+      <div className="absolute top-6 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/app')}>
+        <img src="/mymentor-logo.svg" alt="myMentor Logo" className="w-9 h-9 drop-shadow-[2px_2px_0px_#000]" />
         <h1 className="text-xl font-black tracking-tight text-white">my<span className={theme.text}>Mentor</span></h1>
       </div>
 
@@ -209,7 +209,7 @@ export const GoalSetup: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full max-w-lg glass-panel p-8 rounded-3xl border-4 border-black shadow-[8px_8px_0px_var(--theme-secondary)] flex flex-col items-center justify-center text-center gap-6 relative overflow-hidden bg-[#121217]"
+            className="w-full max-w-xl glass-panel p-8 rounded-3xl border-3 border-black flex flex-col items-center justify-center text-center gap-6 relative overflow-hidden bg-[#121217] my-auto"
           >
             {/* Animated Background Mesh */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
@@ -245,7 +245,7 @@ export const GoalSetup: React.FC = () => {
             key="wizard"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-2xl glass-panel p-8 rounded-3xl border-4 border-black shadow-[8px_8px_0px_var(--theme-secondary)] flex flex-col gap-8 bg-[#121217]"
+            className="w-full max-w-4xl glass-panel p-6 md:p-10 rounded-3xl border-3 border-black flex flex-col gap-8 bg-[#121217] my-auto"
           >
             {/* Step Indicators */}
             <div className="flex items-center justify-between w-full border-b border-white/5 pb-4">
@@ -328,10 +328,10 @@ export const GoalSetup: React.FC = () => {
                                       setGoal(g.title)
                                       if (g.id !== 'custom-01') setCustomGoal('')
                                     }}
-                                    className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                                    className={`flex items-start gap-4 p-4 rounded-2xl border-3 border-black text-left transition-all cursor-pointer ${
                                       isSelected 
-                                        ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20` 
-                                        : 'bg-zinc-950/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10'
+                                        ? `${getColorClass('bg')} ${getColorClass('border')} shadow-[5px_5px_0px_var(--theme-secondary)] translate-x-[-2px] translate-y-[-2px]` 
+                                        : 'bg-zinc-950/60 border-black shadow-[3px_3px_0px_#000] hover:bg-zinc-900/80 hover:translate-x-[-2px] hover:translate-y-[-2px]'
                                     }`}
                                   >
                                     <div className="flex flex-col">
@@ -459,10 +459,10 @@ export const GoalSetup: React.FC = () => {
                               setTarget(t.val)
                               if (t.val !== 'Other') setCustomTarget('')
                             }}
-                            className={`flex flex-col gap-1.5 p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                            className={`flex flex-col gap-1.5 p-4 rounded-xl border-3 border-black text-left transition-all cursor-pointer ${
                               isSelected 
-                                ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20` 
-                                : 'bg-zinc-950/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10'
+                                ? `${getColorClass('bg')} ${getColorClass('border')} shadow-[4px_4px_0px_var(--theme-secondary)] translate-x-[-2px] translate-y-[-2px]` 
+                                : 'bg-zinc-950/60 border-black shadow-[2px_2px_0px_#000] hover:bg-zinc-900/80 hover:translate-x-[-1px] hover:translate-y-[-1px]'
                             }`}
                           >
                             <div className="flex items-center justify-between">
@@ -470,8 +470,8 @@ export const GoalSetup: React.FC = () => {
                                 <span className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-zinc-200'}`}>
                                   {t.name}
                                 </span>
-                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border ${
-                                  isSelected ? `${getColorClass('bg')} ${getColorClass('text')} ${getColorClass('border')}` : 'bg-zinc-900 text-zinc-400 border-white/5'
+                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border-2 border-black ${
+                                  isSelected ? `${getColorClass('bg')} ${getColorClass('text')} ${getColorClass('border')}` : 'bg-zinc-900 text-zinc-400'
                                 }`}>
                                   {t.badge}
                                 </span>
@@ -486,10 +486,10 @@ export const GoalSetup: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setTarget('Other')}
-                        className={`flex items-center justify-between p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                        className={`flex items-center justify-between p-4 rounded-xl border-3 border-black text-left transition-all cursor-pointer ${
                           target === 'Other' 
-                            ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20` 
-                            : 'bg-zinc-950/40 border-white/5 hover:bg-zinc-900/60'
+                            ? `${getColorClass('bg')} ${getColorClass('border')} shadow-[4px_4px_0px_var(--theme-secondary)]` 
+                            : 'bg-zinc-950/60 border-black shadow-[2px_2px_0px_#000] hover:bg-zinc-900/80'
                         }`}
                       >
                         <span className={`font-semibold text-sm ${target === 'Other' ? 'text-white' : 'text-zinc-300'}`}>

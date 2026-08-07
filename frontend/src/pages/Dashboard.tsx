@@ -125,24 +125,46 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Overall Goal Progress Banner */}
-      <div className="glass-panel rounded-3xl p-6 border border-white/10 bg-zinc-950/40 relative overflow-hidden">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-          <div>
+      {/* Overall Goal Progress Banner with Circular Ring */}
+      <div className="glass-panel rounded-3xl p-6 border border-white/10 bg-zinc-950/40 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          {/* Circular Progress Gauge */}
+          <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#1f1f2e" strokeWidth="10" />
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke={theme.primary}
+                strokeWidth="10"
+                strokeDasharray="263.89"
+                strokeDashoffset={263.89 - (263.89 * Math.max(2, analytics.overall_progress_percent)) / 100}
+                strokeLinecap="round"
+                className="transition-all duration-1000 ease-out"
+              />
+            </svg>
+            <div className="absolute flex flex-col items-center justify-center">
+              <span className="text-xl font-black font-mono text-white">{Math.round(analytics.overall_progress_percent)}%</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-1">
-              <span className={`text-[10px] font-black uppercase tracking-widest ${theme.text}`}>Active Odyssey Goal</span>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${theme.text}`}>Active Learning Goal</span>
               <span className="text-[10px] font-bold text-zinc-500">• {analytics.days_remaining} Days Remaining</span>
             </div>
             <h3 className="text-xl font-bold text-white">{activeGoal.title}</h3>
             {displayTarget && <p className="text-xs text-zinc-400 mt-0.5 font-medium">Target: {displayTarget}</p>}
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-3xl font-black font-mono text-white">{Math.round(analytics.overall_progress_percent)}%</span>
-            <span className="text-xs font-bold text-zinc-500 uppercase">Overall<br/>Progress</span>
-          </div>
         </div>
-        <div className="w-full h-3 rounded-full bg-zinc-900 border border-white/10 overflow-hidden">
-          <div className={`h-full rounded-full transition-all duration-700 bg-gradient-to-r ${theme.gradient}`} style={{ width: `${Math.max(5, analytics.overall_progress_percent)}%` }} />
+
+        <div className="flex items-center gap-3 bg-zinc-900/60 px-4 py-2.5 rounded-2xl border border-white/5">
+          <div className="flex flex-col text-right">
+            <span className="text-xs text-zinc-400 font-medium">Curriculum Progress</span>
+            <span className="text-sm font-bold text-white">{analytics.total_resources_completed} Resources Finished</span>
+          </div>
         </div>
       </div>
 
