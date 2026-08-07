@@ -19,8 +19,6 @@ class RoadmapService:
 
     @staticmethod
     def generate_roadmap(db: Session, goal: Goal) -> bool:
-        # Step 1: Initialize roadmap generation. We check if Gemini is available, and if so, 
-        # generate a highly personalized smart roadmap based on the user's specific goal, target, and timeline.
         logger.info(f"Generating dynamic roadmap for Goal: {goal.title}")
         template = None
         
@@ -33,19 +31,23 @@ class RoadmapService:
                     daily_hours=goal.daily_hours,
                     timeline_days=goal.timeline_days
                 )
-                if ai_roadmap and ai_roadmap.get("tracks"):
-                    template = ai_roadmap
-                    logger.info("Roadmap generated dynamically via Gemini AI.")
+                if ai_roadmap and isinstance(ai_roadmap, dict) and ai_roadmap.get("tracks"):
+                    test_steps = []
+                    for t in ai_roadmap.get("tracks", []):
+                        for m in t.get("modules", t.get("milestones", [])):
+                            for s in m.get("steps", []):
+                                test_steps.append(s)
+                    if len(test_steps) > 0:
+                        template = ai_roadmap
+                        logger.info("Roadmap generated dynamically via Gemini AI.")
+                    else:
+                        logger.warning("AI roadmap returned tracks but zero steps. Falling back to static templates.")
             except Exception as e:
                 logger.error(f"AI generation failed: {e}. Falling back to static templates.")
 
-        # Step 2: Fallback to static rule-based templates if Gemini hits rate limits or is offline.
-        # This keeps the app robust and prevents connection/CORS errors on frontend.
-        if not template:
+        def load_static_template(goal_title: str) -> Dict[str, Any]:
+            title_lower = (goal_title or "").lower()
             filename = "custom_goal.json"
-            title_lower = goal.title.lower()
-            
-            # Simple keyword matching to find the best template matching user's goal
             if "full-stack" in title_lower or "fullstack" in title_lower or "full stack" in title_lower:
                 filename = "fullstack_developer.json"
             elif "backend" in title_lower or "api design" in title_lower:
@@ -74,16 +76,48 @@ class RoadmapService:
             resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", filename)
             if not os.path.exists(resource_path):
                 resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", "custom_goal.json")
-                
             try:
                 with open(resource_path, "r", encoding="utf-8") as f:
-                    template = json.load(f)
+                    return json.load(f)
             except Exception as e:
-                logger.error(f"Failed to read static template: {e}")
-                return False
+                logger.error(f"Failed to read static template {resource_path}: {e}")
+                return {
+                    "tracks": [
+                        {
+                            "title": f"Mastery of {goal_title}",
+                            "description": "Core curriculum milestones",
+                            "order": 1,
+                            "modules": [
+                                {
+                                    "title": "Foundational Principles",
+                                    "description": "Essential topics and practice drills",
+                                    "order": 1,
+                                    "steps": [
+                                        {
+                                            "title": f"Core Foundations of {goal_title}",
+                                            "resources": [
+                                                {"title": f"Study Guide: {goal_title}", "category": "Theory", "platform": "Internal", "difficulty": "Easy", "estimated_time_mins": 30, "notes": f"Start with foundational concepts of {goal_title}."}
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
 
-        # Step 3: Call our central helper to save the structured template to the relational database tables.
-        return RoadmapService._save_template_to_db(db, goal, template, default_platform="Internal")
+        if template:
+            try:
+                success = RoadmapService._save_template_to_db(db, goal, template, default_platform="Internal")
+                if success:
+                    return True
+            except Exception as se:
+                logger.error(f"Failed saving AI template to DB: {se}")
+                db.rollback()
+
+        # Guaranteed fallback path
+        static_tmpl = load_static_template(goal.title)
+        return RoadmapService._save_template_to_db(db, goal, static_tmpl, default_platform="Internal")
 
     @staticmethod
     def get_roadmap_details(db: Session, goal_id: int) -> List[Track]:
