@@ -155,7 +155,7 @@ export const Dashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400">
-            {greeting}, {userName}
+            {greeting}, {(!userName || userName === 'Mentor Client') ? 'Mentee' : userName}
           </h2>
           <p className="text-zinc-500 font-medium mt-1">
             Track metrics and conquer your mission for Day {activeDay?.day_number || 1}.

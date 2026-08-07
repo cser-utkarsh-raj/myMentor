@@ -26,7 +26,8 @@ export const useAuthStore = create<AuthState>()(
       activeGoalId: null,
       userName: 'Mentee',
       setSession: (session) => {
-        const metadataName = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || session?.user?.email?.split('@')[0] || 'Mentee'
+        let metadataName = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || session?.user?.email?.split('@')[0] || 'Mentee'
+        if (metadataName === 'Mentor Client') metadataName = 'Mentee'
         set({ 
           session, 
           user: session?.user || null, 
@@ -42,12 +43,17 @@ export const useAuthStore = create<AuthState>()(
         isInitialized: true 
       }),
       setActiveGoalId: (goalId) => set({ activeGoalId: goalId }),
-      setUserName: (name: string) => set({ userName: name }),
+      setUserName: (name: string) => set({ userName: name.trim() === 'Mentor Client' ? 'Mentee' : name }),
       clearSession: () => set({ session: null, user: null, isDemoMode: false, activeGoalId: null, userName: 'Mentee' })
     }),
     {
       name: 'mymentor-auth-storage',
-      storage: createJSONStorage(() => localStorage)
+      storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state && (state.userName === 'Mentor Client' || !state.userName)) {
+          state.userName = 'Mentee'
+        }
+      }
     }
   )
 )

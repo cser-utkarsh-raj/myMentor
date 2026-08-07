@@ -120,12 +120,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
           </button>
         </div>
 
-        {/* Goal Profile selector pills */}
-        <div className="flex flex-col gap-2">
+        {/* Goal Profile selector pills & Active Learning Profile Card */}
+        <div className="flex flex-col gap-3">
           {!isSidebarCollapsed && (
-            <p className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider px-1">Learning Profiles</p>
+            <div className="flex items-center justify-between px-1">
+              <p className="text-[11px] text-zinc-400 font-extrabold uppercase tracking-wider">Learning Profiles</p>
+              <button 
+                onClick={() => navigate('/setup')} 
+                className="text-[11px] font-extrabold text-zinc-400 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+                title="Add New Goal Profile"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add New
+              </button>
+            </div>
           )}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+
+          {/* Goal Profile Switcher Pills */}
+          <div className={`flex items-center ${isSidebarCollapsed ? 'flex-col gap-2' : 'flex-wrap gap-2 px-1'}`}>
             {goalsList?.map((g: Goal) => {
               const isActive = g.id === goal?.id
               const initial = g.title.charAt(0).toUpperCase()
@@ -138,10 +149,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                       toggleSidebar()
                     }
                   }}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm transition-all duration-300 relative group cursor-pointer border-2 border-black ${getProfileColor(g.id)} ${
+                  title={g.title}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs transition-all duration-200 relative group cursor-pointer border-2 border-black ${getProfileColor(g.id)} ${
                     isActive 
-                      ? 'scale-105 shadow-[3px_3px_0px_#fff]' 
-                      : 'opacity-50 hover:opacity-100 hover:scale-105 shadow-[2px_2px_0px_#000]'
+                      ? 'scale-105 ring-2 ring-white shadow-[3px_3px_0px_#fff]' 
+                      : 'opacity-60 hover:opacity-100 hover:scale-105 shadow-[2px_2px_0px_#000]'
                   }`}
                 >
                   {initial}
@@ -152,63 +164,50 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                 </button>
               )
             })}
-            
-            {/* Add Goal profile */}
-            <button
-              onClick={() => navigate('/setup')}
-              className="w-9 h-9 rounded-xl border-2 border-dashed border-white/30 hover:border-white/60 flex items-center justify-center text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer hover:scale-105 relative group shadow-[2px_2px_0px_#000]"
-            >
-              <Plus className="w-4 h-4" />
-              {isSidebarCollapsed && (
-                <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-zinc-900 border-2 border-black px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-[3px_3px_0px_#000]">
-                  Add New Goal Profile
-                </div>
-              )}
-            </button>
           </div>
-        </div>
-        
-        {/* Gamified Profile card with Fire Flame Streak */}
-        {goal && (
-          isSidebarCollapsed ? (
-            <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-zinc-900 border-2 border-black shadow-[3px_3px_0px_#000] relative group cursor-pointer" onClick={() => navigate('/app')}>
-              <span className="text-lg animate-pulse">🔥</span>
-              <span className="text-[10px] font-black text-amber-400">{goal.streak}d</span>
-              {/* Tooltip */}
-              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-zinc-900 border-2 border-black p-2 rounded-xl text-xs font-bold text-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-[3px_3px_0px_#000] flex flex-col gap-1">
-                <span>{goal.title}</span>
-                <span className="text-zinc-400 text-[10px]">Level {level} ({levelXpProgress}/1000 XP)</span>
+
+          {/* Active Learning Profile Card */}
+          {goal && (
+            isSidebarCollapsed ? (
+              <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-2xl bg-zinc-900 border-2 border-black shadow-[3px_3px_0px_#000] relative group cursor-pointer" onClick={() => navigate('/app')}>
+                <span className="text-lg animate-pulse">🔥</span>
+                <span className="text-[10px] font-black text-amber-400">{goal.streak}d</span>
+                {/* Tooltip */}
+                <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-zinc-900 border-2 border-black p-3 rounded-2xl text-xs font-bold text-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-[3px_3px_0px_#000] flex flex-col gap-1.5">
+                  <span className="font-extrabold text-white text-sm">{goal.title}</span>
+                  <span className="text-zinc-400 text-[11px]">Level {level} ({levelXpProgress}/1000 XP)</span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="p-4 rounded-2xl bg-[#14141d] border-2 border-black shadow-[4px_4px_0px_var(--theme-secondary)] flex flex-col gap-3 overflow-hidden">
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-extrabold">Learning Profile</p>
-                  <div className="flex items-center gap-1 bg-amber-500/20 border-2 border-black px-2 py-0.5 rounded-full shadow-[2px_2px_0px_#000] shrink-0">
-                    <span className="text-xs animate-pulse">🔥</span>
-                    <span className="text-[11px] font-black text-amber-400">{goal.streak} Days</span>
+            ) : (
+              <div className="p-4.5 rounded-2xl bg-[#14141d] border-2 border-black shadow-[4px_4px_0px_var(--theme-secondary)] flex flex-col gap-3.5 overflow-hidden">
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-black">Active Profile</span>
+                    <div className="flex items-center gap-1.5 bg-amber-500/20 border-2 border-black px-2.5 py-0.5 rounded-full shadow-[2px_2px_0px_#000] shrink-0">
+                      <span className="text-xs animate-pulse">🔥</span>
+                      <span className="text-[11px] font-black text-amber-400">{goal.streak} Days</span>
+                    </div>
+                  </div>
+                  <h3 className="font-black text-sm text-zinc-100 leading-snug line-clamp-2">{goal.title}</h3>
+                </div>
+                
+                {/* Level Progress Bar */}
+                <div className="flex flex-col gap-1.5 pt-1 border-t border-white/10">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-zinc-400">Level {level}</span>
+                    <span className={theme.text}>{levelXpProgress} / 1000 XP</span>
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-zinc-950 overflow-hidden border-2 border-black">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${theme.gradient}`}
+                      style={{ width: `${xpPercentage}%` }}
+                    />
                   </div>
                 </div>
-                <h3 className="font-extrabold text-sm text-zinc-100 truncate">{goal.title}</h3>
               </div>
-              
-              {/* Level Bar */}
-              <div className="flex flex-col gap-1.5 mt-1">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-zinc-400">Level {level}</span>
-                  <span className={theme.text}>{levelXpProgress} / 1000 XP</span>
-                </div>
-                <div className="w-full h-2.5 rounded-full bg-zinc-950 overflow-hidden border-2 border-black">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${theme.gradient}`}
-                    style={{ width: `${xpPercentage}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          )
-        )}
+            )
+          )}
+        </div>
         
         {/* Navigation items */}
         <nav className="flex flex-col gap-2">
