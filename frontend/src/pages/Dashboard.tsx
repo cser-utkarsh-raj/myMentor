@@ -17,11 +17,21 @@ import {
 import { useActiveGoal, useGoalAnalytics, useTriggerRecovery } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 import { useAuthStore } from '../store/authStore'
+import { getColorClasses } from '../lib/theme'
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { accentColor } = useUIStore()
+  const theme = getColorClasses(accentColor)
   const { userName } = useAuthStore()
+
+  const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
+    if (type === 'text') return theme.text
+    if (type === 'bg') return theme.bg
+    if (type === 'border') return theme.border
+    if (type === 'btn') return theme.btn
+    return theme.gradient
+  }
   
   // Queries
   const { data: activeGoal, isLoading: isLoadingGoal } = useActiveGoal()
@@ -45,36 +55,6 @@ export const Dashboard: React.FC = () => {
   }
 
   const { displayTarget, details: targetDetails } = parseTarget(activeGoal?.target)
-
-  const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
-    switch (accentColor) {
-      case 'cyan':
-        if (type === 'text') return 'text-cyan-400'
-        if (type === 'bg') return 'bg-cyan-500/10'
-        if (type === 'border') return 'border-cyan-500/20'
-        if (type === 'btn') return 'bg-cyan-500 hover:bg-cyan-400 text-black shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-        return 'from-cyan-500/20 to-blue-500/20'
-      case 'emerald':
-        if (type === 'text') return 'text-emerald-400'
-        if (type === 'bg') return 'bg-emerald-500/10'
-        if (type === 'border') return 'border-emerald-500/20'
-        if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-        return 'from-emerald-500/20 to-teal-500/20'
-      case 'blue':
-        if (type === 'text') return 'text-blue-400'
-        if (type === 'bg') return 'bg-blue-500/10'
-        if (type === 'border') return 'border-blue-500/20'
-        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.3)]'
-        return 'from-blue-500/20 to-sky-500/20'
-      case 'purple':
-      default:
-        if (type === 'text') return 'text-purple-400'
-        if (type === 'bg') return 'bg-purple-500/10'
-        if (type === 'border') return 'border-purple-500/20'
-        if (type === 'btn') return 'bg-purple-500 hover:bg-purple-400 text-zinc-950 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-        return 'from-purple-500/20 to-indigo-500/20'
-    }
-  }
 
   // Handle redirects on loading completion
   if (!isLoadingGoal && !activeGoal) {
@@ -232,9 +212,9 @@ export const Dashboard: React.FC = () => {
       )}
 
       {analytics.checkpoint_celebration && analytics.last_completed_module && (
-        <div className="flex items-center gap-4 p-5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-sm">
-          <div className={`p-2.5 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
-            <Award className={`w-5 h-5 ${getColorClass('text')}`} />
+        <div className={`flex items-center gap-4 p-5 rounded-2xl ${theme.bg} border ${theme.border} text-sm`}>
+          <div className={`p-2.5 rounded-xl ${theme.bg} border ${theme.border}`}>
+            <Award className={`w-5 h-5 ${theme.text}`} />
           </div>
           <div>
             <h4 className="font-bold text-zinc-100">Checkpoint Reached! 🎉</h4>
@@ -251,8 +231,8 @@ export const Dashboard: React.FC = () => {
         {/* Circular Progress Card */}
         <div className="lg:col-span-1 glass-panel rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden border border-white/5 bg-zinc-950/20">
           <div 
-            className="absolute w-44 h-44 rounded-full blur-[80px] opacity-15 pointer-events-none -z-10"
-            style={{ background: `radial-gradient(circle, ${accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6'} 0%, transparent 70%)` }}
+            className="absolute w-44 h-44 rounded-full blur-[80px] opacity-20 pointer-events-none -z-10"
+            style={{ background: `radial-gradient(circle, ${theme.hex} 0%, transparent 70%)` }}
           />
           <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">Overall Progress</h3>
           
@@ -273,7 +253,7 @@ export const Dashboard: React.FC = () => {
                 r={radius}
                 className="transition-all duration-700 ease-out"
                 style={{
-                  stroke: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6',
+                  stroke: theme.hex,
                   strokeWidth: '10',
                   fill: 'transparent',
                   strokeDasharray: circumference,

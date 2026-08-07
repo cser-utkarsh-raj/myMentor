@@ -15,6 +15,8 @@ import {
 } from 'lucide-react'
 import { useSenseiChat, useAIStatus, useActiveGoal } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
+import { getColorClasses } from '../lib/theme'
+import { PersonaAvatar } from '../components/PersonaAvatar'
 
 interface Message {
   role: 'user' | 'model'
@@ -24,6 +26,7 @@ interface Message {
 
 export const Sensei: React.FC = () => {
   const { accentColor, senseiPersonality } = useUIStore()
+  const theme = getColorClasses(accentColor)
   const { data: activeGoal } = useActiveGoal()
   const { data: aiStatus } = useAIStatus()
   const chatMutation = useSenseiChat()
@@ -178,14 +181,16 @@ export const Sensei: React.FC = () => {
       <div className="flex-1 overflow-y-auto py-6 space-y-4 custom-scrollbar">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-8">
-            <div className="text-center">
-              <div className={`inline-flex p-5 rounded-3xl ${getColorClass('bg')} border ${getColorClass('border')} mb-4`}>
-                <Bot className={`w-10 h-10 ${getColorClass('text')}`} />
+            <div className="text-center flex flex-col items-center">
+              <div className="mb-4 flex flex-col items-center gap-2">
+                <PersonaAvatar personality={senseiPersonality} size="lg" />
+                <span className={`text-xs font-extrabold px-3 py-1 rounded-full border border-black ${theme.bg} ${theme.text} shadow-[2px_2px_0px_#000]`}>
+                  {senseiPersonality} Mode
+                </span>
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Sensei</h2>
-              <p className="text-sm text-zinc-400 max-w-md">
-                Your AI learning companion. Ask me anything about your studies,
-                get explanations, study tips, or quiz yourself on your roadmap.
+              <h2 className="text-2xl font-black text-white mb-2">Sensei</h2>
+              <p className="text-sm text-zinc-400 max-w-md font-medium">
+                Your AI mentor powered by {senseiPersonality}'s persona. Ask questions, request explanations, or test your memory.
               </p>
             </div>
 
@@ -196,10 +201,10 @@ export const Sensei: React.FC = () => {
                   key={idx}
                   type="button"
                   onClick={() => handleSendPrompt(qp.prompt)}
-                  className="flex items-center gap-3.5 p-4 rounded-2xl bg-zinc-900/60 border border-white/5 hover:bg-zinc-800/80 hover:border-white/20 transition-all text-left group cursor-pointer"
+                  className="flex items-center gap-3.5 p-4 rounded-2xl glass-panel text-left group cursor-pointer"
                 >
-                  <div className={`p-2.5 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} group-hover:scale-105 transition-transform shrink-0`}>
-                    <qp.icon className={`w-5 h-5 ${getColorClass('text')}`} />
+                  <div className={`p-2.5 rounded-xl ${theme.bg} border border-black ${theme.text} group-hover:scale-105 transition-transform shrink-0 shadow-[2px_2px_0px_#000]`}>
+                    <qp.icon className="w-5 h-5" />
                   </div>
                   <span className="text-xs font-bold text-zinc-200 group-hover:text-white transition-colors">{qp.text}</span>
                 </button>
@@ -217,9 +222,7 @@ export const Sensei: React.FC = () => {
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'model' && (
-                  <div className={`w-8 h-8 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} flex items-center justify-center shrink-0 mt-1`}>
-                    <Bot className={`w-4 h-4 ${getColorClass('text')}`} />
-                  </div>
+                  <PersonaAvatar personality={senseiPersonality} size="sm" className="mt-1" />
                 )}
 
                 <div className={`group relative max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed ${

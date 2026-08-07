@@ -18,9 +18,12 @@ import { useUIStore, AccentColor, SenseiPersonality } from '../store/uiStore'
 import { useAuthStore } from '../store/authStore'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import { getColorClasses } from '../lib/theme'
+import { PersonaAvatar } from '../components/PersonaAvatar'
 
 export const Settings: React.FC = () => {
   const { accentColor, setAccentColor, setGoalTheme, senseiPersonality, setSenseiPersonality } = useUIStore()
+  const theme = getColorClasses(accentColor)
   const { data: activeGoal, refetch } = useActiveGoal()
   const deleteGoalMutation = useDeleteGoal()
   const clearSession = useAuthStore(state => state.clearSession)
@@ -329,23 +332,26 @@ export const Settings: React.FC = () => {
                     key={p.name}
                     type="button"
                     onClick={() => setSenseiPersonality(p.name as SenseiPersonality)}
-                    className={`flex flex-col gap-1.5 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                    className={`flex items-start gap-3.5 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                       isSelected 
-                        ? `${getColorClass('bg')} ${getColorClass('border')} border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.3)]` 
-                        : 'bg-zinc-900/40 border-white/5 hover:bg-zinc-900/80 hover:border-white/10'
+                        ? `${theme.bg} ${theme.border} border-white/30 shadow-[0_0_15px_rgba(0,0,0,0.4)] scale-[1.02]` 
+                        : 'bg-zinc-900/50 border-white/5 hover:bg-zinc-900/90 hover:border-white/10'
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-zinc-200'}`}>
-                        {p.name}
-                      </span>
-                      <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded border ${
-                        isSelected ? `${getColorClass('bg')} ${getColorClass('text')} ${getColorClass('border')}` : 'bg-zinc-950 text-zinc-500 border-white/5'
-                      }`}>
-                        {p.tag}
-                      </span>
+                    <PersonaAvatar personality={p.name as SenseiPersonality} size="md" />
+                    <div className="flex flex-col gap-1 flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-zinc-200'}`}>
+                          {p.name}
+                        </span>
+                        <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded border shrink-0 ${
+                          isSelected ? `${theme.bg} ${theme.text} ${theme.border}` : 'bg-zinc-950 text-zinc-500 border-white/5'
+                        }`}>
+                          {p.tag}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed font-medium">{p.desc}</p>
                     </div>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed">{p.desc}</p>
                   </button>
                 )
               })}

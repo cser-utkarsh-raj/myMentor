@@ -39,9 +39,13 @@ const getProfileColor = (id: number) => {
   return colors[id % colors.length]
 }
 
+import { getColorClasses } from '../lib/theme'
+
+// Inside Sidebar:
 export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
   const navigate = useNavigate()
   const { accentColor, setAccentColor, goalThemes, isSidebarCollapsed, toggleSidebar } = useUIStore()
+  const theme = getColorClasses(accentColor)
   const { data: goalsList } = useGoals()
   const { setActiveGoalId } = useAuthStore()
   
@@ -50,33 +54,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
       if (!isSidebarCollapsed) {
         toggleSidebar()
       }
-    }
-  }
-  
-  // Theme color resolver helper
-  const getColorClass = (type: 'text' | 'bg' | 'border' | 'glow') => {
-    switch (accentColor) {
-      case 'cyan':
-        if (type === 'text') return 'text-cyan-400'
-        if (type === 'bg') return 'bg-cyan-500/10'
-        if (type === 'border') return 'border-cyan-500/20'
-        return 'rgba(6, 182, 212, 0.4)'
-      case 'emerald':
-        if (type === 'text') return 'text-emerald-400'
-        if (type === 'bg') return 'bg-emerald-500/10'
-        if (type === 'border') return 'border-emerald-500/20'
-        return 'rgba(16, 185, 129, 0.4)'
-      case 'blue':
-        if (type === 'text') return 'text-blue-400'
-        if (type === 'bg') return 'bg-blue-500/10'
-        if (type === 'border') return 'border-blue-500/20'
-        return 'rgba(59, 130, 246, 0.4)'
-      case 'purple':
-      default:
-        if (type === 'text') return 'text-purple-400'
-        if (type === 'bg') return 'bg-purple-500/10'
-        if (type === 'border') return 'border-purple-500/20'
-        return 'rgba(168, 85, 247, 0.4)'
     }
   }
   
@@ -117,8 +94,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
             }}
             title="myMentor Dashboard"
           >
-            <div className={`p-2.5 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} shadow-[0_0_15px_rgba(0,0,0,0.2)] shrink-0`}>
-              <Zap className={`w-6 h-6 ${getColorClass('text')}`} />
+            <div className={`p-2.5 rounded-xl ${theme.bg} border ${theme.border} shadow-[0_0_15px_rgba(0,0,0,0.2)] shrink-0`}>
+              <Zap className={`w-6 h-6 ${theme.text}`} />
             </div>
             {!isSidebarCollapsed && (
               <div>
@@ -164,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                   }}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm transition-all duration-300 relative group cursor-pointer ${getProfileColor(g.id)} ${
                     isActive 
-                      ? `ring-2 ${accentColor === 'purple' ? 'ring-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.4)]' : accentColor === 'cyan' ? 'ring-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.4)]' : accentColor === 'emerald' ? 'ring-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]' : 'ring-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]'} ring-offset-2 ring-offset-zinc-950 scale-105` 
+                      ? `ring-2 ${theme.ring} ring-offset-2 ring-offset-zinc-950 scale-105 shadow-lg` 
                       : 'opacity-40 hover:opacity-100 hover:scale-105'
                   }`}
                 >
@@ -221,16 +198,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
               <div className="flex flex-col gap-1.5 mt-1">
                 <div className="flex justify-between text-xs font-bold">
                   <span className="text-zinc-400">Level {level}</span>
-                  <span className={getColorClass('text')}>{levelXpProgress} / 1000 XP</span>
+                  <span className={theme.text}>{levelXpProgress} / 1000 XP</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden border border-white/5">
                   <div 
-                    className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${
-                      accentColor === 'purple' ? 'from-purple-500 to-indigo-500' :
-                      accentColor === 'cyan' ? 'from-cyan-500 to-blue-500' :
-                      accentColor === 'blue' ? 'from-blue-500 to-sky-500' :
-                      'from-emerald-500 to-teal-500'
-                    }`}
+                    className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${theme.gradient}`}
                     style={{ width: `${xpPercentage}%` }}
                   />
                 </div>
@@ -251,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                 className={({ isActive }) => 
                   `flex items-center ${isSidebarCollapsed ? 'justify-center p-3' : 'justify-between px-4 py-3'} rounded-xl text-sm font-semibold transition-all duration-200 group border relative ${
                     isActive 
-                      ? `${getColorClass('bg')} ${getColorClass('border')} ${getColorClass('text')}` 
+                      ? `${theme.bg} ${theme.border} ${theme.text}` 
                       : 'text-zinc-400 border-transparent hover:text-zinc-200 hover:bg-white/5'
                   }`
                 }
@@ -259,7 +231,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                 {({ isActive }) => (
                   <>
                     <div className="flex items-center gap-3">
-                      <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110 ${isActive ? getColorClass('text') : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                      <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110 ${isActive ? theme.text : 'text-zinc-500 group-hover:text-zinc-300'}`} />
                       {!isSidebarCollapsed && <span>{item.name}</span>}
                     </div>
                     {!isSidebarCollapsed && isActive && <ChevronRight className="w-4 h-4" />}

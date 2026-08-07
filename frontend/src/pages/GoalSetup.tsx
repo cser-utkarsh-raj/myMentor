@@ -20,11 +20,21 @@ import {
 } from 'lucide-react'
 import { useCreateGoal, useGoalLibrary } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
+import { getColorClasses } from '../lib/theme'
 
 export const GoalSetup: React.FC = () => {
   const navigate = useNavigate()
   const { accentColor } = useUIStore()
+  const theme = getColorClasses(accentColor)
   const createGoalMutation = useCreateGoal()
+
+  const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
+    if (type === 'text') return theme.text
+    if (type === 'bg') return theme.bg
+    if (type === 'border') return theme.border
+    if (type === 'btn') return theme.btn
+    return theme.gradient
+  }
   
   const [step, setStep] = useState(1)
   
@@ -74,35 +84,7 @@ export const GoalSetup: React.FC = () => {
     }
   ]
 
-  const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
-    switch (accentColor) {
-      case 'cyan':
-        if (type === 'text') return 'text-cyan-400'
-        if (type === 'bg') return 'bg-cyan-500/10'
-        if (type === 'border') return 'border-cyan-500/20'
-        if (type === 'btn') return 'bg-cyan-500 hover:bg-cyan-400 text-black shadow-[0_0_15px_rgba(6,182,212,0.4)]'
-        return 'rgba(6, 182, 212, 0.4)'
-      case 'emerald':
-        if (type === 'text') return 'text-emerald-400'
-        if (type === 'bg') return 'bg-emerald-500/10'
-        if (type === 'border') return 'border-emerald-500/20'
-        if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)]'
-        return 'rgba(16, 185, 129, 0.4)'
-      case 'blue':
-        if (type === 'text') return 'text-blue-400'
-        if (type === 'bg') return 'bg-blue-500/10'
-        if (type === 'border') return 'border-blue-500/20'
-        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.4)]'
-        return 'rgba(59, 130, 246, 0.4)'
-      case 'purple':
-      default:
-        if (type === 'text') return 'text-purple-400'
-        if (type === 'bg') return 'bg-purple-500/10'
-        if (type === 'border') return 'border-purple-500/20'
-        if (type === 'btn') return 'bg-purple-500 hover:bg-purple-400 text-zinc-950 shadow-[0_0_15px_rgba(168,85,247,0.4)]'
-        return 'rgba(168, 85, 247, 0.4)'
-    }
-  }
+
 
   const [qExperience, setQExperience] = useState('')
   const [qFocus, setQFocus] = useState('')
@@ -565,7 +547,7 @@ export const GoalSetup: React.FC = () => {
                           onChange={(e) => setDailyHours(parseFloat(e.target.value))}
                           className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
                           style={{
-                            accentColor: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6'
+                            accentColor: theme.hex
                           }}
                         />
                         <div className="flex justify-between text-[10px] font-bold text-zinc-600">
@@ -594,7 +576,7 @@ export const GoalSetup: React.FC = () => {
                           onChange={(e) => setTimelineDays(parseInt(e.target.value))}
                           className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
                           style={{
-                            accentColor: accentColor === 'purple' ? '#a855f7' : accentColor === 'cyan' ? '#06b6d4' : accentColor === 'emerald' ? '#10b981' : '#3b82f6'
+                            accentColor: theme.hex
                           }}
                         />
                         <div className="flex justify-between text-[10px] font-bold text-zinc-600">
