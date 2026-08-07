@@ -31,73 +31,170 @@
 :root {
   color-scheme: dark;
   font-family: var(--font-sans);
+  --neo-purple: #a855f7;
+  --neo-pink: #ec4899;
+  --neo-green: #22c55e;
+  --neo-yellow: #eab308;
+  --neo-cyan: #06b6d4;
+  --neo-orange: #f97316;
+  --neo-black: #000000;
+  --neo-white: #ffffff;
 }
 
 body {
-  background-color: #09090b;
-  background-image: radial-gradient(rgba(168, 85, 247, 0.08) 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
+  background-color: var(--color-bg-dark);
   color: #f4f4f5;
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Neo-Maximalist Styles */
+/* 1. ORIGINAL GLASSMORPHISM STYLES */
 .glass-panel {
-  background: #141416;
-  border: 3px solid #000000;
-  box-shadow: 6px 6px 0px #000000;
-  border-radius: 14px;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  background: var(--color-card-dark);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-panel:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 9px 9px 0px #a855f7;
-  border-color: #000000;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
 }
 
 .glass-input {
-  background: #1e1e21;
-  border: 3px solid #000000;
+  background: rgba(24, 24, 27, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 16px;
   outline: none;
-  box-shadow: 3px 3px 0px #000000;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: #a855f7;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px #000000;
+  border-color: var(--accent-color, #a855f7);
+  box-shadow: 0 0 12px var(--accent-color-glow, rgba(168, 85, 247, 0.25));
 }
 
 .glass-btn {
-  background: #a855f7;
-  border: 3px solid #000000;
-  color: #000000;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 4px 4px 0px #000000;
-  border-radius: 10px;
-  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f4f4f5;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
 .glass-btn:hover {
-  background: #c084fc;
-  color: #000000;
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #000000;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-color, #a855f7);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
-.glass-btn:active {
-  transform: translate(1px, 1px);
+/* 2. NEW VIBRANT & BLOCK-BASED DESIGN OVERRIDES (Active under .vibrant-block-based body tag) */
+body.vibrant-block-based {
+  background-color: #09090b;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+body.vibrant-block-based .glass-panel {
+  background: #141416;
+  border: 3.5px solid #000000;
+  box-shadow: 8px 8px 0px #000000;
+  border-radius: 0px; /* Symmetrical blocks */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+body.vibrant-block-based .glass-panel:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0px var(--neo-purple);
+  border-color: #000000;
+}
+
+body.vibrant-block-based .glass-input {
+  background: #1e1e21;
+  border: 3px solid #000000;
+  color: #ffffff;
+  border-radius: 0px;
+  box-shadow: 4px 4px 0px #000000;
+  padding: 10px 16px;
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+body.vibrant-block-based .glass-input:focus {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px var(--neo-purple);
+  border-color: #000000;
+}
+
+body.vibrant-block-based .glass-btn {
+  background: var(--neo-purple);
+  border: 3.5px solid #000000;
+  color: #000000;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 5px 5px 0px #000000;
+  border-radius: 0px;
+  backdrop-filter: none;
+  transition: all 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+body.vibrant-block-based .glass-btn:hover {
+  background: #c084fc;
+  color: #000000;
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0px #000000;
+}
+
+body.vibrant-block-based .glass-btn:active {
+  transform: translate(2px, 2px);
   box-shadow: 2px 2px 0px #000000;
+}
+
+/* Custom text and accent helpers */
+body.vibrant-block-based .neon-text-green {
+  color: var(--neo-green) !important;
+}
+
+body.vibrant-block-based .neon-text-pink {
+  color: var(--neo-pink) !important;
+}
+
+body.vibrant-block-based .neon-text-yellow {
+  color: var(--neo-yellow) !important;
+}
+
+body.vibrant-block-based .vibrant-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 2.5px solid #000000;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #000000;
+  background: var(--neo-yellow);
+  box-shadow: 3px 3px 0px #000000;
+  transform: rotate(-1deg);
+}
+
+body.vibrant-block-based .vibrant-badge-pink {
+  background: var(--neo-pink);
+  color: #ffffff;
+}
+
+body.vibrant-block-based .vibrant-badge-green {
+  background: var(--neo-green);
 }
 
 /* Custom Scrollbar */
