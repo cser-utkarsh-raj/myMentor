@@ -84,21 +84,21 @@ export function getColorClasses(accentColor: AccentColor): MultiColorTheme {
     case 'cyberpunk':
       return {
         name: 'Cyberpunk',
-        primary: '#f43f5e',
-        primaryRgb: '244, 63, 94',
-        secondary: '#06b6d4',
-        secondaryRgb: '6, 182, 212',
-        tertiary: '#facc15',
-        tertiaryRgb: '250, 204, 21',
-        hex: '#f43f5e',
-        rgb: '244, 63, 94',
-        text: 'text-rose-400',
-        bg: 'bg-rose-500/15',
-        border: 'border-rose-500/40',
-        btn: 'bg-rose-500 hover:bg-rose-400 text-black font-black shadow-[4px_4px_0px_#06b6d4]',
-        gradient: 'from-rose-500 via-cyan-400 to-yellow-400',
-        ring: 'ring-rose-400',
-        accentClass: 'accent-rose-400'
+        primary: '#00f0ff',
+        primaryRgb: '0, 240, 255',
+        secondary: '#ff0055',
+        secondaryRgb: '255, 0, 85',
+        tertiary: '#ffe600',
+        tertiaryRgb: '255, 230, 0',
+        hex: '#00f0ff',
+        rgb: '0, 240, 255',
+        text: 'text-[#00f0ff]',
+        bg: 'bg-[#00f0ff]/15',
+        border: 'border-[#00f0ff]/40',
+        btn: 'bg-[#00f0ff] hover:bg-[#ff0055] hover:text-white text-black font-black shadow-[4px_4px_0px_#ff0055]',
+        gradient: 'from-[#00f0ff] via-[#ff0055] to-[#ffe600]',
+        ring: 'ring-[#00f0ff]',
+        accentClass: 'accent-[#00f0ff]'
       }
     case 'solar':
       return {

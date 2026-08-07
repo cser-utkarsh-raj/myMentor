@@ -49,35 +49,7 @@ export const Settings: React.FC = () => {
     navigate('/login')
   }
 
-  const getColorClass = (type: 'text' | 'bg' | 'border' | 'btn' | 'glow') => {
-    switch (accentColor) {
-      case 'cyan':
-        if (type === 'text') return 'text-cyan-400'
-        if (type === 'bg') return 'bg-cyan-500/10'
-        if (type === 'border') return 'border-cyan-500/20'
-        if (type === 'btn') return 'bg-cyan-500 hover:bg-cyan-400 text-black shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-        return 'rgba(6, 182, 212, 0.4)'
-      case 'emerald':
-        if (type === 'text') return 'text-emerald-400'
-        if (type === 'bg') return 'bg-emerald-500/10'
-        if (type === 'border') return 'border-emerald-500/20'
-        if (type === 'btn') return 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-        return 'rgba(16, 185, 129, 0.4)'
-      case 'blue':
-        if (type === 'text') return 'text-blue-400'
-        if (type === 'bg') return 'bg-blue-500/10'
-        if (type === 'border') return 'border-blue-500/20'
-        if (type === 'btn') return 'bg-blue-500 hover:bg-blue-400 text-black shadow-[0_0_15px_rgba(59,130,246,0.3)]'
-        return 'rgba(59, 130, 246, 0.4)'
-      case 'purple':
-      default:
-        if (type === 'text') return 'text-purple-400'
-        if (type === 'bg') return 'bg-purple-500/10'
-        if (type === 'border') return 'border-purple-500/20'
-        if (type === 'btn') return 'bg-purple-500 hover:bg-purple-400 text-zinc-950 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-        return 'rgba(168, 85, 247, 0.4)'
-    }
-  }
+
 
   // Handle application reset
   const handleResetApp = async () => {
@@ -131,7 +103,7 @@ export const Settings: React.FC = () => {
                 <div className="w-3.5 h-3.5 rounded-full bg-purple-500 border border-black" />
                 <div className="w-3.5 h-3.5 rounded-full bg-pink-500 border border-black" />
               </div>
-              <span className="truncate">⚡ Plasma</span>
+              <span className="truncate font-extrabold">Plasma</span>
             </button>
 
             {/* Winter Vibe */}
@@ -148,7 +120,7 @@ export const Settings: React.FC = () => {
                 <div className="w-3.5 h-3.5 rounded-full bg-cyan-400 border border-black" />
                 <div className="w-3.5 h-3.5 rounded-full bg-blue-500 border border-black" />
               </div>
-              <span className="truncate">❄️ Winter</span>
+              <span className="truncate font-extrabold">Winter</span>
             </button>
 
             {/* Jungle Vibe */}
@@ -165,7 +137,7 @@ export const Settings: React.FC = () => {
                 <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 border border-black" />
                 <div className="w-3.5 h-3.5 rounded-full bg-lime-400 border border-black" />
               </div>
-              <span className="truncate">🌿 Jungle</span>
+              <span className="truncate font-extrabold">Jungle</span>
             </button>
 
             {/* Volcano Vibe */}
@@ -182,7 +154,7 @@ export const Settings: React.FC = () => {
                 <div className="w-3.5 h-3.5 rounded-full bg-orange-500 border border-black" />
                 <div className="w-3.5 h-3.5 rounded-full bg-red-600 border border-black" />
               </div>
-              <span className="truncate">🌋 Volcano</span>
+              <span className="truncate font-extrabold">Volcano</span>
             </button>
 
             {/* Cyberpunk Vibe */}
@@ -191,15 +163,15 @@ export const Settings: React.FC = () => {
               onClick={() => handleSetTheme('cyberpunk')}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
                 accentColor === 'cyberpunk' 
-                  ? 'bg-rose-500/20 border-rose-500 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.3)] scale-[1.02]' 
+                  ? 'bg-[#00f0ff]/20 border-[#00f0ff] text-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-[1.02]' 
                   : 'bg-zinc-900/60 border-white/10 hover:border-white/20 hover:bg-zinc-900'
               }`}
             >
               <div className="flex -space-x-1 shrink-0">
-                <div className="w-3.5 h-3.5 rounded-full bg-rose-500 border border-black" />
-                <div className="w-3.5 h-3.5 rounded-full bg-yellow-400 border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#00f0ff] border border-black" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#ff0055] border border-black" />
               </div>
-              <span className="truncate">🌆 Cyberpunk</span>
+              <span className="truncate font-extrabold">Cyberpunk</span>
             </button>
 
             {/* Solar Flare Vibe */}
@@ -216,7 +188,7 @@ export const Settings: React.FC = () => {
                 <div className="w-3.5 h-3.5 rounded-full bg-yellow-400 border border-black" />
                 <div className="w-3.5 h-3.5 rounded-full bg-amber-500 border border-black" />
               </div>
-              <span className="truncate">☀️ Solar</span>
+              <span className="truncate font-extrabold">Solar</span>
             </button>
           </div>
         </div>
@@ -242,7 +214,7 @@ export const Settings: React.FC = () => {
                 setUserName(tempName.trim() || 'Mentor Client')
                 alert('Profile name updated!')
               }}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${getColorClass('btn')}`}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${theme.btn}`}
             >
               Save Name
             </button>
@@ -252,8 +224,8 @@ export const Settings: React.FC = () => {
         {/* Account Management Card */}
         <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-zinc-950/15 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex gap-4">
-            <div className={`p-3 rounded-2xl ${getColorClass('bg')} border ${getColorClass('border')} text-zinc-200 shrink-0`}>
-              <LogOut className={`w-6 h-6 ${getColorClass('text')}`} />
+            <div className={`p-3 rounded-2xl ${theme.bg} border ${theme.border} text-zinc-200 shrink-0`}>
+              <LogOut className={`w-6 h-6 ${theme.text}`} />
             </div>
             <div className="flex flex-col gap-1">
               <h3 className="font-bold text-zinc-200 text-sm">Account Session</h3>
@@ -266,7 +238,7 @@ export const Settings: React.FC = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-2 ${getColorClass('btn')}`}
+            className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-2 ${theme.btn}`}
           >
             <LogOut className="w-4 h-4" /> Sign Out / Log Out
           </button>
@@ -309,7 +281,7 @@ export const Settings: React.FC = () => {
           <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-zinc-950/20 flex flex-col gap-4 col-span-1 md:col-span-2">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <Sparkles className={`w-5 h-5 ${getColorClass('text')}`} />
+                <Sparkles className={`w-5 h-5 ${theme.text}`} />
                 <h4 className="font-bold text-white text-base">Sensei Mentor Personality & Voice</h4>
               </div>
               <p className="text-xs text-zinc-400">
@@ -362,7 +334,7 @@ export const Settings: React.FC = () => {
           <div className="glass-panel p-5 rounded-2xl border border-white/5 bg-zinc-950/20 flex flex-col justify-between gap-3">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <Clock className={`w-4.5 h-4.5 ${getColorClass('text')}`} />
+                <Clock className={`w-4.5 h-4.5 ${theme.text}`} />
                 <h4 className="font-bold text-white text-sm">Export Goal Summary & Notes</h4>
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed">
@@ -380,9 +352,9 @@ export const Settings: React.FC = () => {
                 a.download = `mymentor_${activeGoal.title.toLowerCase().replace(/\s+/g, '_')}_summary.json`
                 a.click()
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all w-fit cursor-pointer ${getColorClass('btn')}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all w-fit cursor-pointer ${theme.btn}`}
             >
-              📥 Download Roadmap Data (.json)
+              Download Roadmap Data (.json)
             </button>
           </div>
         </div>
