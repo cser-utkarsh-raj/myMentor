@@ -126,7 +126,20 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 // Global Routing
 const AppContent: React.FC = () => {
   const { session, isDemoMode, setSession } = useAuthStore()
+  const { accentColor } = useUIStore()
   const isAuthenticated = session !== null || isDemoMode
+
+  useEffect(() => {
+    const themeMap: Record<string, { hex: string; rgb: string }> = {
+      purple: { hex: '#a855f7', rgb: '168, 85, 247' },
+      cyan: { hex: '#06b6d4', rgb: '6, 182, 212' },
+      emerald: { hex: '#10b981', rgb: '16, 185, 129' },
+      blue: { hex: '#3b82f6', rgb: '59, 130, 246' }
+    }
+    const current = themeMap[accentColor] || themeMap.purple
+    document.documentElement.style.setProperty('--accent-color', current.hex)
+    document.documentElement.style.setProperty('--accent-rgb', current.rgb)
+  }, [accentColor])
 
   useEffect(() => {
     // Check initial session
