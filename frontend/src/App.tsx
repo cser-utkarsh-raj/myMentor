@@ -38,10 +38,11 @@ const queryClient = new QueryClient({
 
 const FallbackLoader = () => (
   <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-    <div className="relative flex items-center justify-center">
-      <div className="w-16 h-16 rounded-full border-4 border-t-cyan-400 border-b-rose-500 border-r-transparent border-l-transparent animate-spin" />
-      <div className="absolute p-3 rounded-2xl bg-zinc-900 border-2 border-black shadow-[3px_3px_0px_#000] animate-pulse">
-        <img src="/mymentor-logo.svg" alt="Loading" className="w-6 h-6 drop-shadow-[2px_2px_0px_#000]" />
+    <div className="relative flex items-center justify-center w-28 h-28 mx-auto">
+      <div className="w-24 h-24 rounded-full border-4 border-dashed border-purple-500/40 animate-spin shrink-0" style={{ animationDuration: '8s' }} />
+      <div className="absolute w-20 h-20 rounded-full border-4 border-t-cyan-400 border-b-rose-500 border-l-transparent border-r-transparent animate-spin shrink-0" style={{ animationDuration: '1.8s' }} />
+      <div className="absolute inset-0 m-auto w-12 h-12 rounded-2xl bg-zinc-950 border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center p-2">
+        <img src="/mymentor-logo.svg" alt="Loading" className="w-full h-full object-contain drop-shadow-[2px_2px_0px_#000]" />
       </div>
     </div>
   </div>

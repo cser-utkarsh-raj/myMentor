@@ -214,20 +214,20 @@ export const GoalSetup: React.FC = () => {
             {/* Animated Background Mesh */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
 
-            <div className="relative flex items-center justify-center my-4">
-              {/* Outer Counter-Rotating Segment Ring */}
+            <div className="relative flex items-center justify-center w-36 h-36 my-6 mx-auto">
+              {/* Outer Synced Pulsing Ring */}
               <div 
-                className="w-28 h-28 rounded-full border-4 border-t-transparent border-b-transparent animate-spin"
-                style={{ borderColor: theme.secondary, animationDuration: '2s' }}
+                className="w-32 h-32 rounded-full border-4 border-dashed animate-spin opacity-30 shrink-0"
+                style={{ borderColor: theme.secondary, animationDuration: '8s' }}
               />
-              {/* Middle Pulsing Ring */}
+              {/* Inner Synced Dual-Segment Ring */}
               <div 
-                className="absolute w-20 h-20 rounded-full border-4 border-dashed animate-spin"
-                style={{ borderColor: theme.primary, animationDuration: '4s', animationDirection: 'reverse' }}
+                className="absolute w-24 h-24 rounded-full border-4 border-t-cyan-400 border-b-rose-500 border-l-transparent border-r-transparent animate-spin shrink-0"
+                style={{ animationDuration: '1.8s' }}
               />
-              {/* Inner Glowing Logo Core */}
-              <div className={`p-4 rounded-2xl ${theme.bg} border-2 border-black shadow-[3px_3px_0px_#000] animate-bounce`}>
-                <img src="/mymentor-logo.svg" alt="Logo Core" className="w-8 h-8 drop-shadow-[2px_2px_0px_#000]" />
+              {/* Center Glowing Logo Core */}
+              <div className="absolute inset-0 m-auto w-14 h-14 rounded-2xl bg-zinc-950 border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center p-2.5">
+                <img src="/mymentor-logo.svg" alt="Logo Core" className="w-full h-full object-contain drop-shadow-[2px_2px_0px_#000]" />
               </div>
             </div>
             

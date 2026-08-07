@@ -25,12 +25,12 @@ def on_startup():
     except Exception as e:
         logger.error(f"Error initializing database tables: {e}")
 
-# CORS configuration for Vite Frontend integration
+# CORS configuration for Vite & Vercel Frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1|.*\.vercel\.app)(:\d+)?",
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_origin_regex=r"https?://.*",
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
