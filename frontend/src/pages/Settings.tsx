@@ -211,7 +211,7 @@ export const Settings: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setUserName(tempName.trim() || 'Mentor Client')
+                setUserName(tempName.trim() || 'Mentee')
                 alert('Profile name updated!')
               }}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${theme.btn}`}

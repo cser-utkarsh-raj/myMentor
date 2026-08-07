@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
           <button 
             type="button"
             onClick={toggleSidebar}
-            className={`p-2 rounded-xl bg-zinc-900 border-2 border-black hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0px_#000] ${isSidebarCollapsed ? 'mx-auto mt-1' : ''}`}
+            className={`p-2 rounded-xl bg-zinc-900 border-2 border-black hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0px_#000] ${isSidebarCollapsed ? 'mx-auto' : ''}`}
             title={isSidebarCollapsed ? "Expand Sidebar (Ctrl+B)" : "Collapse Sidebar (Ctrl+B)"}
           >
             {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -168,12 +168,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
           </div>
         </div>
         
-        {/* Gamified Profile card if active goal exists */}
+        {/* Gamified Profile card with Fire Flame Streak */}
         {goal && (
           isSidebarCollapsed ? (
-            <div className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-zinc-900 border-2 border-black shadow-[3px_3px_0px_#000] relative group cursor-pointer" onClick={() => navigate('/app')}>
-              <Flame className="w-5 h-5 text-amber-500 animate-streak-wobble" />
-              <span className="text-[10px] font-extrabold text-amber-400">{goal.streak}d</span>
+            <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-zinc-900 border-2 border-black shadow-[3px_3px_0px_#000] relative group cursor-pointer" onClick={() => navigate('/app')}>
+              <span className="text-lg animate-pulse">🔥</span>
+              <span className="text-[10px] font-black text-amber-400">{goal.streak}d</span>
               {/* Tooltip */}
               <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-zinc-900 border-2 border-black p-2 rounded-xl text-xs font-bold text-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-[3px_3px_0px_#000] flex flex-col gap-1">
                 <span>{goal.title}</span>
@@ -188,8 +188,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
                   <h3 className="font-extrabold text-sm text-zinc-100 mt-0.5 truncate max-w-[150px]">{goal.title}</h3>
                 </div>
                 <div className="flex items-center gap-1.5 bg-amber-500/20 border-2 border-black px-2.5 py-0.5 rounded-full shadow-[2px_2px_0px_#000]">
-                  <Flame className="w-4 h-4 text-amber-500 animate-streak-wobble" />
-                  <span className="text-xs font-black text-amber-400">{goal.streak}</span>
+                  <span className="text-sm animate-pulse">🔥</span>
+                  <span className="text-xs font-black text-amber-400">{goal.streak} Days</span>
                 </div>
               </div>
               
@@ -247,8 +247,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
             )
           })}
         </nav>
+
+        {/* Clear Explicit Collapse Switch Button */}
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          className={`flex items-center justify-center gap-2.5 p-3 rounded-xl bg-zinc-900 border-2 border-black hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0px_#000] font-extrabold text-xs mt-2 ${isSidebarCollapsed ? 'w-12 mx-auto' : 'w-full'}`}
+          title={isSidebarCollapsed ? "Expand Sidebar (Ctrl+B)" : "Collapse Sidebar (Ctrl+B)"}
+        >
+          {isSidebarCollapsed ? (
+            <PanelLeftOpen className="w-5 h-5 shrink-0" />
+          ) : (
+            <>
+              <PanelLeftClose className="w-5 h-5 shrink-0" />
+              <span>Collapse Sidebar</span>
+            </>
+          )}
+        </button>
       </div>
-      
     </aside>
   )
 }

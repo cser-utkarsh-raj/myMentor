@@ -23,39 +23,20 @@ import {
 import { useActiveGoal, useGoalAnalytics } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
 
+import { getColorClasses } from '../lib/theme'
+
 export const Progress: React.FC = () => {
   const { accentColor } = useUIStore()
+  const theme = getColorClasses(accentColor)
   const { data: activeGoal, isLoading: isLoadingGoal } = useActiveGoal()
   const { data: analytics, isLoading: isLoadingAnalytics } = useGoalAnalytics(activeGoal?.id)
 
   const getColorClass = (type: 'text' | 'bg' | 'border' | 'fill' | 'stroke') => {
-    switch (accentColor) {
-      case 'cyan':
-        if (type === 'text') return 'text-cyan-400'
-        if (type === 'bg') return 'bg-cyan-500/10'
-        if (type === 'border') return 'border-cyan-500/20'
-        if (type === 'fill') return '#06b6d4'
-        return 'rgba(6, 182, 212, 0.4)'
-      case 'emerald':
-        if (type === 'text') return 'text-emerald-400'
-        if (type === 'bg') return 'bg-emerald-500/10'
-        if (type === 'border') return 'border-emerald-500/20'
-        if (type === 'fill') return '#10b981'
-        return 'rgba(16, 185, 129, 0.4)'
-      case 'blue':
-        if (type === 'text') return 'text-blue-400'
-        if (type === 'bg') return 'bg-blue-500/10'
-        if (type === 'border') return 'border-blue-500/20'
-        if (type === 'fill') return '#3b82f6'
-        return 'rgba(59, 130, 246, 0.4)'
-      case 'purple':
-      default:
-        if (type === 'text') return 'text-purple-400'
-        if (type === 'bg') return 'bg-purple-500/10'
-        if (type === 'border') return 'border-purple-500/20'
-        if (type === 'fill') return '#a855f7'
-        return 'rgba(168, 85, 247, 0.4)'
-    }
+    if (type === 'text') return theme.text
+    if (type === 'bg') return theme.bg
+    if (type === 'border') return theme.border
+    if (type === 'fill') return theme.hex
+    return `rgba(${theme.rgb}, 0.4)`
   }
 
   if (isLoadingGoal || isLoadingAnalytics) {
