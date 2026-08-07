@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Menu } from 'lucide-react'
 import { Sidebar } from './components/Sidebar'
@@ -44,6 +44,7 @@ const FallbackLoader = () => (
 
 // Protected Layout that includes the Sidebar
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const navigate = useNavigate()
   const { data: activeGoal, isLoading } = useActiveGoal()
   const backupMutation = useBackupDatabase()
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
@@ -89,18 +90,19 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   return (
     <div className="min-h-screen bg-[#09090b] flex flex-col md:flex-row">
       {/* Mobile Header Bar */}
-      <header className="md:hidden flex items-center justify-between px-6 py-4 border-b border-white/5 bg-zinc-950/60 backdrop-blur-xl shrink-0 z-30 sticky top-0">
+      <header className="md:hidden flex items-center justify-between px-5 py-3 border.b-2 border-black bg-zinc-950/90 backdrop-blur-xl shrink-0 z-30 sticky top-0 shadow-[0_4px_0px_#000]">
         <button
           type="button"
           onClick={toggleSidebar}
-          className="p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+          className="p-2 rounded-xl bg-zinc-900 border-2 border-black text-zinc-300 hover:text-white transition-all cursor-pointer shadow-[2px_2px_0px_#000]"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5" />
         </button>
-        <span className="text-lg font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
-          myMentor
-        </span>
-        <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-xs font-bold text-purple-400">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/app')}>
+          <img src="/mymentor-logo.svg" alt="myMentor Logo" className="w-7 h-7 drop-shadow-[2px_2px_0px_#000]" />
+          <span className="text-lg font-black text-white tracking-tight">myMentor</span>
+        </div>
+        <div className="w-8 h-8 rounded-xl bg-zinc-900 border-2 border-black flex items-center justify-center text-xs font-black text-white shadow-[2px_2px_0px_#000]">
           {activeGoal?.title?.[0]?.toUpperCase() || 'M'}
         </div>
       </header>
@@ -109,12 +111,12 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       {!isSidebarCollapsed && (
         <div 
           onClick={toggleSidebar} 
-          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
+          className="md:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 transition-opacity duration-300"
         />
       )}
 
       <Sidebar goal={activeGoal} />
-      <main className={`flex-1 min-h-screen ${isSidebarCollapsed ? 'pl-20 max-md:pl-0' : 'pl-80 max-md:pl-0'} p-8 max-md:p-4 overflow-y-auto transition-all duration-300`}>
+      <main className={`flex-1 min-h-screen ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'} p-8 max-md:p-4 overflow-y-auto transition-all duration-300`}>
         <Suspense fallback={<FallbackLoader />}>
           {children}
         </Suspense>

@@ -77,14 +77,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
 
   return (
     <aside 
-      className={`fixed top-0 h-screen bg-[#0d0d12] border-r-4 border-black flex flex-col justify-between z-40 overflow-y-auto custom-scrollbar transition-all duration-300 shadow-[6px_0px_0px_var(--theme-secondary)] ${
+      className={`fixed top-0 left-0 h-screen bg-[#0c0c11] border-r-4 border-black flex flex-col justify-between z-50 overflow-y-auto custom-scrollbar transition-all duration-300 shadow-[4px_0px_0px_var(--theme-secondary)] ${
         isSidebarCollapsed 
-          ? 'w-20 p-3 left-0 max-md:-left-80 max-md:w-80 max-md:p-6' 
-          : 'w-80 p-6 left-0 max-md:left-0'
+          ? 'w-20 p-3.5 max-md:-translate-x-full' 
+          : 'w-64 p-5 max-md:translate-x-0 max-md:w-72'
       }`}
       style={{
-        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
-        backgroundSize: '16px 16px'
+        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.06) 1.5px, transparent 1.5px)',
+        backgroundSize: '18px 18px'
       }}
     >
       <div className="flex flex-col gap-6 w-full">
