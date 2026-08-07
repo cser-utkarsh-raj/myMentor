@@ -1,10 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from datetime import datetime, date
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
-# ==========================================
-# RESOURCE SCHEMAS (Replaces Task)
-# ==========================================
+class OrmModel(BaseModel):
+    class Config:
+        from_attributes = True
+
+# RESOURCES
 class ResourceBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -17,27 +19,21 @@ class ResourceBase(BaseModel):
     tags: Optional[str] = None
     is_completed: bool = False
 
-class ResourceCreate(ResourceBase):
-    pass
+ResourceCreate = ResourceBase
 
 class ResourceUpdate(BaseModel):
     is_completed: Optional[bool] = None
     notes: Optional[str] = None
     revision_count: Optional[int] = None
 
-class ResourceResponse(ResourceBase):
+class ResourceResponse(ResourceBase, OrmModel):
     id: int
     day_id: int
     completed_at: Optional[datetime] = None
     notes: Optional[str] = None
     revision_count: int
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# DAY SCHEMAS
-# ==========================================
+# DAYS
 class DayBase(BaseModel):
     day_number: int
     title: str
@@ -45,58 +41,40 @@ class DayBase(BaseModel):
     is_completed: bool = False
     xp_rewarded: bool = False
 
-class DayCreate(DayBase):
-    pass
+DayCreate = DayBase
 
-class DayResponse(DayBase):
+class DayResponse(DayBase, OrmModel):
     id: int
     module_id: int
     resources: List[ResourceResponse] = []
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# MODULE SCHEMAS
-# ==========================================
+# MODULES
 class ModuleBase(BaseModel):
     title: str
     description: Optional[str] = None
     order: int = 0
 
-class ModuleCreate(ModuleBase):
-    pass
+ModuleCreate = ModuleBase
 
-class ModuleResponse(ModuleBase):
+class ModuleResponse(ModuleBase, OrmModel):
     id: int
     track_id: int
     days: List[DayResponse] = []
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# TRACK SCHEMAS
-# ==========================================
+# TRACKS
 class TrackBase(BaseModel):
     title: str
     description: Optional[str] = None
     order: int = 0
 
-class TrackCreate(TrackBase):
-    pass
+TrackCreate = TrackBase
 
-class TrackResponse(TrackBase):
+class TrackResponse(TrackBase, OrmModel):
     id: int
     goal_id: int
     modules: List[ModuleResponse] = []
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# GOAL SCHEMAS
-# ==========================================
+# GOALS
 class GoalBase(BaseModel):
     title: str
     target: Optional[str] = None
@@ -104,8 +82,7 @@ class GoalBase(BaseModel):
     daily_hours: float = 3.0
     timeline_days: int = 45
 
-class GoalCreate(GoalBase):
-    pass
+GoalCreate = GoalBase
 
 class GoalUpdate(BaseModel):
     title: Optional[str] = None
@@ -118,7 +95,7 @@ class GoalUpdate(BaseModel):
     longest_streak: Optional[int] = None
     last_active_date: Optional[date] = None
 
-class GoalResponse(GoalBase):
+class GoalResponse(GoalBase, OrmModel):
     id: int
     xp: int
     streak: int
@@ -127,12 +104,7 @@ class GoalResponse(GoalBase):
     created_at: datetime
     tracks: List[TrackResponse] = []
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# STUDY SESSION SCHEMAS
-# ==========================================
+# STUDY SESSIONS
 class StudySessionBase(BaseModel):
     duration_seconds: int
     platform: Optional[str] = None
@@ -146,35 +118,24 @@ class StudySessionCreate(StudySessionBase):
     started_at: Optional[datetime] = None
     end_time: Optional[datetime] = None
 
-class StudySessionResponse(StudySessionBase):
+class StudySessionResponse(StudySessionBase, OrmModel):
     id: int
     goal_id: int
     resource_id: Optional[int] = None
     started_at: datetime
     end_time: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# STATISTICS SCHEMAS
-# ==========================================
-class DailyStatisticResponse(BaseModel):
+# STATS & BADGES
+class DailyStatisticResponse(OrmModel):
     id: int
     goal_id: int
     date: date
     hours_studied: float
-    tasks_completed: int  # represents resources completed
+    tasks_completed: int
     xp_gained: int
     consistency_score: float
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# BADGE SCHEMAS
-# ==========================================
-class BadgeResponse(BaseModel):
+class BadgeResponse(OrmModel):
     id: int
     goal_id: int
     title: str
@@ -182,12 +143,7 @@ class BadgeResponse(BaseModel):
     icon_name: str
     unlocked_at: datetime
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
 # PDF SCHEMAS
-# ==========================================
 class PDFBase(BaseModel):
     filename: str
     size_bytes: int
@@ -204,18 +160,13 @@ class PDFUpdate(BaseModel):
     tags: Optional[str] = None
     is_archived: Optional[bool] = None
 
-class PDFResponse(PDFBase):
+class PDFResponse(PDFBase, OrmModel):
     id: int
     file_path: str
     upload_date: datetime
     extraction_status: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
-# ==========================================
-# GENERAL ANALYTICS SCHEMAS
-# ==========================================
+# ANALYTICS
 class AnalyticsDashboard(BaseModel):
     overall_progress_percent: float
     total_hours_studied: float

@@ -83,7 +83,7 @@ export const Progress: React.FC = () => {
     heatmapGrid.push({
       date: isoString,
       count: stat ? stat.count : 0,
-      xp: stat ? stat.xp : 0,
+      xp: stat ? ((stat as any).xp || Math.round(stat.hours * 25)) : 0,
       hours: stat ? stat.hours : 0.0
     })
   }

@@ -4,196 +4,89 @@ import { useAuthStore } from '../store/authStore'
 const getApiBase = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL
   const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
-  if (host === 'localhost' || host === '127.0.0.1') {
-    return `http://${host}:8000/api/v1`
-  }
-  return 'https://mymentor-backend.onrender.com/api/v1'
+  return (host === 'localhost' || host === '127.0.0.1')
+    ? `http://${host}:8000/api/v1`
+    : 'https://mymentor-backend.onrender.com/api/v1'
 }
 const API_BASE = getApiBase()
 
 const getHeaders = (isMultipart = false) => {
   const { session, isDemoMode } = useAuthStore.getState()
   const headers: Record<string, string> = {}
-  
-  if (!isMultipart) {
-    headers['Content-Type'] = 'application/json'
-  }
-  
-  if (isDemoMode) {
-    headers['Authorization'] = 'Bearer demo_mode_token'
-  } else if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`
-  }
-  
+  if (!isMultipart) headers['Content-Type'] = 'application/json'
+  if (isDemoMode) headers['Authorization'] = 'Bearer demo_mode_token'
+  else if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
   return headers
 }
 
-
-const handleApiError = async (res: Response, fallbackMessage: string): Promise<never> => {
-  let detail = fallbackMessage
-  try {
-    const body = await res.json()
-    if (body.detail) {
-      detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
-    }
-  } catch {
-    // Response body is not JSON, use fallback
+const apiFetch = async (endpoint: string, options: RequestInit = {}, fallbackMsg = 'API Error') => {
+  const isMulti = options.body instanceof FormData
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers: { ...getHeaders(isMulti), ...(options.headers || {}) }
+  })
+  if (!res.ok) {
+    let detail = fallbackMsg
+    try {
+      const body = await res.json()
+      if (body.detail) detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+    } catch {}
+    throw new Error(detail)
   }
-  throw new Error(detail)
+  return res.status === 24 ? null : res.json()
 }
 
-// ==========================================
-// TYPES MATCHING BACKEND PYDANTIC SCHEMAS
-// ==========================================
 export interface Resource {
-  id: number
-  day_id: number
-  title: string
-  category: string
-  platform: string
-  difficulty: string
-  is_completed: boolean
-  completed_at: string | null
-  notes: string | null
-  revision_count: number
-  estimated_duration_mins: number
-  external_url: string | null
-  xp_reward: number
-  tags: string | null
+  id: number; day_id: number; title: string; category: string; platform: string; difficulty: string;
+  is_completed: boolean; completed_at: string | null; notes: string | null; revision_count: number;
+  estimated_duration_mins: number; external_url: string | null; xp_reward: number; tags: string | null;
 }
 
 export interface Day {
-  id: number
-  module_id: number
-  day_number: number
-  title: string
-  unlocked: boolean
-  is_completed: boolean
-  xp_rewarded: boolean
-  resources: Resource[]
+  id: number; module_id: number; day_number: number; title: string; unlocked: boolean;
+  is_completed: boolean; xp_rewarded: boolean; resources: Resource[];
 }
 
 export interface Module {
-  id: number
-  track_id: number
-  title: string
-  description: string | null
-  order: number
-  days: Day[]
+  id: number; track_id: number; title: string; description: string | null; order: number; days: Day[];
 }
 
 export interface Track {
-  id: number
-  goal_id: number
-  title: string
-  description: string | null
-  order: number
-  modules: Module[]
+  id: number; goal_id: number; title: string; description: string | null; order: number; modules: Module[];
 }
 
 export interface Goal {
-  id: number
-  title: string
-  target: string | null
-  active_mode: string
-  daily_hours: number
-  timeline_days: number
-  xp: number
-  streak: number
-  longest_streak: number
-  last_active_date: string | null
-  created_at: string
-  tracks?: Track[]
-}
-
-export interface Badge {
-  id: number
-  goal_id: number
-  title: string
-  description: string
-  icon_name: string
-  unlocked_at: string
-}
-
-export interface PDFFile {
-  id: number
-  filename: string
-  file_path: string
-  size_bytes: number
-  upload_date: string
-  category: string
-  tags: string | null
-  is_archived: boolean
-  extraction_status?: string
+  id: number; title: string; target: string | null; active_mode: string; daily_hours: number;
+  timeline_days: number; xp: number; streak: number; longest_streak: number; last_active_date: string | null;
+  created_at: string; tracks: Track[];
 }
 
 export interface AnalyticsDashboard {
-  overall_progress_percent: number
-  total_hours_studied: number
-  total_resources_completed: number
-  current_streak: number
-  longest_streak: number
-  days_remaining: number
-  xp: number
-  daily_score: number
-  streak_badges_count: number
-  category_progress: Record<string, number>
-  weekly_study_hours: number[]
-  heatmap: Array<{ date: string; count: number; xp: number; hours: number }>
-  weakest_topic: string | null
-  most_revised_topic: string | null
-  recovery_recommended?: boolean
-  checkpoint_celebration?: boolean
-  last_completed_module?: string | null
+  overall_progress_percent: number; total_hours_studied: number; total_resources_completed: number;
+  current_streak: number; longest_streak: number; days_remaining: number; xp: number; daily_score: number;
+  streak_badges_count: number; category_progress: Record<string, number>; weekly_study_hours: number[];
+  heatmap: Array<{ date: string; hours: number; count: number }>; weakest_topic?: string;
+  most_revised_topic?: string; recovery_recommended?: boolean; checkpoint_celebration?: boolean;
+  last_completed_module?: string;
 }
 
-// ==========================================
-// HOOKS DEFINITIONS
-// ==========================================
-
-export const useTriggerRecovery = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async (goalId: number) => {
-      const response = await fetch(`${API_BASE}/goals/${goalId}/recovery`, {
-        method: 'POST',
-        headers: getHeaders()
-      })
-      if (!response.ok) await handleApiError(response, 'Failed to trigger Recovery Mode')
-      return response.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
-    }
-  })
+export interface Badge {
+  id: number; goal_id: number; title: string; description: string; icon_name: string; unlocked_at: string;
 }
 
+export interface PDFFile {
+  id: number; filename: string; file_path: string; size_bytes: number; upload_date: string;
+  category: string; tags: string | null; is_archived: boolean; extraction_status?: string;
+}
+
+// QUERY HOOKS
 export function useActiveGoal() {
-  const { activeGoalId, setActiveGoalId } = useAuthStore()
+  const { activeGoalId } = useAuthStore()
   return useQuery<Goal | null>({
     queryKey: ['activeGoal', activeGoalId],
     queryFn: async () => {
-      if (activeGoalId) {
-        const res = await fetch(`${API_BASE}/goals/${activeGoalId}`, {
-          headers: getHeaders()
-        })
-        if (res.ok) {
-          return res.json()
-        } else {
-          setActiveGoalId(null)
-        }
-      }
-      
-      const res = await fetch(`${API_BASE}/goals/active`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) return null
-      const data = await res.json()
-      if (data && data.id) {
-        setActiveGoalId(data.id)
-      }
-      return data
+      const endpoint = activeGoalId ? `/goals/${activeGoalId}` : '/goals/active'
+      return apiFetch(endpoint, {}, 'Failed to fetch active goal').catch(() => null)
     }
   })
 }
@@ -201,26 +94,14 @@ export function useActiveGoal() {
 export function useGoals() {
   return useQuery<Goal[]>({
     queryKey: ['goals'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) return []
-      return res.json()
-    }
+    queryFn: () => apiFetch('/goals/', {}, 'Failed to fetch goals').catch(() => [])
   })
 }
 
 export function useGoal(goalId: number | undefined) {
   return useQuery<Goal>({
     queryKey: ['goal', goalId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/${goalId}`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to fetch goal detail')
-      return res.json()
-    },
+    queryFn: () => apiFetch(`/goals/${goalId}`, {}, 'Failed to fetch goal detail'),
     enabled: !!goalId
   })
 }
@@ -228,13 +109,7 @@ export function useGoal(goalId: number | undefined) {
 export function useGoalAnalytics(goalId: number | undefined) {
   return useQuery<AnalyticsDashboard>({
     queryKey: ['analytics', goalId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/${goalId}/analytics`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to fetch analytics')
-      return res.json()
-    },
+    queryFn: () => apiFetch(`/goals/${goalId}/analytics`, {}, 'Failed to fetch analytics'),
     enabled: !!goalId
   })
 }
@@ -242,364 +117,191 @@ export function useGoalAnalytics(goalId: number | undefined) {
 export function useGoalBadges(goalId: number | undefined) {
   return useQuery<Badge[]>({
     queryKey: ['badges', goalId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE}/goals/${goalId}/badges`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to fetch achievements')
-      return res.json()
-    },
+    queryFn: () => apiFetch(`/goals/${goalId}/badges`, {}, 'Failed to fetch achievements'),
     enabled: !!goalId
-  })
-}
-
-export function useCreateGoal() {
-  const queryClient = useQueryClient()
-  const { setActiveGoalId } = useAuthStore()
-  return useMutation<Goal, Error, { title: string; target: string; active_mode: string; daily_hours: number; timeline_days: number }>({
-    mutationFn: async (goalData) => {
-      const res = await fetch(`${API_BASE}/goals/`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(goalData)
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to create goal')
-      return res.json()
-    },
-    onSuccess: (data) => {
-      if (data && data.id) {
-        setActiveGoalId(data.id)
-      }
-      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-      queryClient.invalidateQueries({ queryKey: ['goals'] })
-    }
-  })
-}
-
-export function useDeleteGoal() {
-  const queryClient = useQueryClient()
-  const { setActiveGoalId } = useAuthStore()
-  return useMutation<void, Error, number>({
-    mutationFn: async (goalId) => {
-      const res = await fetch(`${API_BASE}/goals/${goalId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to delete goal')
-    },
-    onSuccess: () => {
-      setActiveGoalId(null)
-      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-      queryClient.invalidateQueries({ queryKey: ['goals'] })
-    }
-  })
-}
-
-export function useUpdateResource() {
-  const queryClient = useQueryClient()
-  return useMutation<Resource, Error, { resourceId: number; payload: { is_completed?: boolean; notes?: string; revision_count?: number } }>({
-    mutationFn: async ({ resourceId, payload }) => {
-      const res = await fetch(`${API_BASE}/tasks/${resourceId}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(payload)
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to update resource')
-      return res.json()
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-      queryClient.invalidateQueries({ queryKey: ['goal'] })
-      queryClient.invalidateQueries({ queryKey: ['resources'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      queryClient.invalidateQueries({ queryKey: ['badges'] })
-    }
-  })
-}
-
-export function useLogStudySession() {
-  const queryClient = useQueryClient()
-  return useMutation<any, Error, { goal_id: number; resource_id?: number; duration_seconds: number; completion_status: boolean; platform?: string; notes?: string }>({
-    mutationFn: async (sessionData) => {
-      const res = await fetch(`${API_BASE}/study-sessions/`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(sessionData)
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to log study session')
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
-    }
-  })
-}
-
-export const useGoalLibrary = () => {
-  return useQuery({
-    queryKey: ['goalLibrary'],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE}/system/library`, {
-        headers: getHeaders()
-      })
-      if (!response.ok) await handleApiError(response, 'Failed to fetch library')
-      const data = await response.json()
-      return data.data
-    }
   })
 }
 
 export function useResources(goalId: number | null) {
   return useQuery<Record<string, any[]>>({
     queryKey: ['resources', goalId],
-    queryFn: async () => {
-      const url = goalId ? `${API_BASE}/resources/?goal_id=${goalId}` : `${API_BASE}/resources/`
-      const res = await fetch(url, {
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to fetch resource library')
-      return res.json()
-    }
-  })
-}
-
-export function useAddCustomResource() {
-  const queryClient = useQueryClient()
-  return useMutation<any, Error, { title: string; category?: string; platform?: string; difficulty?: string; external_url?: string; estimated_time_mins?: number; notes?: string; goal_id?: number }>({
-    mutationFn: async (payload) => {
-      const res = await fetch(`${API_BASE}/resources/custom`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(payload)
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to add custom resource')
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resources'] })
-      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
-    }
+    queryFn: () => apiFetch(goalId ? `/resources/?goal_id=${goalId}` : '/resources/', {}, 'Failed to fetch resource library')
   })
 }
 
 export function usePDFs() {
   return useQuery<PDFFile[]>({
     queryKey: ['pdfs'],
+    queryFn: () => apiFetch('/pdfs/', {}, 'Failed to fetch PDFs')
+  })
+}
+
+export function useGoalLibrary() {
+  return useQuery({
+    queryKey: ['goalLibrary'],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/pdfs/`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to fetch PDFs')
-      return res.json()
+      const res = await apiFetch('/system/library', {}, 'Failed to fetch library')
+      return res?.data
     }
   })
 }
-
-export function useUploadPDF() {
-  const queryClient = useQueryClient()
-  return useMutation<PDFFile, Error, FormData>({
-    mutationFn: async (formData) => {
-      const res = await fetch(`${API_BASE}/pdfs/`, {
-        method: 'POST',
-        headers: getHeaders(true),
-        body: formData
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to upload PDF')
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pdfs'] })
-    }
-  })
-}
-
-export function useGenerateRoadmapFromPDF() {
-  const queryClient = useQueryClient()
-  return useMutation<{ message: string; goal_id: number }, Error, number>({
-    mutationFn: async (pdfId) => {
-      const res = await fetch(`${API_BASE}/pdfs/${pdfId}/generate-roadmap`, {
-        method: 'POST',
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to generate roadmap from PDF')
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeGoal'] })
-    }
-  })
-}
-
-export function useDeletePDF() {
-  const queryClient = useQueryClient()
-  return useMutation<void, Error, number>({
-    mutationFn: async (pdfId) => {
-      const res = await fetch(`${API_BASE}/pdfs/${pdfId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to delete PDF')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pdfs'] })
-    }
-  })
-}
-
-export function useTogglePDFArchive() {
-  const queryClient = useQueryClient()
-  return useMutation<PDFFile, Error, number>({
-    mutationFn: async (pdfId) => {
-      const res = await fetch(`${API_BASE}/pdfs/${pdfId}/archive`, {
-        method: 'PUT',
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to toggle archive status')
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pdfs'] })
-    }
-  })
-}
-
-export function useUpdatePDFTags() {
-  const queryClient = useQueryClient()
-  return useMutation<PDFFile, Error, { pdfId: number; tags: string }>({
-    mutationFn: async ({ pdfId, tags }) => {
-      const formData = new FormData()
-      formData.append('tags', tags)
-      const res = await fetch(`${API_BASE}/pdfs/${pdfId}/tags`, {
-        method: 'PUT',
-        headers: getHeaders(true),
-        body: formData
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to update PDF tags')
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pdfs'] })
-    }
-  })
-}
-
-export function useBackupDatabase() {
-  return useMutation<any, Error, void>({
-    mutationFn: async () => {
-      const res = await fetch(`${API_BASE}/system/backup`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to backup database')
-      return res.json()
-    }
-  })
-}
-
-// ==========================================
-// AI / SENSEI HOOKS
-// ==========================================
 
 export function useAIStatus() {
   return useQuery<{ ai_available: boolean; model: string | null; features: string[] }>({
     queryKey: ['aiStatus'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE}/ai/status`, {
-        headers: getHeaders()
-      })
-      if (!res.ok) return { ai_available: false, model: null, features: [] }
-      return res.json()
-    },
+    queryFn: () => apiFetch('/ai/status', {}, 'Failed to fetch AI status').catch(() => ({ ai_available: false, model: null, features: [] })),
     staleTime: 60000
-  })
-}
-
-export function useSenseiChat() {
-  return useMutation<
-    { response: string; ai_available: boolean },
-    Error,
-    { messages: Array<{ role: string; text: string }>; goal_context?: string; personality?: string }
-  >({
-    mutationFn: async (chatData) => {
-      const res = await fetch(`${API_BASE}/ai/chat`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(chatData)
-      })
-      if (!res.ok) await handleApiError(res, 'Sensei chat failed')
-      return res.json()
-    }
-  })
-}
-
-export function useExplainTopic() {
-  return useMutation<
-    { explanation: string },
-    Error,
-    { topic: string; context?: string; difficulty?: string }
-  >({
-    mutationFn: async (data) => {
-      const res = await fetch(`${API_BASE}/ai/explain`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-      })
-      if (!res.ok) await handleApiError(res, 'Failed to explain topic')
-      return res.json()
-    }
-  })
-}
-
-export function useAIRoadmap() {
-  return useMutation<
-    { roadmap: any },
-    Error,
-    { goal_title: string; target?: string; daily_hours?: number; timeline_days?: number }
-  >({
-    mutationFn: async (data) => {
-      const res = await fetch(`${API_BASE}/ai/generate-roadmap`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-      })
-      if (!res.ok) await handleApiError(res, 'AI roadmap generation failed')
-      return res.json()
-    }
   })
 }
 
 export function useDailyTip(params: { goal_title: string; current_topic?: string; streak?: number }) {
   return useQuery<{ tip: string; ai_generated: boolean }>({
     queryKey: ['dailyTip', params.goal_title],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE}/ai/daily-tip`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(params)
-      })
-      if (!res.ok) return { tip: 'Stay consistent and keep learning! 🔥', ai_generated: false }
-      return res.json()
-    },
+    queryFn: () => apiFetch('/ai/daily-tip', { method: 'POST', body: JSON.stringify(params) }, 'Failed to fetch tip').catch(() => ({ tip: 'Stay consistent! 🔥', ai_generated: false })),
     enabled: !!params.goal_title,
-    staleTime: 1000 * 60 * 60 // 1 hour
+    staleTime: 3600000
+  })
+}
+
+// MUTATION HOOKS
+export function useCreateGoal() {
+  const qc = useQueryClient(), { setActiveGoalId } = useAuthStore()
+  return useMutation({
+    mutationFn: (data: any) => apiFetch('/goals/', { method: 'POST', body: JSON.stringify(data) }, 'Failed to create goal'),
+    onSuccess: (data) => {
+      if (data?.id) setActiveGoalId(data.id)
+      qc.invalidateQueries({ queryKey: ['activeGoal'] })
+      qc.invalidateQueries({ queryKey: ['goals'] })
+    }
+  })
+}
+
+export function useDeleteGoal() {
+  const qc = useQueryClient(), { setActiveGoalId } = useAuthStore()
+  return useMutation({
+    mutationFn: (id: number) => apiFetch(`/goals/${id}`, { method: 'DELETE' }, 'Failed to delete goal'),
+    onSuccess: () => {
+      setActiveGoalId(null)
+      qc.invalidateQueries({ queryKey: ['activeGoal'] })
+      qc.invalidateQueries({ queryKey: ['goals'] })
+    }
+  })
+}
+
+export function useUpdateResource() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ resourceId, payload }: any) => apiFetch(`/tasks/${resourceId}`, { method: 'PUT', body: JSON.stringify(payload) }, 'Failed to update resource'),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['activeGoal'] })
+      qc.invalidateQueries({ queryKey: ['resources'] })
+      qc.invalidateQueries({ queryKey: ['analytics'] })
+    }
+  })
+}
+
+export function useLogStudySession() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: any) => apiFetch('/study-sessions/', { method: 'POST', body: JSON.stringify(data) }, 'Failed to log study session'),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['activeGoal'] })
+      qc.invalidateQueries({ queryKey: ['analytics'] })
+    }
+  })
+}
+
+export function useAddCustomResource() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: any) => apiFetch('/resources/custom', { method: 'POST', body: JSON.stringify(payload) }, 'Failed to add custom resource'),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['resources'] })
+      qc.invalidateQueries({ queryKey: ['activeGoal'] })
+    }
+  })
+}
+
+export function useUploadPDF() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (formData: FormData) => apiFetch('/pdfs/', { method: 'POST', body: formData }, 'Failed to upload PDF'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['pdfs'] })
+  })
+}
+
+export function useGenerateRoadmapFromPDF() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (pdfId: number) => apiFetch(`/pdfs/${pdfId}/generate-roadmap`, { method: 'POST' }, 'Failed to generate roadmap from PDF'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['activeGoal'] })
+  })
+}
+
+export function useDeletePDF() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => apiFetch(`/pdfs/${id}`, { method: 'DELETE' }, 'Failed to delete PDF'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['pdfs'] })
+  })
+}
+
+export function useTogglePDFArchive() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => apiFetch(`/pdfs/${id}/archive`, { method: 'PUT' }, 'Failed to toggle archive'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['pdfs'] })
+  })
+}
+
+export function useUpdatePDFTags() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ pdfId, tags }: any) => {
+      const fd = new FormData(); fd.append('tags', tags)
+      return apiFetch(`/pdfs/${pdfId}/tags`, { method: 'PUT', body: fd }, 'Failed to update tags')
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['pdfs'] })
+  })
+}
+
+export function useTriggerRecovery() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (goalId: number) => apiFetch(`/goals/${goalId}/recovery`, { method: 'POST' }, 'Failed to trigger recovery mode'),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['activeGoal'] })
+      qc.invalidateQueries({ queryKey: ['analytics'] })
+    }
+  })
+}
+
+export function useBackupDatabase() {
+  return useMutation({
+    mutationFn: () => apiFetch('/system/backup', {}, 'Failed to backup database')
+  })
+}
+
+export function useSenseiChat() {
+  return useMutation({
+    mutationFn: (data: any) => apiFetch('/ai/chat', { method: 'POST', body: JSON.stringify(data) }, 'Sensei chat failed')
+  })
+}
+
+export function useExplainTopic() {
+  return useMutation({
+    mutationFn: (data: any) => apiFetch('/ai/explain', { method: 'POST', body: JSON.stringify(data) }, 'Failed to explain topic')
+  })
+}
+
+export function useAIRoadmap() {
+  return useMutation({
+    mutationFn: (data: any) => apiFetch('/ai/generate-roadmap', { method: 'POST', body: JSON.stringify(data) }, 'AI roadmap generation failed')
   })
 }
 
 export function useSummarizePDF() {
-  return useMutation<
-    { summary: string; key_concepts: string[]; flashcards: Array<{ question: string; answer: string }> },
-    Error,
-    { text_content: string; filename: string }
-  >({
-    mutationFn: async (data) => {
-      const res = await fetch(`${API_BASE}/ai/summarize-pdf`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-      })
-      if (!res.ok) await handleApiError(res, 'PDF summarization failed')
-      return res.json()
-    }
+  return useMutation({
+    mutationFn: (data: any) => apiFetch('/ai/summarize-pdf', { method: 'POST', body: JSON.stringify(data) }, 'PDF summarization failed')
   })
 }
