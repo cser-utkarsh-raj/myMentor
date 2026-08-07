@@ -96,7 +96,6 @@ class RoadmapService:
         logger.info(f"Generating dynamically customized PDF roadmap for Goal ID: {goal.id}")
         from app.services.ai_service import AIService
         
-        template = None
         try:
             template = AIService.generate_roadmap_from_pdf(
                 goal_title=goal.title,
@@ -107,11 +106,104 @@ class RoadmapService:
             )
         except Exception as e:
             logger.error(f"Gemini PDF analysis failed: {e}")
-            return False
 
         if not template or not template.get("tracks"):
-            logger.error("Empty template returned from PDF parser.")
-            return False
+            logger.warning("AI PDF roadmap generation failed or offline. Generating structured offline PDF roadmap from extracted text.")
+            clean_lines = [line.strip() for line in pdf_text.splitlines() if len(line.strip()) > 5]
+            title = goal.title or "PDF Study Guide"
+            
+            track1_steps = clean_lines[:min(5, len(clean_lines))] or [f"Core Foundations of {title}"]
+            track2_steps = clean_lines[min(5, len(clean_lines)):min(10, len(clean_lines))] or [f"Practical Applications & Problem Solving"]
+            track3_steps = clean_lines[min(10, len(clean_lines)):min(15, len(clean_lines))] or [f"Advanced Review & Master Quiz"]
+
+            template = {
+                "tracks": [
+                    {
+                        "title": f"📄 Core Syllabus: {title}",
+                        "description": "Essential topics extracted from uploaded PDF document",
+                        "order": 1,
+                        "modules": [
+                            {
+                                "title": "Foundational Reading & Key Terms",
+                                "description": "Primary concepts and definitions from study guide",
+                                "order": 1,
+                                "steps": [
+                                    {
+                                        "title": f"Study Section: {step_line[:60]}",
+                                        "resources": [
+                                            {
+                                                "title": f"Read & Annotate: {step_line[:40]}",
+                                                "category": "Theory",
+                                                "platform": "Course Material",
+                                                "difficulty": "Easy",
+                                                "estimated_time_mins": 30,
+                                                "notes": f"Focus on understanding the core principles outlined in this section of your uploaded PDF: '{step_line[:120]}'"
+                                            }
+                                        ]
+                                    }
+                                    for step_line in track1_steps
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "⚡ Deep Dive & Practice Drills",
+                        "description": "Hands-on exercises and problem-solving based on PDF materials",
+                        "order": 2,
+                        "modules": [
+                            {
+                                "title": "Practical Exercises & Implementation",
+                                "description": "Applying key formulas, algorithms, or theories",
+                                "order": 1,
+                                "steps": [
+                                    {
+                                        "title": f"Practice Drill: {step_line[:60]}",
+                                        "resources": [
+                                            {
+                                                "title": f"Implement/Solve: {step_line[:40]}",
+                                                "category": "Exercise",
+                                                "platform": "Course Material",
+                                                "difficulty": "Medium",
+                                                "estimated_time_mins": 45,
+                                                "notes": f"Create active recall flashcards or implement code examples covering: '{step_line[:120]}'"
+                                            }
+                                        ]
+                                    }
+                                    for step_line in track2_steps
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "🏆 Master Review & Self-Assessment",
+                        "description": "Comprehensive summary, active recall, and exam prep",
+                        "order": 3,
+                        "modules": [
+                            {
+                                "title": "Exam Readiness & Revision",
+                                "description": "Final consolidation of all PDF learning objectives",
+                                "order": 1,
+                                "steps": [
+                                    {
+                                        "title": f"Master Review: {step_line[:60]}",
+                                        "resources": [
+                                            {
+                                                "title": f"Quiz & Consolidate: {step_line[:40]}",
+                                                "category": "Project",
+                                                "platform": "Course Material",
+                                                "difficulty": "Hard",
+                                                "estimated_time_mins": 60,
+                                                "notes": f"Synthesize your notes and test yourself on: '{step_line[:120]}'"
+                                            }
+                                        ]
+                                    }
+                                    for step_line in track3_steps
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
 
         # Step 2: Delete any previous roadmap details for this goal before building the new one.
         # This keeps the database clean and avoids conflicts.
