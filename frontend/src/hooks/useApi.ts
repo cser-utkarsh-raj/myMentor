@@ -19,21 +19,41 @@ const getHeaders = (isMultipart = false) => {
   return headers
 }
 
-const apiFetch = async (endpoint: string, options: RequestInit = {}, fallbackMsg = 'API Error') => {
+const apiFetch = async (endpoint: string, options: RequestInit = {}, fallbackMsg = 'API Error', retries = 2) => {
   const isMulti = options.body instanceof FormData
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: { ...getHeaders(isMulti), ...(options.headers || {}) }
-  })
-  if (!res.ok) {
-    let detail = fallbackMsg
+  let lastError: any = null
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const body = await res.json()
-      if (body.detail) detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
-    } catch {}
-    throw new Error(detail)
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers: { ...getHeaders(isMulti), ...(options.headers || {}) }
+      })
+      if (!res.ok) {
+        // Render free-tier cold start 502/503/504 retry
+        if ((res.status === 502 || res.status === 503 || res.status === 504) && attempt < retries) {
+          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)))
+          continue
+        }
+        let detail = fallbackMsg
+        try {
+          const body = await res.json()
+          if (body.detail) detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+        } catch {}
+        throw new Error(detail)
+      }
+      return res.status === 204 ? null : res.json()
+    } catch (err: any) {
+      lastError = err
+      // Retry on network errors / cold-start timeouts
+      if (attempt < retries && (err.name === 'TypeError' || err.message?.includes('fetch') || err.message?.includes('Failed to fetch'))) {
+        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)))
+        continue
+      }
+      throw new Error(err.message || fallbackMsg)
+    }
   }
-  return res.status === 24 ? null : res.json()
+  throw lastError || new Error(fallbackMsg)
 }
 
 export interface Resource {

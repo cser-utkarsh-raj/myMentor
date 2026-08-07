@@ -25,11 +25,36 @@ def on_startup():
     except Exception as e:
         logger.error(f"Error initializing database tables: {e}")
 
-# CORS configuration for Vite & Vercel Frontend integration
+from fastapi.responses import JSONResponse, Response
+
+# 1. Custom HTTP Middleware to guarantee CORS headers on OPTIONS preflight & 500 exceptions
+@app.middleware("http")
+async def cors_and_catch_all_middleware(request, call_next):
+    if request.method == "OPTIONS":
+        response = Response(status_code=204)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        logger.error(f"Unhandled backend exception: {exc}")
+        response = JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error occurred on backend."}
+        )
+    
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
+# 2. Standard CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_origin_regex=r"https?://.*",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
