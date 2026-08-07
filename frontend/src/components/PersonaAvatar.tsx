@@ -121,25 +121,25 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({ personality, size 
 
       case 'Ryan Gosling':
         return (
-          <svg viewBox="0 0 16 16" className="w-full h-full bg-[#181106] p-1 border-2 border-black image-rendering-pixelated">
-            {/* Dirty Blonde Hair */}
-            <rect x="4" y="1" width="8" height="4" fill="#ca8a04" />
+          <svg viewBox="0 0 16 16" className="w-full h-full bg-[#0d0914] p-1 border-2 border-black image-rendering-pixelated">
+            {/* Styled Blonde Pompadour Hair */}
+            <rect x="4" y="1" width="8" height="3" fill="#fde047" />
             <rect x="3" y="2" width="10" height="2" fill="#eab308" />
-            {/* Face */}
-            <rect x="4" y="4" width="8" height="6" fill="#fed7aa" />
-            {/* Sunglasses / Eyes */}
-            <rect x="4" y="5" width="8" height="3" fill="#000000" />
-            <rect x="5" y="5.5" width="2" height="1" fill="#facc15" />
-            <rect x="9" y="5.5" width="2" height="1" fill="#facc15" />
-            {/* Cool Stubble & Smile */}
-            <rect x="4" y="8.5" width="8" height="2" fill="#a16207" opacity="0.4" />
-            <rect x="6" y="9" width="4" height="1" fill="#78350f" />
-            {/* Drive Satin Scorpion Jacket */}
-            <rect x="2" y="10" width="12" height="5" fill="#fef08a" />
-            <rect x="2" y="10" width="2" height="5" fill="#000000" />
-            <rect x="12" y="10" width="2" height="5" fill="#000000" />
-            {/* Golden Scorpion Emblem */}
-            <rect x="7" y="11" width="2" height="3" fill="#eab308" />
+            <rect x="5" y="0.5" width="5" height="1.5" fill="#fef08a" />
+            {/* Face & Jawline */}
+            <rect x="4" y="3.5" width="8" height="6.5" fill="#fde68a" />
+            {/* Cool Eyes */}
+            <rect x="4.5" y="5" width="2.5" height="1.5" fill="#0284c7" />
+            <rect x="9" y="5" width="2.5" height="1.5" fill="#0284c7" />
+            {/* Handsome Smirk */}
+            <rect x="6.5" y="8" width="3.5" height="1" fill="#b45309" />
+            {/* White Drive Satin Jacket with Golden Scorpion */}
+            <rect x="2" y="10" width="12" height="5" fill="#ffffff" />
+            <rect x="2" y="10" width="2" height="5" fill="#18181b" />
+            <rect x="12" y="10" width="2" height="5" fill="#18181b" />
+            {/* Gold Scorpion Embroidery */}
+            <path d="M7 11h2v3H7z" fill="#facc15" />
+            <rect x="6" y="12" width="4" height="1" fill="#eab308" />
           </svg>
         )
 
