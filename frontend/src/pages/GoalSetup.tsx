@@ -187,9 +187,9 @@ export const GoalSetup: React.FC = () => {
     <div className="min-h-screen bg-[#09090b] flex flex-col justify-center items-center px-4 relative overflow-hidden">
       {/* Background radial glow */}
       <div 
-        className="absolute w-[500px] h-[500px] rounded-full blur-[120px] -z-10 pointer-events-none opacity-25"
+        className="absolute w-[600px] h-[600px] rounded-full blur-[140px] -z-10 pointer-events-none opacity-25"
         style={{
-          background: `radial-gradient(circle, ${getColorClass('glow')} 0%, transparent 70%)`,
+          background: `radial-gradient(circle, ${theme.hex} 0%, transparent 70%)`,
           top: '30%',
           left: '50%',
           transform: 'translate(-50%, -50%)'
@@ -197,11 +197,9 @@ export const GoalSetup: React.FC = () => {
       />
       
       {/* App brand header */}
-      <div className="absolute top-8 flex items-center gap-3">
-        <div className={`p-2 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
-          <Zap className={`w-5 h-5 ${getColorClass('text')}`} />
-        </div>
-        <h1 className="text-xl font-bold tracking-wider">myMentor</h1>
+      <div className="absolute top-8 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/app')}>
+        <img src="/mymentor-logo.svg" alt="myMentor Logo" className="w-9 h-9 drop-shadow-[3px_3px_0px_#000]" />
+        <h1 className="text-xl font-black tracking-tight text-white">my<span className={theme.text}>Mentor</span></h1>
       </div>
 
       <AnimatePresence mode="wait">
@@ -211,25 +209,33 @@ export const GoalSetup: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full max-w-lg glass-panel p-8 rounded-3xl border border-white/10 flex flex-col items-center justify-center text-center gap-6"
+            className="w-full max-w-lg glass-panel p-8 rounded-3xl border-4 border-black shadow-[8px_8px_0px_var(--theme-secondary)] flex flex-col items-center justify-center text-center gap-6 relative overflow-hidden bg-[#121217]"
           >
-            <div className="relative flex items-center justify-center">
-              {/* Outer spinning ring */}
+            {/* Animated Background Mesh */}
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+
+            <div className="relative flex items-center justify-center my-4">
+              {/* Outer Counter-Rotating Segment Ring */}
               <div 
-                className="w-20 h-20 rounded-full border-4 border-dashed animate-spin"
-                style={{ borderColor: getColorClass('text'), animationDuration: '3s' }}
+                className="w-28 h-28 rounded-full border-4 border-t-transparent border-b-transparent animate-spin"
+                style={{ borderColor: theme.secondary, animationDuration: '2s' }}
               />
-              {/* Inner glow pulse logo */}
-              <div className={`absolute p-4 rounded-full ${getColorClass('bg')} animate-pulse`}>
-                <Sparkles className={`w-8 h-8 ${getColorClass('text')}`} />
+              {/* Middle Pulsing Ring */}
+              <div 
+                className="absolute w-20 h-20 rounded-full border-4 border-dashed animate-spin"
+                style={{ borderColor: theme.primary, animationDuration: '4s', animationDirection: 'reverse' }}
+              />
+              {/* Inner Glowing Logo Core */}
+              <div className={`p-4 rounded-2xl ${theme.bg} border-2 border-black shadow-[3px_3px_0px_#000] animate-bounce`}>
+                <img src="/mymentor-logo.svg" alt="Logo Core" className="w-8 h-8 drop-shadow-[2px_2px_0px_#000]" />
               </div>
             </div>
             
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-300">
+            <div className="flex flex-col gap-2 relative z-10">
+              <h2 className="text-2xl font-black text-white tracking-tight">
                 Generating Personalized Roadmap
               </h2>
-              <p className="text-sm text-zinc-400 px-4 leading-relaxed">
+              <p className="text-sm text-zinc-300 px-4 leading-relaxed font-semibold">
                 Structuring milestones, daily checklists, XP configurations, and analytics mapping. Setting up databases...
               </p>
             </div>
@@ -239,7 +245,7 @@ export const GoalSetup: React.FC = () => {
             key="wizard"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-2xl glass-panel p-8 rounded-3xl border border-white/10 flex flex-col gap-8"
+            className="w-full max-w-2xl glass-panel p-8 rounded-3xl border-4 border-black shadow-[8px_8px_0px_var(--theme-secondary)] flex flex-col gap-8 bg-[#121217]"
           >
             {/* Step Indicators */}
             <div className="flex items-center justify-between w-full border-b border-white/5 pb-4">

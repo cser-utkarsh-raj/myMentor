@@ -37,8 +37,13 @@ const queryClient = new QueryClient({
 })
 
 const FallbackLoader = () => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <div className="w-8 h-8 rounded-full border-2 border-dashed border-zinc-500 animate-spin" />
+  <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+    <div className="relative flex items-center justify-center">
+      <div className="w-16 h-16 rounded-full border-4 border-t-cyan-400 border-b-rose-500 border-r-transparent border-l-transparent animate-spin" />
+      <div className="absolute p-3 rounded-2xl bg-zinc-900 border-2 border-black shadow-[3px_3px_0px_#000] animate-pulse">
+        <img src="/mymentor-logo.svg" alt="Loading" className="w-6 h-6 drop-shadow-[2px_2px_0px_#000]" />
+      </div>
+    </div>
   </div>
 )
 

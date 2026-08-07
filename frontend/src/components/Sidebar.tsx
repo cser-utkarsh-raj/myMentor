@@ -89,7 +89,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
     >
       <div className="flex flex-col gap-6 w-full">
         {/* Brand Header with Toggle Collapse */}
-        <div className="flex items-center justify-between px-1">
+        <div className={`flex ${isSidebarCollapsed ? 'flex-col items-center gap-3' : 'items-center justify-between px-1'}`}>
           <div 
             className="flex items-center gap-3 cursor-pointer group" 
             onClick={() => {
@@ -101,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
             <img 
               src="/mymentor-logo.svg" 
               alt="myMentor Logo" 
-              className="w-9 h-9 shrink-0 drop-shadow-[3px_3px_0px_#000] group-hover:scale-105 transition-transform" 
+              className="w-10 h-10 shrink-0 drop-shadow-[3px_3px_0px_#000] group-hover:scale-105 transition-transform" 
             />
             {!isSidebarCollapsed && (
               <span className="font-extrabold text-xl tracking-tight text-white flex items-center gap-0.5">
@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
           <button 
             type="button"
             onClick={toggleSidebar}
-            className={`p-2 rounded-xl bg-zinc-900 border-2 border-black hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0px_#000] ${isSidebarCollapsed ? 'mx-auto' : ''}`}
+            className="p-2 rounded-xl bg-zinc-900 border-2 border-black hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0px_#000]"
             title={isSidebarCollapsed ? "Expand Sidebar (Ctrl+B)" : "Collapse Sidebar (Ctrl+B)"}
           >
             {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -181,16 +181,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
               </div>
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-[#14141d] border-2 border-black shadow-[4px_4px_0px_var(--theme-secondary)] flex flex-col gap-3">
-              <div className="flex justify-between items-start">
-                <div>
+            <div className="p-4 rounded-2xl bg-[#14141d] border-2 border-black shadow-[4px_4px_0px_var(--theme-secondary)] flex flex-col gap-3 overflow-hidden">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-extrabold">Learning Profile</p>
-                  <h3 className="font-extrabold text-sm text-zinc-100 mt-0.5 truncate max-w-[150px]">{goal.title}</h3>
+                  <div className="flex items-center gap-1 bg-amber-500/20 border-2 border-black px-2 py-0.5 rounded-full shadow-[2px_2px_0px_#000] shrink-0">
+                    <span className="text-xs animate-pulse">🔥</span>
+                    <span className="text-[11px] font-black text-amber-400">{goal.streak} Days</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 bg-amber-500/20 border-2 border-black px-2.5 py-0.5 rounded-full shadow-[2px_2px_0px_#000]">
-                  <span className="text-sm animate-pulse">🔥</span>
-                  <span className="text-xs font-black text-amber-400">{goal.streak} Days</span>
-                </div>
+                <h3 className="font-extrabold text-sm text-zinc-100 truncate">{goal.title}</h3>
               </div>
               
               {/* Level Bar */}

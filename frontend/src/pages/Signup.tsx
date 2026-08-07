@@ -119,11 +119,11 @@ export const Signup: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md glass-panel p-8 rounded-3xl border border-white/10 flex flex-col gap-6"
+        className="w-full max-w-md glass-panel p-8 rounded-3xl border-4 border-black shadow-[8px_8px_0px_var(--theme-secondary)] bg-[#121217] flex flex-col gap-6"
       >
         {successMessage ? (
           <div className="flex flex-col items-center gap-4 text-center py-4">
-            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border-2 border-black text-emerald-400 shadow-[3px_3px_0px_#000]">
               <CheckCircle className="w-12 h-12" />
             </div>
             <h2 className="text-xl font-bold text-white">Verification Email Sent</h2>
@@ -141,12 +141,12 @@ export const Signup: React.FC = () => {
         ) : (
           <>
             <div className="flex flex-col items-center gap-4 text-center">
-              <div className="p-3 rounded-2xl bg-zinc-900 border border-white/5 shadow-2xl">
-                <Zap className="w-8 h-8 text-purple-400" />
+              <div className="p-3 rounded-2xl bg-zinc-900 border-2 border-black shadow-[3px_3px_0px_#000]">
+                <img src="/mymentor-logo.svg" alt="myMentor Logo" className="w-10 h-10 drop-shadow-[2px_2px_0px_#000]" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">Create your account</h1>
-                <p className="text-sm text-zinc-400 mt-1">Join myMentor and start executing your goals</p>
+                <h1 className="text-2xl font-black text-white tracking-tight">Create your account</h1>
+                <p className="text-sm text-zinc-400 mt-1 font-semibold">Join myMentor and start executing your goals</p>
               </div>
             </div>
 
