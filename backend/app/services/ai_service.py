@@ -16,10 +16,9 @@ class AIService:
     CACHE_TTL = 3600  # 1 hour
     PRIMARY_MODEL = "gemini-2.0-flash"
     FALLBACK_MODELS = [
+        "gemini-1.5-flash",
         "gemini-2.0-flash-lite",
-        "gemini-3.5-flash",
-        "gemini-3.6-flash",
-        "gemini-3.1-flash-lite"
+        "gemini-1.5-pro"
     ]
 
     @classmethod
@@ -72,8 +71,8 @@ class AIService:
                 return client.models.generate_content(model=model, contents=contents, config=config)
             except Exception as e:
                 last_exception = e
-                logger.warning(f"Gemini model '{model}' failed: {e}. Trying fallback...")
-                time.sleep(0.5)
+                logger.warning(f"Gemini model '{model}' failed: {e}. Trying fallback model...")
+                time.sleep(0.3)
         if last_exception:
             raise last_exception
         raise RuntimeError("All Gemini models failed")
@@ -85,13 +84,24 @@ class AIService:
             nl = res.find("\n")
             if nl != -1: res = res[nl:].strip()
             if res.endswith("```"): res = res[:-3].strip()
+        
+        # Robust slice from first '{' to last '}'
+        start = res.find("{")
+        end = res.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            res = res[start:end+1]
         return res
 
     @classmethod
-    def _generate_json(cls, prompt: str, max_tokens: int = 8192, temp: float = 0.6) -> Dict[str, Any]:
+    def _generate_json(cls, prompt: str, max_tokens: int = 8192, temp: float = 0.5) -> Dict[str, Any]:
         config = types.GenerateContentConfig(temperature=temp, max_output_tokens=max_tokens, response_mime_type="application/json")
         response = cls._generate(contents=prompt, config=config)
-        return json.loads(cls._clean_json_text(response.text or "{}"))
+        cleaned = cls._clean_json_text(response.text or "{}")
+        try:
+            return json.loads(cleaned)
+        except Exception as pe:
+            logger.error(f"JSON parse error on AI response: {pe}")
+            raise pe
 
     @classmethod
     def chat(cls, messages: List[Dict[str, str]], system_instruction: str = "") -> str:
