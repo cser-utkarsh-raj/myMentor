@@ -1,26 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+/* ═══════════════════════════════════════════════════════════════════
+   myMentor — Neo-Maximalist Dark Design System
+   A vibrant, bold, block-based UI with a dark foundation.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* ── Design Tokens ─────────────────────────────────────────────── */
 @theme {
-  --font-sans: 'Plus Jakarta Sans', 'Outfit', sans-serif;
-  
-  /* Dynamic themes custom variables */
-  --color-bg-dark: #09090b;
-  --color-card-dark: rgba(18, 18, 22, 0.45);
-  
+  --font-sans: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Core palette */
+  --color-bg-dark: #050505;
+  --color-card-dark: #0c0c0e;
+  --color-surface: #111113;
+
+  /* Animations */
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-streak-wobble: streak-wobble 1.5s ease-in-out infinite;
 }
 
+/* ── Keyframes ─────────────────────────────────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px var(--glow-color, rgba(168, 85, 247, 0.5))); }
-  50% { opacity: .7; filter: drop-shadow(0 0 15px var(--glow-color, rgba(168, 85, 247, 0.8))); }
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px var(--glow-color, rgba(168, 85, 247, 0.5))); }
+  50% { opacity: .7; filter: drop-shadow(0 0 12px var(--glow-color, rgba(168, 85, 247, 0.8))); }
 }
 
 @keyframes streak-wobble {
@@ -28,199 +38,169 @@
   50% { transform: rotate(3deg) scale(1.08); }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes border-dance {
+  0%, 100% { border-color: #a855f7; }
+  25% { border-color: #ec4899; }
+  50% { border-color: #06b6d4; }
+  75% { border-color: #22c55e; }
+}
+
+/* ── Root Variables ────────────────────────────────────────────── */
 :root {
   color-scheme: dark;
   font-family: var(--font-sans);
-  --neo-purple: #a855f7;
-  --neo-pink: #ec4899;
-  --neo-green: #22c55e;
-  --neo-yellow: #eab308;
-  --neo-cyan: #06b6d4;
-  --neo-orange: #f97316;
-  --neo-black: #000000;
-  --neo-white: #ffffff;
+
+  /* Vibrant accent palette */
+  --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
+  --accent-green: #22c55e;
+  --accent-yellow: #facc15;
+  --accent-cyan: #06b6d4;
+  --accent-orange: #f97316;
+  --accent-red: #ef4444;
 }
 
+/* ── Base Reset ────────────────────────────────────────────────── */
 body {
   background-color: var(--color-bg-dark);
-  color: #f4f4f5;
+  color: #e4e4e7;
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
+
+  /* Subtle dot grid pattern on the dark canvas */
+  background-image:
+    radial-gradient(rgba(168, 85, 247, 0.07) 1px, transparent 1px),
+    radial-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px, 36px 36px;
+  background-position: 0 0, 12px 12px;
 }
 
-/* 1. ORIGINAL GLASSMORPHISM STYLES */
+::selection {
+  background: rgba(168, 85, 247, 0.35);
+  color: #fff;
+}
+
+/* ── Glass Panel — The main card/container component ───────────── */
 .glass-panel {
-  background: var(--color-card-dark);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: linear-gradient(135deg, rgba(15, 15, 18, 0.95) 0%, rgba(10, 10, 12, 0.9) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+  border-color: rgba(168, 85, 247, 0.2);
+  box-shadow:
+    0 8px 40px rgba(168, 85, 247, 0.08),
+    0 4px 24px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
 }
 
+/* ── Glass Input — Text inputs, selects, textareas ─────────────── */
 .glass-input {
-  background: rgba(24, 24, 27, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(12, 12, 14, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  color: #f4f4f5;
   border-radius: 12px;
   padding: 10px 16px;
   outline: none;
+  font-family: var(--font-sans);
+  font-size: 14px;
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: var(--accent-color, #a855f7);
-  box-shadow: 0 0 12px var(--accent-color-glow, rgba(168, 85, 247, 0.25));
+  border-color: var(--accent-purple);
+  box-shadow:
+    0 0 0 3px rgba(168, 85, 247, 0.12),
+    0 0 20px rgba(168, 85, 247, 0.08);
 }
 
+.glass-input::placeholder {
+  color: rgba(161, 161, 170, 0.5);
+}
+
+/* ── Glass Button — Primary interactive element ────────────────── */
 .glass-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #f4f4f5;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%);
+  border: 1.5px solid rgba(168, 85, 247, 0.2);
+  color: #e4e4e7;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(168, 85, 247, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .glass-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--accent-color, #a855f7);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(139, 92, 246, 0.15) 100%);
+  border-color: rgba(168, 85, 247, 0.4);
   color: #fff;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
 }
 
-/* 2. NEW VIBRANT & BLOCK-BASED DESIGN OVERRIDES (Active under .vibrant-block-based body tag) */
-body.vibrant-block-based {
-  background-color: #09090b;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
+.glass-btn:active {
+  transform: translateY(0px);
+  box-shadow: none;
 }
 
-body.vibrant-block-based .glass-panel {
-  background: #141416;
-  border: 3.5px solid #000000;
-  box-shadow: 8px 8px 0px #000000;
-  border-radius: 0px; /* Symmetrical blocks */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-body.vibrant-block-based .glass-panel:hover {
-  transform: translate(-4px, -4px);
-  box-shadow: 12px 12px 0px var(--neo-purple);
-  border-color: #000000;
-}
-
-body.vibrant-block-based .glass-input {
-  background: #1e1e21;
-  border: 3px solid #000000;
-  color: #ffffff;
-  border-radius: 0px;
-  box-shadow: 4px 4px 0px #000000;
-  padding: 10px 16px;
-  outline: none;
-  transition: all 0.1s ease;
-}
-
-body.vibrant-block-based .glass-input:focus {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px var(--neo-purple);
-  border-color: #000000;
-}
-
-body.vibrant-block-based .glass-btn {
-  background: var(--neo-purple);
-  border: 3.5px solid #000000;
-  color: #000000;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 5px 5px 0px #000000;
-  border-radius: 0px;
-  backdrop-filter: none;
-  transition: all 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-body.vibrant-block-based .glass-btn:hover {
-  background: #c084fc;
-  color: #000000;
-  transform: translate(-3px, -3px);
-  box-shadow: 8px 8px 0px #000000;
-}
-
-body.vibrant-block-based .glass-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px #000000;
-}
-
-/* Custom text and accent helpers */
-body.vibrant-block-based .neon-text-green {
-  color: var(--neo-green) !important;
-}
-
-body.vibrant-block-based .neon-text-pink {
-  color: var(--neo-pink) !important;
-}
-
-body.vibrant-block-based .neon-text-yellow {
-  color: var(--neo-yellow) !important;
-}
-
-body.vibrant-block-based .vibrant-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border: 2.5px solid #000000;
-  font-weight: 900;
-  text-transform: uppercase;
-  font-size: 11px;
-  color: #000000;
-  background: var(--neo-yellow);
-  box-shadow: 3px 3px 0px #000000;
-  transform: rotate(-1deg);
-}
-
-body.vibrant-block-based .vibrant-badge-pink {
-  background: var(--neo-pink);
-  color: #ffffff;
-}
-
-body.vibrant-block-based .vibrant-badge-green {
-  background: var(--neo-green);
-}
-
-/* Custom Scrollbar */
+/* ── Custom Scrollbar ──────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(168, 85, 247, 0.2);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(168, 85, 247, 0.4);
 }
 
-/* Contributions Grid Heatmap Tooltip & Styles */
+/* ── Heatmap (Progress page contributions grid) ────────────────── */
 .heatmap-rect {
-  transition: fill 0.15s ease;
+  transition: fill 0.15s ease, transform 0.1s ease;
 }
+
 .heatmap-rect:hover {
-  stroke: #fff;
-  stroke-width: 1px;
+  stroke: var(--accent-purple);
+  stroke-width: 1.5px;
+  transform: scale(1.2);
+  transform-origin: center;
 }
