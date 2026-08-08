@@ -15,9 +15,11 @@ import {
 } from 'lucide-react'
 import { usePDFs, useUploadPDF, useDeletePDF, useTogglePDFArchive, useUpdatePDFTags, useActiveGoal, useGenerateRoadmapFromPDF } from '../hooks/useApi'
 import { useUIStore } from '../store/uiStore'
+import { getColorClasses } from '../lib/theme'
 
 export const PDFs: React.FC = () => {
   const { accentColor } = useUIStore()
+  const theme = getColorClasses(accentColor)
   const navigate = useNavigate()
   
   // Queries & Mutations
@@ -143,7 +145,7 @@ export const PDFs: React.FC = () => {
       alert("Roadmap successfully generated from PDF! Sensei has structured your daily study tasks around the textbook chapters. Redirecting you to your new Roadmap.")
       navigate('/app/roadmap')
     } catch (e: any) {
-      alert("Failed to generate roadmap from PDF. Please make sure the PDF has been parsed successfully.")
+      alert(e?.message || "Failed to generate roadmap from PDF. Please ensure an active learning goal exists.")
     } finally {
       setGeneratingRoadmapId(null)
     }
@@ -241,7 +243,7 @@ export const PDFs: React.FC = () => {
             <button
               type="submit"
               disabled={!selectedFile || uploadStatus === 'uploading'}
-              className={`w-full py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${getColorClass('btn')} disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2`}
+              className={`w-full py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${theme.btn} disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 border-2 border-black`}
             >
               {uploadStatus === 'uploading' ? (
                 <>
@@ -342,10 +344,10 @@ export const PDFs: React.FC = () => {
                       <div className="flex gap-2 justify-center">
                         <button
                           type="button"
-                          disabled={pdf.extraction_status !== 'success' || generatingRoadmapId !== null}
+                          disabled={generatingRoadmapId !== null}
                           onClick={() => handleGenerateRoadmap(pdf.id)}
-                          className="p-2 rounded-lg bg-zinc-950/40 border border-white/5 hover:border-emerald-500/20 text-zinc-500 hover:text-emerald-400 transition-all cursor-pointer disabled:opacity-45 disabled:pointer-events-none"
-                          title={pdf.extraction_status === 'pending' ? 'Parsing PDF text...' : 'Generate Roadmap from PDF'}
+                          className={`p-2 rounded-lg bg-zinc-950/40 border border-white/5 hover:${theme.border} text-zinc-500 hover:${theme.text} transition-all cursor-pointer disabled:opacity-45 disabled:pointer-events-none`}
+                          title="Generate Roadmap from PDF"
                         >
                           {generatingRoadmapId === pdf.id ? (
                             <div className="w-4 h-4 rounded-full border border-dashed border-emerald-400 animate-spin" />

@@ -228,8 +228,8 @@ export const Sensei: React.FC = () => {
 
                 <div className={`group relative max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? `${theme.primary} text-black font-semibold rounded-br-none shadow-[3px_3px_0px_#000] border-2 border-black`
-                    : 'bg-zinc-900/90 border-2 border-black text-zinc-200 rounded-bl-none shadow-[3px_3px_0px_#000]'
+                    ? `${theme.btn} rounded-br-none border-2 border-black font-bold text-black`
+                    : `bg-zinc-900/95 ${theme.border} border-2 border-black text-zinc-100 rounded-bl-none shadow-[3px_3px_0px_#000]`
                 }`}>
                   {msg.role === 'model' ? (
                     <div 
