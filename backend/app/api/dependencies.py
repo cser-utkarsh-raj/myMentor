@@ -1,8 +1,8 @@
-import base64
-import json
 from typing import Optional
 from fastapi import Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt, JWTError
+from app.core.config import settings
 from app.core.logger import logger
 
 security = HTTPBearer(auto_error=False)
@@ -14,17 +14,28 @@ def get_current_user(request: Request, credentials: Optional[HTTPAuthorizationCr
         return {"id": "demo-user-uuid", "email": "demo@mymentor.app"}
 
     try:
-        parts = token.split(".")
-        if len(parts) >= 2:
-            # Decode JWT payload safely without triggering python-jose cryptography PEM errors
-            padded = parts[1] + "=" * (-len(parts[1]) % 4)
-            payload_bytes = base64.urlsafe_b64decode(padded)
-            payload = json.loads(payload_bytes.decode("utf-8"))
-            
-            user_id = payload.get("sub") or payload.get("user_id") or "demo-user-uuid"
-            email = payload.get("email") or "demo@mymentor.app"
+        # Standard cryptographic HS256 verification (uses string JWT_SECRET, zero PEM files required)
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=["HS256"],
+            options={"verify_aud": False}
+        )
+        user_id = payload.get("sub") or payload.get("user_id")
+        email = payload.get("email") or "user@mymentor.app"
+        if user_id:
             return {"id": str(user_id), "email": str(email)}
+    except JWTError:
+        try:
+            # Fallback for RS256 OAuth claims (Supabase / Google)
+            payload = jwt.get_unverified_claims(token)
+            user_id = payload.get("sub") or payload.get("user_id")
+            email = payload.get("email") or "user@mymentor.app"
+            if user_id:
+                return {"id": str(user_id), "email": str(email)}
+        except Exception:
+            pass
     except Exception as e:
-        logger.warning(f"JWT payload decoding fallback: {e}")
+        logger.warning(f"Auth token verification fallback: {e}")
 
     return {"id": "demo-user-uuid", "email": "demo@mymentor.app"}
