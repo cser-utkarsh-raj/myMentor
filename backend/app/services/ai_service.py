@@ -164,6 +164,43 @@ Return ONLY valid JSON."""
             return {}
 
     @classmethod
+    def generate_roadmap_from_pdf(cls, goal_title: str, target: str, daily_hours: float, timeline_days: int, pdf_extracted_text: str) -> Dict[str, Any]:
+        prompt = f"""You are an expert learning architect. Analyze the extracted PDF study material and create a structured learning roadmap.
+Goal: {goal_title} | Target: {target} | Daily Hours: {daily_hours} | Timeline: {timeline_days} days
+Extracted PDF Material:
+{pdf_extracted_text[:6000]}
+
+Generate JSON structure:
+{{
+  "title": "PDF Roadmap: {goal_title}",
+  "tracks": [
+    {{
+      "title": "Core Syllabus", "description": "Key concepts from uploaded PDF", "order": 1,
+      "modules": [
+        {{
+          "title": "Primary Concepts", "description": "Module overview", "order": 1,
+          "steps": [
+            {{
+              "title": "Study Section",
+              "resources": [
+                {{"title": "Resource title", "category": "Theory", "platform": "Course Material", "difficulty": "Medium", "estimated_time_mins": 30, "notes": "Notes"}}
+              ]
+            }}
+          ]
+        }}
+      ]
+    }}
+  ]
+}}
+Return ONLY valid JSON."""
+
+        try:
+            return cls._generate_json(prompt, max_tokens=4096)
+        except Exception as e:
+            logger.error(f"AI PDF roadmap generation failed: {e}")
+            return {}
+
+    @classmethod
     def explain_topic(cls, topic: str, context: str = "", difficulty: str = "Medium") -> str:
         cache_key = f"explain_{topic[:50]}_{difficulty}"
         cached = cls._get_cached(cache_key)

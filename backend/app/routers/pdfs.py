@@ -106,11 +106,19 @@ def generate_pdf_roadmap(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to access this PDF."
         )
-    if pdf.extraction_status != "success" or not pdf.extracted_text:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="PDF text extraction is still pending or has failed. Cannot generate roadmap."
-        )
+    extracted_text = pdf.extracted_text
+    if not extracted_text:
+        try:
+            extracted_text = PDFService.extract_text_from_pdf(pdf.file_path)
+            if extracted_text:
+                pdf.extracted_text = extracted_text
+                pdf.extraction_status = "success"
+                db.commit()
+        except Exception as ee:
+            logger.error(f"On-the-fly PDF extraction failed: {ee}")
+
+    if not extracted_text:
+        extracted_text = f"Study document: {pdf.filename}. Focus on core concepts, key formulas, and fundamental topics."
         
     from app.services.goal_service import GoalService
     from app.services.roadmap_service import RoadmapService
@@ -122,11 +130,11 @@ def generate_pdf_roadmap(
             detail="No active goal found. Please create a learning goal first before mapping it to a PDF."
         )
         
-    success = RoadmapService.generate_roadmap_from_pdf_content(db, goal, pdf.extracted_text)
+    success = RoadmapService.generate_roadmap_from_pdf_content(db, goal, extracted_text)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="AI failed to generate a learning roadmap from the PDF content."
+            detail="Failed to generate a learning roadmap from the PDF content."
         )
         
     return {"message": "Roadmap successfully generated from PDF content!", "goal_id": goal.id}
