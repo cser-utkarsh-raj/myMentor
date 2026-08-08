@@ -18,10 +18,16 @@ class AIService:
     CACHE_TTL = 3600  # 1 hour
     PRIMARY_MODEL = "gemini-2.0-flash"
     FALLBACK_MODELS = [
-        "gemini-1.5-flash",
-        "gemini-2.0-flash-lite",
-        "gemini-1.5-pro"
+        "gemini-2.0-flash-lite"
     ]
+
+    @classmethod
+    def _fallback_response(cls) -> str:
+        return (
+            "Sensei is here! The upstream AI model APIs (Gemini / DeepSeek) are currently experiencing high traffic or quota cooldowns.\n\n"
+            "Keep your streak going! In the meantime, work through your daily tasks in **Roadmap**, "
+            "review your study materials in **Resources**, or upload textbook notes in **Documents Registry**. We got this!"
+        )
 
     @classmethod
     def _get_api_keys(cls) -> List[str]:
@@ -76,6 +82,26 @@ class AIService:
             return ""
 
     @classmethod
+    def _extract_text_from_contents(cls, contents: Any) -> str:
+        if isinstance(contents, str):
+            return contents
+        if isinstance(contents, list):
+            parts_text = []
+            for item in contents:
+                if isinstance(item, str):
+                    parts_text.append(item)
+                elif hasattr(item, "parts") and item.parts:
+                    for p in item.parts:
+                        if hasattr(p, "text") and p.text:
+                            parts_text.append(p.text)
+                elif isinstance(item, dict):
+                    parts_text.append(item.get("text") or item.get("content") or str(item))
+                else:
+                    parts_text.append(str(item))
+            return "\n".join(parts_text)
+        return str(contents)
+
+    @classmethod
     def _generate(cls, contents: Any, config: Any) -> Any:
         keys = cls._get_api_keys()
 
@@ -99,8 +125,13 @@ class AIService:
         # Fallback to DeepSeek if available
         if settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_API_KEY.strip():
             logger.info("Falling back to DeepSeek V3 AI model...")
-            prompt_text = str(contents)
-            ds_res = cls._call_deepseek(prompt_text)
+            prompt_text = cls._extract_text_from_contents(contents)
+            system_inst = ""
+            if hasattr(config, "system_instruction") and config.system_instruction:
+                system_inst = str(config.system_instruction)
+            is_json_req = getattr(config, "response_mime_type", "") == "application/json"
+            
+            ds_res = cls._call_deepseek(prompt_text, system=system_inst, is_json=is_json_req)
             if ds_res:
                 class DeepSeekResponseWrapper:
                     def __init__(self, text):
