@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str | None = Field(default_factory=lambda: os.getenv("GEMINI_API_KEY"))
     GEMINI_API_KEY_2: str | None = Field(default_factory=lambda: os.getenv("GEMINI_API_KEY_2"))
     GEMINI_API_KEY_3: str | None = Field(default_factory=lambda: os.getenv("GEMINI_API_KEY_3"))
+    DEEPSEEK_API_KEY: str | None = Field(default_factory=lambda: os.getenv("DEEPSEEK_API_KEY"))
 
     class Config:
         case_sensitive = True

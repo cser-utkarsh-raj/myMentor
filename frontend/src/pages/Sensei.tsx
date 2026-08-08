@@ -170,8 +170,8 @@ export const Sensei: React.FC = () => {
             <h1 className="text-2xl font-bold text-white">Sensei</h1>
             <p className="text-sm font-semibold mt-0.5 flex items-center gap-2">
               <span className="text-zinc-400">Persona:</span>
-              <span className={`px-2 py-0.5 rounded text-xs font-extrabold border border-black ${theme.bg} ${theme.text} ${theme.border}`}>
-                {senseiPersonality} Mode
+              <span className={`px-2.5 py-0.5 rounded text-xs font-black border border-black ${theme.bg} ${theme.text} ${theme.border}`}>
+                {senseiPersonality}
               </span>
             </p>
           </div>
@@ -185,8 +185,8 @@ export const Sensei: React.FC = () => {
             <div className="text-center flex flex-col items-center">
               <div className="mb-4 flex flex-col items-center gap-2">
                 <PersonaAvatar personality={senseiPersonality} size="lg" />
-                <span className={`text-xs font-extrabold px-3 py-1 rounded-full border border-black ${theme.bg} ${theme.text} shadow-[2px_2px_0px_#000]`}>
-                  {senseiPersonality} Mode
+                <span className={`text-xs font-black px-3 py-1 rounded-full border border-black ${theme.bg} ${theme.text} shadow-[2px_2px_0px_#000]`}>
+                  {senseiPersonality}
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white mb-2">Sensei</h2>
@@ -256,8 +256,8 @@ export const Sensei: React.FC = () => {
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center shrink-0 mt-1">
-                    <User className="w-4 h-4 text-zinc-400" />
+                  <div className="w-8 h-8 rounded-xl bg-zinc-800 border-2 border-black flex items-center justify-center shrink-0 mt-1 shadow-[2px_2px_0px_#000]">
+                    <User className="w-4 h-4 text-zinc-300" />
                   </div>
                 )}
               </motion.div>
@@ -269,12 +269,10 @@ export const Sensei: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-3 justify-start"
               >
-                <div className={`w-8 h-8 rounded-xl ${getColorClass('bg')} border ${getColorClass('border')} flex items-center justify-center shrink-0`}>
-                  <Bot className={`w-4 h-4 ${getColorClass('text')}`} />
-                </div>
-                <div className="bg-zinc-900/90 border border-white/10 rounded-2xl rounded-bl-none p-4 flex items-center gap-3 text-zinc-400 text-sm">
-                  <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
-                  <span>Sensei is thinking...</span>
+                <PersonaAvatar personality={senseiPersonality} size="sm" className="mt-1 shrink-0" />
+                <div className={`bg-zinc-900/95 ${theme.border} border-2 border-black rounded-2xl rounded-bl-none p-4 flex items-center gap-3 text-zinc-200 text-sm shadow-[3px_3px_0px_#000]`}>
+                  <Loader2 className={`w-4 h-4 animate-spin ${theme.text}`} />
+                  <span className="font-bold">{senseiPersonality} is formulating a response...</span>
                 </div>
               </motion.div>
             )}

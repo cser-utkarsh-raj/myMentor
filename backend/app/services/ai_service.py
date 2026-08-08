@@ -127,9 +127,14 @@ class AIService:
         elif "job" in target_lower or "career" in target_lower:
             directive = "Structure roadmap around production-ready capstone projects, portfolio building, and resume deliverables."
 
-        prompt = f"""You are an expert learning architect. Create a structured learning roadmap.
+        prompt = f"""You are an expert learning architect. Create a progressive, day-by-day learning roadmap.
 Goal: {goal_title} | Target: {target} | Daily Hours: {daily_hours} | Timeline: {timeline_days} days
 Directive: {directive}
+
+IMPORTANT PROGRESSION RULES:
+1. ORDERING: The roadmap MUST strictly progress from Easy Basics & Foundations (Track 1) -> Intermediate Practice & Core Implementations (Track 2) -> Advanced Topics & Peak Mastery Capstone (Track 3).
+2. TOPIC DIVERSITY: Each daily step must focus on a distinct, non-repeating concept moving sequentially forward.
+3. DIFFICULTY ACCURACY: Resources for early steps must be marked "Easy", middle steps "Medium", and final capstone steps "Hard".
 
 Generate JSON structure:
 {{
