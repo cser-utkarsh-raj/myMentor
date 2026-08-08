@@ -272,7 +272,7 @@ export const Sensei: React.FC = () => {
                 <PersonaAvatar personality={senseiPersonality} size="sm" className="mt-1 shrink-0" />
                 <div className={`bg-zinc-900/95 ${theme.border} border-2 border-black rounded-2xl rounded-bl-none p-4 flex items-center gap-3 text-zinc-200 text-sm shadow-[3px_3px_0px_#000]`}>
                   <Loader2 className={`w-4 h-4 animate-spin ${theme.text}`} />
-                  <span className="font-bold">{senseiPersonality} is formulating a response...</span>
+                  <span className="font-bold">Sensei is formulating a response...</span>
                 </div>
               </motion.div>
             )}
