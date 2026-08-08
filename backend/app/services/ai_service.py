@@ -22,17 +22,12 @@ class AIService:
     ]
 
     @classmethod
-    def _get_api_key(cls) -> Optional[str]:
-        return settings.GEMINI_API_KEY
-
-    @classmethod
-    def _get_client(cls):
-        api_key = cls._get_api_key()
-        if not api_key:
-            raise RuntimeError("GEMINI_API_KEY is not configured")
-        if cls._client is None:
-            cls._client = genai.Client(api_key=api_key)
-        return cls._client
+    def _get_api_keys(cls) -> List[str]:
+        keys = []
+        for k in [settings.GEMINI_API_KEY, settings.GEMINI_API_KEY_2, settings.GEMINI_API_KEY_3]:
+            if k and k.strip():
+                keys.append(k.strip())
+        return keys
 
     @classmethod
     def _mark_unavailable(cls, duration_seconds: int = 15) -> None:
@@ -40,7 +35,7 @@ class AIService:
 
     @classmethod
     def is_available(cls) -> bool:
-        return bool(cls._get_api_key()) and time.time() >= cls._cooldown_until
+        return len(cls._get_api_keys()) > 0 and time.time() >= cls._cooldown_until
 
     @classmethod
     def _get_cached(cls, key: str) -> Optional[str]:
@@ -64,18 +59,28 @@ class AIService:
 
     @classmethod
     def _generate(cls, contents: Any, config: Any) -> Any:
-        client = cls._get_client()
+        keys = cls._get_api_keys()
+        if not keys:
+            raise RuntimeError("No GEMINI_API_KEY is configured")
+
         last_exception = None
-        for model in [cls.PRIMARY_MODEL] + cls.FALLBACK_MODELS:
+        for key in keys:
             try:
-                return client.models.generate_content(model=model, contents=contents, config=config)
-            except Exception as e:
-                last_exception = e
-                logger.warning(f"Gemini model '{model}' failed: {e}. Trying fallback model...")
+                client = genai.Client(api_key=key)
+                for model in [cls.PRIMARY_MODEL] + cls.FALLBACK_MODELS:
+                    try:
+                        return client.models.generate_content(model=model, contents=contents, config=config)
+                    except Exception as me:
+                        last_exception = me
+                        logger.warning(f"Gemini model '{model}' failed on key: {me}. Trying next model...")
+                        time.sleep(0.2)
+            except Exception as ke:
+                last_exception = ke
+                logger.warning(f"Gemini API key failure: {ke}. Rotating to next API key...")
                 time.sleep(0.3)
         if last_exception:
             raise last_exception
-        raise RuntimeError("All Gemini models failed")
+        raise RuntimeError("All Gemini API keys and models failed")
 
     @classmethod
     def _clean_json_text(cls, text: str) -> str:

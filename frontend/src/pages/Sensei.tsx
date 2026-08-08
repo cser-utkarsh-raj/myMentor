@@ -162,16 +162,17 @@ export const Sensei: React.FC = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]">
-      {/* Header - Clean persona subtitle */}
+      {/* Header - Clean persona title with matching PersonaAvatar */}
       <div className="flex items-center justify-between pb-6 border-b border-white/5">
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-2xl ${getColorClass('bg')} border ${getColorClass('border')}`}>
-            <Sparkles className={`w-6 h-6 ${getColorClass('text')}`} />
-          </div>
+          <PersonaAvatar personality={senseiPersonality} size="md" />
           <div>
             <h1 className="text-2xl font-bold text-white">Sensei</h1>
-            <p className="text-sm text-zinc-400 font-semibold mt-0.5">
-              Persona: {senseiPersonality}
+            <p className="text-sm font-semibold mt-0.5 flex items-center gap-2">
+              <span className="text-zinc-400">Persona:</span>
+              <span className={`px-2 py-0.5 rounded text-xs font-extrabold border border-black ${theme.bg} ${theme.text} ${theme.border}`}>
+                {senseiPersonality} Mode
+              </span>
             </p>
           </div>
         </div>
@@ -194,7 +195,7 @@ export const Sensei: React.FC = () => {
               </p>
             </div>
 
-            {/* Quick prompts - Styled cards with text that execute on click */}
+            {/* Quick prompts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
               {quickPrompts.map((qp, idx) => (
                 <button
@@ -222,13 +223,13 @@ export const Sensei: React.FC = () => {
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'model' && (
-                  <PersonaAvatar personality={senseiPersonality} size="sm" className="mt-1" />
+                  <PersonaAvatar personality={senseiPersonality} size="sm" className="mt-1 shrink-0" />
                 )}
 
                 <div className={`group relative max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? `${getColorClass('btn')} text-black font-medium rounded-br-none`
-                    : 'bg-zinc-900/90 border border-white/10 text-zinc-200 rounded-bl-none'
+                    ? `${theme.primary} text-black font-semibold rounded-br-none shadow-[3px_3px_0px_#000] border-2 border-black`
+                    : 'bg-zinc-900/90 border-2 border-black text-zinc-200 rounded-bl-none shadow-[3px_3px_0px_#000]'
                 }`}>
                   {msg.role === 'model' ? (
                     <div 
