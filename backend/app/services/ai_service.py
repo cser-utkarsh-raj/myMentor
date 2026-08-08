@@ -7,8 +7,10 @@ from app.core.logger import logger
 from typing import Optional, List, Dict, Any
 
 
+import urllib.request
+
 class AIService:
-    """Core AI service using Google Gemini for all intelligent features."""
+    """Core AI service using Google Gemini and DeepSeek for all intelligent features."""
 
     _client = None
     _cache: Dict[str, Dict[str, Any]] = {}
@@ -35,52 +37,79 @@ class AIService:
 
     @classmethod
     def is_available(cls) -> bool:
-        return len(cls._get_api_keys()) > 0 and time.time() >= cls._cooldown_until
+        has_gemini = len(cls._get_api_keys()) > 0
+        has_deepseek = bool(settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_API_KEY.strip())
+        return (has_gemini or has_deepseek) and time.time() >= cls._cooldown_until
 
     @classmethod
-    def _get_cached(cls, key: str) -> Optional[str]:
-        entry = cls._cache.get(key)
-        if entry and (time.time() - entry["timestamp"]) < cls.CACHE_TTL:
-            return entry["response"]
-        return None
-
-    @classmethod
-    def _set_cache(cls, key: str, value: str):
-        cls._cache[key] = {"response": value, "timestamp": time.time()}
-
-    @classmethod
-    def _fallback_response(cls) -> str:
-        return (
-            "Sensei's AI brain is temporarily on cooldown — the AI service hit a snag. "
-            "This happens occasionally with API rate limits or network connectivity.\n\n"
-            "Do not worry, I will be back shortly! In the meantime, check out your **Roadmap** "
-            "for today's tasks, or browse the **Resources** page for study materials. Keep pushing forward!"
-        )
+    def _call_deepseek(cls, prompt: str, system: str = "", is_json: bool = False) -> str:
+        key = settings.DEEPSEEK_API_KEY
+        if not key or not key.strip():
+            return ""
+        
+        url = "https://api.deepseek.com/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key.strip()}"
+        }
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+        
+        body: Dict[str, Any] = {
+            "model": "deepseek-chat",
+            "messages": messages,
+            "temperature": 0.5,
+            "stream": False
+        }
+        if is_json:
+            body["response_format"] = {"type": "json_object"}
+            
+        try:
+            req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            logger.warning(f"DeepSeek API call failed: {e}")
+            return ""
 
     @classmethod
     def _generate(cls, contents: Any, config: Any) -> Any:
         keys = cls._get_api_keys()
-        if not keys:
-            raise RuntimeError("No GEMINI_API_KEY is configured")
 
         last_exception = None
-        for key in keys:
-            try:
-                client = genai.Client(api_key=key)
-                for model in [cls.PRIMARY_MODEL] + cls.FALLBACK_MODELS:
-                    try:
-                        return client.models.generate_content(model=model, contents=contents, config=config)
-                    except Exception as me:
-                        last_exception = me
-                        logger.warning(f"Gemini model '{model}' failed on key: {me}. Trying next model...")
-                        time.sleep(0.2)
-            except Exception as ke:
-                last_exception = ke
-                logger.warning(f"Gemini API key failure: {ke}. Rotating to next API key...")
-                time.sleep(0.3)
+        if keys:
+            for key in keys:
+                try:
+                    client = genai.Client(api_key=key)
+                    for model in [cls.PRIMARY_MODEL] + cls.FALLBACK_MODELS:
+                        try:
+                            return client.models.generate_content(model=model, contents=contents, config=config)
+                        except Exception as me:
+                            last_exception = me
+                            logger.warning(f"Gemini model '{model}' failed on key: {me}. Trying next model...")
+                            time.sleep(0.2)
+                except Exception as ke:
+                    last_exception = ke
+                    logger.warning(f"Gemini API key failure: {ke}. Rotating to next API key...")
+                    time.sleep(0.3)
+
+        # Fallback to DeepSeek if available
+        if settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_API_KEY.strip():
+            logger.info("Falling back to DeepSeek V3 AI model...")
+            prompt_text = str(contents)
+            ds_res = cls._call_deepseek(prompt_text)
+            if ds_res:
+                class DeepSeekResponseWrapper:
+                    def __init__(self, text):
+                        self.text = text
+                return DeepSeekResponseWrapper(ds_res)
+
         if last_exception:
             raise last_exception
-        raise RuntimeError("All Gemini API keys and models failed")
+        raise RuntimeError("All AI keys and models (Gemini & DeepSeek) failed")
 
     @classmethod
     def _clean_json_text(cls, text: str) -> str:
