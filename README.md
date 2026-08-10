@@ -1,9 +1,9 @@
- ⭐ myMentor
+# ⭐ myMentor
 
 > **AI-Powered Learning Platform & Career Roadmap Tracker**  
 > *Duolingo meets Notion, meets GitHub Contributions.*
 
-`myMentor` is a production-quality, microservice-ready web application designed to help developers and learners construct personalized learning roadmaps, track their daily progress, log study hours, and gamify their curriculum with XP and achievements. 
+`myMentor` is a production-quality, microservice-ready web application designed to help developers and learners construct personalized learning roadmaps, track their daily progress, log study hours, and gamify their curriculum with XP, streaks, and achievements.
 
 Designed with software engineering maturity, the backend adopts a **Modular Monolith** architecture with a clean **Controller → Service → Repository** pattern, paving a clear extraction path to a distributed microservice network in V2.
 
@@ -23,6 +23,70 @@ Designed with software engineering maturity, the backend adopts a **Modular Mono
 
 ---
 
+## 💻 Detailed UI & Application Views Guide
+
+### 1. 🏠 Dashboard (`/app`)
+- **Dynamic Greeting**: Personalized welcome greeting displaying the user's custom profile name.
+- **Active Goal Banner**: Summary card displaying current learning path, financial/skill target, daily hours commitment, and total timeline duration.
+- **Gamification Bar**: Real-time XP progress bar, current daily streak count, and unlocked achievement counts.
+- **Current Milestone Track**: High-level overview of active track modules and pending daily study tasks.
+- **Pomodoro Focus Widget**: Quick-access timer widget to initiate study blocks directly from the dashboard.
+
+### 2. 🧙 Wizard Setup (`/setup`)
+- **4-Step Onboarding Wizard**:
+  - *Step 1*: Define Learning Goal Title & Skill Target.
+  - *Step 2*: Specify Daily Study Hours & Timeline Days.
+  - *Step 3*: Select Preferred UI Glow Accent Color with live interactive preview.
+  - *Step 4*: Pick Sensei AI Mentor Persona.
+- **Concentric Ring Loading Screen**: Synchronized dual-ring loader animating during AI roadmap compilation.
+
+### 3. 🗺️ Interactive Roadmap (`/app/roadmap`)
+- **Visual Curriculum Graph**: Hierarchical breakdown of Tracks $\rightarrow$ Modules $\rightarrow$ Daily Steps.
+- **Progressive Difficulty Ordering**: Topics move chronologically from Easy Foundations to Peak Mastery Capstones.
+- **Resource Badges**: Categorized task cards tagged with platform indicators (YouTube, GitHub, Docs, PDF), estimated time in minutes, and difficulty ratings.
+- **Interactive Checklists**: One-click topic completion with instant XP and streak rewards.
+
+### 4. 📅 Today Focus Workspace (`/app/today`)
+- **Dual-Pane Layout**: Left pane for daily study agendas and Pomodoro timer; right pane for Markdown notes.
+- **Built-in Pomodoro Timer**: Custom interval controls (25m, 45m, 60m), play/pause/reset states, and sound alert toggles.
+- **Notion-Style Markdown Notes Editor**: Autosaving rich notes editor with toolbar controls, word count counter, and local storage sync.
+
+### 5. 📊 Developer Progress & Analytics (`/app/progress`)
+- **GitHub-Style Contribution Heatmap**: Visual grid recording daily study activity and completion frequency over the past year.
+- **Study Hour AreaChart**: Interactive charts visualizing weekly and monthly study time distributions.
+- **Topic Analytics**: Highlights weakest topics requiring revision and most-frequently revised study items.
+- **Achievements & Badges Grid**: Collection of unlocked badges (7-Day Streak, XP Master, Roadmap Pioneer).
+- **Printable Certificate**: PDF/Image export of milestone completion credentials.
+
+### 6. 📚 Resource Library (`/app/resources`)
+- **Categorized Catalog**: Filter resources by category (All, Theory, Video, Exercises, Projects).
+- **Search & Filter Controls**: Real-time text search, platform tags, and difficulty filtering.
+- **Custom Resource Adder**: Add custom study links, notes, and estimated completion times to your active goal.
+
+### 7. 📄 Documents Registry (`/app/pdfs`)
+- **PDF File Manager**: Drag-and-drop file uploader for local reference textbooks, notes, and portfolios.
+- **Track Category Tagger**: Associate uploaded PDFs with specific roadmap tracks.
+- **Tag Editor**: Inline tag editing for fast document organization.
+- **One-Click PDF-to-Roadmap Generator**: Triggers backend PyPDF text extraction and generates a custom roadmap centered around textbook chapters.
+
+### 8. 🤖 Sensei AI Mentor (`/app/sensei`)
+- **6 Mentor Personas**: Switch between Deadpool, Homelander, Thor, Messi, Taylor Swift, and Ryan Gosling.
+- **Character Avatars**: Custom `PersonaAvatar` badges rendered next to chat bubbles and status indicators.
+- **High-Contrast Chat Bubbles**: Optimized readability for user messages and formatted markdown AI responses.
+- **PDF Context Integration**: Sensei automatically references uploaded PDF textbooks when answering questions.
+
+### 9. ⚙️ App Settings (`/app/settings`)
+- **UI Glow Palette Switcher**: Switch between Plasma, Winter, Jungle, Volcano, Cyberpunk, and Solar accents.
+- **Profile Name Editor**: Change your display name shown in greeting banners.
+- **Account Session Manager**:
+  - Displays active email (`user@domain.com` or `demo@mymentor.app`).
+  - Displays session type badge (`Authenticated` vs `Demo Mode`).
+  - Dedicated **"Log in / Sign in with new ID"** button to easily switch accounts.
+- **Data Exporter**: Download your full active goal configuration, roadmap JSON, and study notes.
+- **Caution Zone**: Permanent goal profile reset and database clearing handler.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology | Details |
@@ -33,6 +97,7 @@ Designed with software engineering maturity, the backend adopts a **Modular Mono
 | **Backend** | FastAPI, Python 3.13 | High-performance asynchronous API, auto Swagger UI |
 | **Database ORM** | SQLAlchemy, Pydantic | Secure model schemas with clean relation cascades |
 | **Database** | PostgreSQL (Primary), SQLite | Auto-configured for local SQLite fallback execution |
+| **AI Integration** | Google Gemini, DeepSeek V3 | Multi-LLM failover pipeline (`2.5-flash` -> `deepseek-chat`) |
 | **DevOps** | Docker, Docker Compose | Multi-stage builds, containerized DB links |
 
 ---
@@ -43,29 +108,24 @@ Designed with software engineering maturity, the backend adopts a **Modular Mono
 myMentor/
 ├── frontend/
 │   ├── src/
-│   │   ├── components/       # Glassmorphic UI components (Sidebar)
+│   │   ├── components/       # Glassmorphic UI components (Sidebar, PersonaAvatar, Timer)
 │   │   ├── hooks/            # TanStack Query REST client integrations (useApi)
-│   │   ├── pages/            # View pages (Dashboard, Today, Roadmap, Progress, etc.)
-│   │   ├── store/            # Zustand global client UI states
+│   │   ├── lib/              # Theme definitions, Supabase client, utilities
+│   │   ├── pages/            # View pages (Dashboard, Today, Roadmap, Progress, PDFs, Sensei, Settings)
+│   │   ├── store/            # Zustand global client UI states (authStore, uiStore)
 │   │   ├── utils/            # Time and formatting helpers
 │   │   └── main.tsx          # React bootloader
 │   └── vite.config.ts        # Tailwind v4 Vite compiler plugin config
 ├── backend/
 │   ├── app/
-│   │   ├── api/              # API router setups
+│   │   ├── api/              # Security dependencies & JWT verification (dependencies.py)
 │   │   ├── core/             # Loguru logging, security, environment configurations
 │   │   ├── database/         # SessionLocal context, engine setup
-│   │   ├── models/           # Relational schemas (Goal, Track, Task, Stats, Badge)
+│   │   ├── models/           # Relational schemas (Goal, Track, Task, Stats, Badge, PDF)
 │   │   ├── schemas/          # Pydantic serialization & request validators
-│   │   ├── services/         # Domain business layer (GoalService, RoadmapService)
-│   │   ├── routers/          # HTTP Controllers (endpoints routes)
-│   │   ├── resources/        # Pre-baked JSON roadmap profiles (Must75, Blind75)
-│   │   ├── uploads/          # Local PDF repository storage
-│   │   ├── ai/               # [V2 Expansion Placeholder]
-│   │   ├── notifications/    # [V2 Expansion Placeholder]
-│   │   ├── integrations/     # [V2 Expansion Placeholder]
-│   │   ├── scheduler/        # [V2 Expansion Placeholder]
-│   │   └── main.py           # FastAPI entrypoint
+│   │   ├── services/         # Domain business layer (GoalService, RoadmapService, AIService, PDFService)
+│   │   ├── routers/          # HTTP Controllers (goals, ai, pdfs, timer, resources)
+│   │   └── main.py           # FastAPI entrypoint & CORS HTTP middleware
 │   ├── requirements.txt      # Python dependencies manifest
 │   ├── Dockerfile            # Container deployment blueprint
 │   └── docker-compose.yml    # Full local network deployment (FastAPI + PostgreSQL)
@@ -92,27 +152,26 @@ myMentor/
                      ┌──────────────────────────┐
                      │     Service Layer        │
                      │      (app/services)      │
-                     └─────────────┬────────────┘
-                                   │
-                                   ▼
-                     ┌──────────────────────────┐
-                     │       SQLAlchemy         │
-                     │     Database Engine      │
-                     └─────────────┬────────────┘
-                                   │
-                    ┌──────────────┴──────────────┐
-                    ▼                             ▼
-        ┌──────────────────────┐      ┌──────────────────────┐
-        │   PostgreSQL (Neon)  │      │   SQLite Fallback    │
-        │      (Production)    │      │    (Local Dev DB)    │
-        └──────────────────────┘      └──────────────────────┘
+                     └──────┬────────────┬──────┘
+                            │            │
+             ┌──────────────┘            └──────────────┐
+             ▼                                          ▼
+┌──────────────────────────┐              ┌──────────────────────────┐
+│   Multi-LLM AI Engine    │              │       SQLAlchemy         │
+│  (Gemini + DeepSeek V3)  │              │     Database Engine      │
+└──────────────────────────┘              └─────────────┬────────────┘
+                                                        │
+                                       ┌────────────────┴────────────────┐
+                                       ▼                                 ▼
+                           ┌──────────────────────┐          ┌──────────────────────┐
+                           │   PostgreSQL (Neon)  │          │   SQLite Fallback    │
+                           │      (Production)    │          │    (Local Dev DB)    │
+                           └──────────────────────┘          └──────────────────────┘
 ```
 
 ---
 
 ## 🔄 High-Level Application Workflows
-
-Here is how the main request-response lifecycles flow through the front and backend layers:
 
 ### 1. Goal & Roadmap Generation Flow
 ```mermaid
@@ -120,7 +179,7 @@ sequenceDiagram
     participant User as React Frontend
     participant API as FastAPI Router
     participant RM as RoadmapService
-    participant AI as AIService (Gemini)
+    participant AI as AIService (Multi-LLM)
     participant DB as SQLite / PostgreSQL
 
     User->>API: POST /api/v1/goals/ (Goal payload)
@@ -128,7 +187,9 @@ sequenceDiagram
     RM->>AI: generate_smart_roadmap(prompt)
     alt Gemini AI Available & Under Quota
         AI-->>RM: Custom JSON Roadmap (Milestones & Tasks)
-    else Rate Limited (429) or Key Missing
+    else Gemini Rate-Limited / 429
+        AI->>AI: Try DeepSeek V3 (deepseek-chat)
+    else Quota Exhausted
         RM->>RM: Fall back to local template (custom_goal.json)
         RM-->>RM: Distribute tasks evenly over user's timeline
     end
@@ -253,11 +314,12 @@ FastAPI generates automated OpenAPI Swagger documentation at [http://localhost:8
 - **PDF Uploads**:
   - `POST /api/v1/pdfs/` : Upload learning resources.
   - `GET /api/v1/pdfs/` : List catalog details.
+  - `POST /api/v1/pdfs/{id}/generate-roadmap` : Extract PDF text on-the-fly and generate a custom roadmap.
 
 ---
 
 ## 🔮 Future Expansion (V2 Roadmap)
 
-- 🔒 **Secure Authorization**: OAuth2 with JWT refresh tokens for cloud accounts.
-- 🤖 **Gemini AI Mentor**: Chatbot assistant parsed directly from your uploaded PDF catalog using embeddings.
-- 🔄 **Neon Cloud Sync**: Sync local SQLite databases directly to PostgreSQL in the cloud upon login.
+- 🔒 **OAuth2 Cloud Auth**: Third-party social logins (GitHub, Google) with secure session persistence.
+- 🤖 **Vector DB Embeddings**: RAG search over user PDF catalogs using pgvector or Pinecone.
+- 🔄 **Neon Cloud Sync**: Instant real-time database synchronization across devices.
