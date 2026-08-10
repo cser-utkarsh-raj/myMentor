@@ -11,12 +11,15 @@ Designed with software engineering maturity, the backend adopts a **Modular Mono
 
 ## 🚀 Key Features
 
-- 🗺️ **Rule-Based Roadmap Generator**: Decoupled, configuration-driven generator that parses JSON blueprints into active Track $\rightarrow$ Milestone $\rightarrow$ Day $\rightarrow$ Task schemas, dynamically adjusted to user timelines.
-- ⚡ **Gamified XP & Streak Engine**: Gain +10 XP for checking off topics, +100 XP for completing days, maintain streaks, and unlock progression-based badges.
+- 🗺️ **Progressive AI Roadmap Generator**: Decoupled, configuration-driven generator that parses JSON blueprints into active Track $\rightarrow$ Milestone $\rightarrow$ Day $\rightarrow$ Task schemas, strictly ordered from Easy Foundations to Peak Mastery Capstones.
+- ⚡ **Multi-LLM Failover Engine**: Resilient multi-tier AI pipeline integrating Google Gemini (`2.5-flash`, `2.5-flash-lite`, `3.1-flash-lite`, `3.5-flash`, `3.6-flash`) and DeepSeek V3 (`deepseek-chat`) automatic failover.
+- 🤖 **Sensei AI Mentor & Persona System**: Interactive AI coach featuring distinct mentor personalities (Deadpool, Homelander, Thor, Messi, Taylor Swift, Ryan Gosling) with dynamic character avatars.
+- 🏆 **Gamified XP & Streak Engine**: Gain +10 XP for checking off topics, +100 XP for completing days, maintain streaks, and unlock progression-based badges.
 - 📅 **Focused Workspace (Today Page)**: Dual-pane dashboard containing daily agendas, a built-in study Pomodoro timer, and a Notion-style autosaving Markdown notes editor.
 - 📊 **Rich Developer Analytics**: GitHub-style contributions heatmap tracking daily activity, weekly study hour AreaCharts, weakest topic indicators, and most-revised topic metrics.
-- 📄 **Local Document Management**: A secure PDF registry allowing users to manage local learning reference papers and portfolios.
-- 🎨 **Frosted Glass Aesthetics**: Sleek dark mode glassmorphism UI with smooth Framer Motion transitions and customizable color accents (Purple, Cyan, Emerald).
+- 📄 **Documents Registry & PDF Roadmap Engine**: A secure PDF registry allowing users to extract text on-the-fly from textbooks and generate custom roadmaps directly from uploaded documents.
+- 🔒 **Cryptographic Session Security**: Secure HS256 JWT authentication with RS256 OAuth claims fallback and clear account session management in Settings.
+- 🎨 **Frosted Glass Aesthetics**: Sleek dark mode glassmorphism UI with smooth Framer Motion transitions and customizable color accents (Plasma, Winter, Jungle, Volcano, Cyberpunk, Solar).
 
 ---
 
@@ -162,15 +165,17 @@ sequenceDiagram
     participant User as React Frontend
     participant API as FastAPI Router
     participant PDF as PDFService
-    participant AI as AIService (Gemini)
+    participant AI as AIService (Multi-LLM)
 
     User->>API: POST /api/v1/ai/chat (Message history)
     API->>PDF: get_pdf_context_for_user(user_id)
     PDF-->>API: Text snippet context (from uploaded PDFs)
     API->>AI: chat(prompt + PDF Context)
-    AI->>AI: Try Primary (gemini-2.0-flash)
-    alt Primary rate limited / unavailable
-        AI->>AI: Try fallbacks (gemini-2.0-flash-lite, gemini-3.5-flash...)
+    AI->>AI: Try Primary (gemini-2.5-flash)
+    alt Primary Rate-Limited or 429
+        AI->>AI: Rotate (gemini-2.5-flash-lite -> gemini-3.1 -> gemini-3.5)
+    else Gemini Quota Exhausted
+        AI->>AI: Fallback to DeepSeek V3 (deepseek-chat)
     end
     AI-->>API: AI response text
     API-->>User: HTTP 200 OK (Formatted Markdown output)
