@@ -19,7 +19,7 @@ Designed with software engineering maturity, the backend adopts a **Modular Mono
 - 📊 **Rich Developer Analytics**: GitHub-style contributions heatmap tracking daily activity, weekly study hour AreaCharts, weakest topic indicators, and most-revised topic metrics.
 - 📄 **Documents Registry & PDF Roadmap Engine**: A secure PDF registry allowing users to extract text on-the-fly from textbooks and generate custom roadmaps directly from uploaded documents.
 - 🔒 **Cryptographic Session Security**: Secure HS256 JWT authentication with RS256 OAuth claims fallback and clear account session management in Settings.
-- 🎨 **Frosted Glass Aesthetics**: Sleek dark mode glassmorphism UI with smooth Framer Motion transitions and customizable color accents (Plasma, Winter, Jungle, Volcano, Cyberpunk, Solar).
+- 🎨 **Neo-Brutalist Glassmorphism Hybrid**: High-energy pop UI fusing 3.5px solid black borders, 3D offset drop shadows, angled sticker badges, dark translucent frosted glass panels (`.glass-panel`), and Framer Motion keyframe transitions across 6 customizable vibe palettes (Plasma, Winter, Jungle, Volcano, Cyberpunk, Solar).
 
 ---
 
@@ -92,7 +92,7 @@ Designed with software engineering maturity, the backend adopts a **Modular Mono
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
 | **Frontend** | React 19, TypeScript, Vite | Modern component rendering, strict type-safety |
-| **Styling & Motion** | TailwindCSS v4, Framer Motion | Frosted glass utilities, keyframe animations |
+| **Styling & Motion** | TailwindCSS v4, Framer Motion | Neo-Brutalist Glassmorphism Hybrid (3.5px black borders, offset 3D shadows, frosted glass panels) |
 | **State & Query** | Zustand, TanStack React Query | Separated client UI states and caching query layers |
 | **Backend** | FastAPI, Python 3.13 | High-performance asynchronous API, auto Swagger UI |
 | **Database ORM** | SQLAlchemy, Pydantic | Secure model schemas with clean relation cascades |
