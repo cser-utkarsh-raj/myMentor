@@ -11,7 +11,10 @@ import {
   Lock,
   Cloud,
   LogOut,
-  Sparkles
+  Sparkles,
+  UserCheck,
+  UserPlus,
+  Mail
 } from 'lucide-react'
 import { useActiveGoal, useDeleteGoal } from '../hooks/useApi'
 import { useUIStore, AccentColor, SenseiPersonality } from '../store/uiStore'
@@ -26,8 +29,7 @@ export const Settings: React.FC = () => {
   const theme = getColorClasses(accentColor)
   const { data: activeGoal, refetch } = useActiveGoal()
   const deleteGoalMutation = useDeleteGoal()
-  const clearSession = useAuthStore(state => state.clearSession)
-  const { userName, setUserName } = useAuthStore()
+  const { user, isDemoMode, clearSession, userName, setUserName } = useAuthStore()
   const [tempName, setTempName] = React.useState(userName)
   const navigate = useNavigate()
 
@@ -222,26 +224,52 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Account Management Card */}
-        <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-zinc-950/15 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="flex gap-4">
-            <div className={`p-3 rounded-2xl ${theme.bg} border ${theme.border} text-zinc-200 shrink-0`}>
-              <LogOut className={`w-6 h-6 ${theme.text}`} />
+        <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-zinc-950/15 flex flex-col gap-5">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-white/5">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-2xl ${theme.bg} border ${theme.border} text-zinc-200 shrink-0`}>
+                <UserCheck className={`w-6 h-6 ${theme.text}`} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-bold text-zinc-200 text-sm flex items-center gap-2">
+                  Account Session
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded border uppercase ${
+                    isDemoMode ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                  }`}>
+                    {isDemoMode ? 'Demo Mode' : user ? 'Authenticated' : 'Guest Session'}
+                  </span>
+                </h3>
+                <p className="text-xs text-zinc-400 flex items-center gap-2 mt-0.5">
+                  <Mail className="w-3.5 h-3.5 text-zinc-500" />
+                  <span className="font-semibold text-zinc-300">
+                    {user?.email || (isDemoMode ? 'demo@mymentor.app' : 'local-guest@mymentor.app')}
+                  </span>
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <h3 className="font-bold text-zinc-200 text-sm">Account Session</h3>
-              <p className="text-xs text-zinc-500 leading-relaxed">
-                Log out of your current session. Your progress and goal configurations are safely stored in the database.
-              </p>
-            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-2 ${theme.btn}`}
+            >
+              <LogOut className="w-4 h-4" /> Sign Out / Log Out
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-2 ${theme.btn}`}
-          >
-            <LogOut className="w-4 h-4" /> Sign Out / Log Out
-          </button>
+          {/* Option to log in / sign in with a new ID */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
+            <p className="text-xs text-zinc-500 font-medium">
+              Need to switch accounts or sign in with a different email address?
+            </p>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-4 py-2.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-900 text-zinc-200 hover:text-white text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-2 hover:border-white/20"
+            >
+              <UserPlus className="w-3.5 h-3.5 text-cyan-400" /> Log in / Sign in with new ID
+            </button>
+          </div>
         </div>
 
         {/* Profile statistics metadata */}
@@ -285,7 +313,7 @@ export const Settings: React.FC = () => {
                 <h4 className="font-bold text-white text-base">Sensei Mentor Personality & Voice</h4>
               </div>
               <p className="text-xs text-zinc-400">
-                Choose Sensei's active personality, teaching philosophy, and typing style. NO emojis will be used in responses.
+                Choose Sensei's active personality, teaching philosophy, and mentor voice.
               </p>
             </div>
 
