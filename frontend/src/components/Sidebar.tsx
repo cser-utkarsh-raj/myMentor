@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { 
   Home, 
@@ -57,6 +57,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
     }
   }
   
+  const [logoTaps, setLogoTaps] = useState(0)
+
+  const handleLogoTap = () => {
+    setLogoTaps(prev => {
+      const newCount = prev + 1
+      if (newCount >= 5) {
+        navigate('/')
+        return 0
+      }
+      return newCount
+    })
+    // Also navigate to /app if they just normally click it
+    if (logoTaps === 0) {
+      navigate('/app')
+      handleNavLinkClick()
+    }
+  }
+
   const navItems = [
     { name: 'Dashboard', path: '/app/', icon: Home },
     { name: 'Roadmap', path: '/app/roadmap', icon: Map },
@@ -92,10 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
         <div className={`flex ${isSidebarCollapsed ? 'flex-col items-center gap-3' : 'items-center justify-between px-1'}`}>
           <div 
             className="flex items-center gap-3 cursor-pointer group" 
-            onClick={() => {
-              navigate('/app')
-              handleNavLinkClick()
-            }}
+            onClick={handleLogoTap}
             title="myMentor Dashboard"
           >
             <img 
@@ -104,7 +119,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
               className="w-10 h-10 shrink-0 drop-shadow-[3px_3px_0px_#000] group-hover:scale-105 transition-transform" 
             />
             {!isSidebarCollapsed && (
-              <span className="font-extrabold text-xl tracking-tight text-white flex items-center gap-0.5">
+              <span className="font-extrabold text-xl tracking-tight text-white flex items-center gap-0.5" onClick={() => navigate('/app')}>
                 my<span className={theme.text}>Mentor</span>
               </span>
             )}
@@ -263,6 +278,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ goal }) => {
             </>
           )}
         </button>
+
+
       </div>
     </aside>
   )
