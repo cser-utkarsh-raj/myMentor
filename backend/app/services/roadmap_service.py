@@ -1,397 +1,190 @@
 import os
 import json
+from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from app.models.models import Goal, Track, Module, Day, Resource
-from app.core.config import settings
 from app.core.logger import logger
-from typing import Dict, Any, List
 
 class RoadmapService:
+    """Build one meaningful learning unit per calendar day instead of stretching a few topics across a timeline."""
+
     @staticmethod
-    def _should_include_step(step_title: str | None, module_title: str | None, timeline_days: int) -> bool:
-        # Simple helper to skip boilerplate steps (like environment setup) for longer roadmaps 
-        # because we want to focus on core concepts.
-        combined = f"{step_title or ''} {module_title or ''}".lower()
-        skip_markers = ["planning phase", "initial setup", "setup & research", "define core scope", "set up practice workspace"]
-        if any(marker in combined for marker in skip_markers):
-            return False
+    def _flatten(template: Dict[str, Any]) -> List[Dict[str, Any]]:
+        flat = []
+        for ti, track in enumerate(template.get("tracks", [])):
+            for mi, module in enumerate(track.get("modules", track.get("milestones", []))):
+                for si, step in enumerate(module.get("steps", [])):
+                    flat.append({
+                        "track_title": track.get("title") or "Core Curriculum",
+                        "track_desc": track.get("description") or "Progressive learning track",
+                        "track_order": track.get("order", ti + 1),
+                        "module_title": module.get("title") or "Learning Module",
+                        "module_desc": module.get("description") or "",
+                        "module_order": module.get("order", mi + 1),
+                        "step_title": step.get("title") or f"Learning Step {si + 1}",
+                        "day_number": step.get("day_number"),
+                        "phase": step.get("phase", "Learn"),
+                        "resources": step.get("resources", step.get("tasks", [])) or []
+                    })
+        return flat
+
+    @staticmethod
+    def _resource_from_item(item: Dict[str, Any], default_platform: str, phase: str = "Learn") -> Dict[str, Any]:
+        return {
+            "title": item.get("title") or "Learning Resource",
+            "category": item.get("category") or ("Practice" if phase in {"Practice", "Assessment"} else "Theory"),
+            "platform": item.get("platform") or default_platform,
+            "difficulty": item.get("difficulty") or "Medium",
+            "estimated_time_mins": max(10, int(item.get("estimated_time_mins", item.get("estimated_duration_mins", 30)) or 30)),
+            "external_url": item.get("external_url") or item.get("url") or item.get("link") or "",
+            "notes": item.get("notes") or ""
+        }
+
+    @staticmethod
+    def _static_template(goal_title: str) -> Dict[str, Any]:
+        title_lower = (goal_title or "").lower()
+        filename = "custom_goal.json"
+        mapping = [
+            (("full-stack", "fullstack", "full stack"), "fullstack_developer.json"),
+            (("backend", "api design"), "backend_developer.json"),
+            (("machine learning", "artificial intelligence", "ai"), "ai_machine_learning.json"),
+            (("python",), "learn_python.json"),
+            (("data science", "data analytics"), "data_science.json"),
+            (("devops", "cloud"), "devops_cloud.json"),
+            (("cybersecurity", "ethical hacking", "security"), "cybersecurity.json"),
+            (("ui/ux", "ui", "ux", "creative design"), "ui_ux_design.json"),
+            (("product management", "product manager"), "product_management.json"),
+            (("finance", "investing", "financial"), "finance_investing.json"),
+            (("digital marketing", "marketing"), "digital_marketing.json"),
+            (("spanish", "language"), "learn_spanish.json")
+        ]
+        for keywords, candidate in mapping:
+            if any(k in title_lower for k in keywords):
+                filename = candidate
+                break
+        path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", filename)
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                return json.load(handle)
+        except Exception as exc:
+            logger.warning(f"Static roadmap template unavailable: {path}: {exc}")
+            return {"title": goal_title, "tracks": [{"title": "Core Curriculum", "description": "Foundations to practical mastery", "order": 1, "modules": [{"title": "Foundations", "description": "Start with the fundamentals", "order": 1, "steps": [{"title": f"Foundations of {goal_title}", "resources": [{"title": f"Study the foundations of {goal_title}", "category": "Theory", "platform": "Internal", "difficulty": "Easy", "estimated_time_mins": 45, "notes": "Learn the core vocabulary, mental models and first principles."}]}]}]}]}
+
+    @staticmethod
+    def _expand_static_template(template: Dict[str, Any], timeline_days: int) -> Dict[str, Any]:
+        source = RoadmapService._flatten(template)
+        if not source: return {}
+        phases = ["Learn", "Practice", "Build", "Review", "Assessment"]
+        daily = []
+        for day in range(1, timeline_days + 1):
+            cycle_index = day - 1
+            source_item = source[cycle_index % len(source)]
+            phase = phases[(cycle_index // len(source)) % len(phases)]
+            original = source_item["resources"]
+            base = original[cycle_index % len(original)] if original else {}
+            resource = RoadmapService._resource_from_item(base, base.get("platform", "Internal"), phase)
+            topic = source_item["step_title"]
+            phase_title = {"Learn": f"Learn: {topic}", "Practice": f"Practice: {topic}", "Build": f"Build: {topic}", "Review": f"Retrieval Review: {topic}", "Assessment": f"Assess & Repair: {topic}"}[phase]
+            resource["title"] = f"{phase}: {resource['title']}"
+            resource["notes"] = (resource.get("notes") or "") + f" Phase: {phase}. Produce evidence of understanding instead of passive reading."
+            if phase == "Practice": resource["category"] = "Practice"
+            elif phase == "Build": resource["category"] = "Project"
+            elif phase == "Assessment": resource["category"] = "Assessment"
+            daily.append({**source_item, "day_number": day, "phase": phase, "step_title": phase_title, "resources": [resource]})
+
+        tracks = {}
+        for item in daily:
+            tracks.setdefault(item["track_title"], {"title": item["track_title"], "description": item["track_desc"], "order": item["track_order"], "modules": {}})
+            track = tracks[item["track_title"]]
+            track["modules"].setdefault(item["module_title"], {"title": item["module_title"], "description": item["module_desc"], "order": item["module_order"], "steps": []})
+            track["modules"][item["module_title"]]["steps"].append(item)
+        return {"title": template.get("title", "Personalized Roadmap"), "tracks": [{**t, "modules": list(t["modules"].values())} for t in sorted(tracks.values(), key=lambda x: x["order"])]}
+
+    @staticmethod
+    def _ai_template_is_valid(template: Dict[str, Any], timeline_days: int) -> bool:
+        if not isinstance(template, dict) or not template.get("tracks"): return False
+        steps = RoadmapService._flatten(template)
+        numbers = {int(s["day_number"]) for s in steps if str(s.get("day_number", "")).isdigit()}
+        if len(steps) < max(7, int(timeline_days * 0.85)): return False
+        if not set(range(1, timeline_days + 1)).issubset(numbers): return False
         return True
 
     @staticmethod
     def generate_roadmap(db: Session, goal: Goal) -> bool:
-        logger.info(f"Generating dynamic roadmap for Goal: {goal.title}")
-        template = None
-        
         from app.services.ai_service import AIService
-        if AIService.is_available():
-            try:
-                ai_roadmap = AIService.generate_smart_roadmap(
-                    goal_title=goal.title,
-                    target=goal.target or "None",
-                    daily_hours=goal.daily_hours,
-                    timeline_days=goal.timeline_days
-                )
-                if ai_roadmap and isinstance(ai_roadmap, dict) and ai_roadmap.get("tracks"):
-                    test_steps = []
-                    for t in ai_roadmap.get("tracks", []):
-                        for m in t.get("modules", t.get("milestones", [])):
-                            for s in m.get("steps", []):
-                                test_steps.append(s)
-                    if len(test_steps) > 0:
-                        template = ai_roadmap
-                        logger.info("Roadmap generated dynamically via Gemini AI.")
-                    else:
-                        logger.warning("AI roadmap returned tracks but zero steps. Falling back to static templates.")
-            except Exception as e:
-                logger.error(f"AI generation failed: {e}. Falling back to static templates.")
-
-        def load_static_template(goal_title: str) -> Dict[str, Any]:
-            title_lower = (goal_title or "").lower()
-            filename = "custom_goal.json"
-            if "full-stack" in title_lower or "fullstack" in title_lower or "full stack" in title_lower:
-                filename = "fullstack_developer.json"
-            elif "backend" in title_lower or "api design" in title_lower:
-                filename = "backend_developer.json"
-            elif "ai" in title_lower or "machine learning" in title_lower:
-                filename = "ai_machine_learning.json"
-            elif "python" in title_lower:
-                filename = "learn_python.json"
-            elif "data science" in title_lower or "data analytics" in title_lower:
-                filename = "data_science.json"
-            elif "devops" in title_lower or "cloud" in title_lower:
-                filename = "devops_cloud.json"
-            elif "cybersecurity" in title_lower or "ethical hacking" in title_lower or "security" in title_lower:
-                filename = "cybersecurity.json"
-            elif "ui/ux" in title_lower or "ui" in title_lower or "ux" in title_lower or "creative design" in title_lower:
-                filename = "ui_ux_design.json"
-            elif "product management" in title_lower or "product manager" in title_lower:
-                filename = "product_management.json"
-            elif "financial" in title_lower or "finance" in title_lower or "investing" in title_lower:
-                filename = "finance_investing.json"
-            elif "digital marketing" in title_lower or "marketing" in title_lower:
-                filename = "digital_marketing.json"
-            elif "spanish" in title_lower or "language" in title_lower:
-                filename = "learn_spanish.json"
-            
-            resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", filename)
-            if not os.path.exists(resource_path):
-                resource_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "roadmaps", "custom_goal.json")
-            try:
-                with open(resource_path, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except Exception as e:
-                logger.error(f"Failed to read static template {resource_path}: {e}")
-                return {
-                    "tracks": [
-                        {
-                            "title": f"Mastery of {goal_title}",
-                            "description": "Core curriculum milestones",
-                            "order": 1,
-                            "modules": [
-                                {
-                                    "title": "Foundational Principles",
-                                    "description": "Essential topics and practice drills",
-                                    "order": 1,
-                                    "steps": [
-                                        {
-                                            "title": f"Core Foundations of {goal_title}",
-                                            "resources": [
-                                                {"title": f"Study Guide: {goal_title}", "category": "Theory", "platform": "Internal", "difficulty": "Easy", "estimated_time_mins": 30, "notes": f"Start with foundational concepts of {goal_title}."}
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-
-        if template:
-            try:
-                success = RoadmapService._save_template_to_db(db, goal, template, default_platform="Internal")
-                if success:
-                    return True
-            except Exception as se:
-                logger.error(f"Failed saving AI template to DB: {se}")
-                db.rollback()
-
-        # Guaranteed fallback path
-        static_tmpl = load_static_template(goal.title)
-        return RoadmapService._save_template_to_db(db, goal, static_tmpl, default_platform="Internal")
+        template = None
+        try:
+            if AIService.is_available():
+                candidate = AIService.generate_smart_roadmap(goal.title, goal.target or "None", goal.daily_hours, goal.timeline_days)
+                if RoadmapService._ai_template_is_valid(candidate, goal.timeline_days):
+                    template = candidate
+                    logger.info("Accepted grounded day-by-day AI roadmap.")
+                else:
+                    logger.warning("AI roadmap failed curriculum quality checks; using curated fallback.")
+        except Exception as exc:
+            logger.error(f"AI roadmap generation failed; using curated fallback: {exc}")
+        if template is None:
+            template = RoadmapService._expand_static_template(RoadmapService._static_template(goal.title), goal.timeline_days)
+        return RoadmapService._save_template_to_db(db, goal, template, default_platform="Internal")
 
     @staticmethod
     def get_roadmap_details(db: Session, goal_id: int) -> List[Track]:
-        # Returns the full roadmap structures (tracks -> modules -> days -> resources) ordered chronologically.
         return db.query(Track).filter(Track.goal_id == goal_id).order_by(Track.order.asc()).all()
 
     @staticmethod
     def generate_roadmap_from_pdf_content(db: Session, goal: Goal, pdf_text: str) -> bool:
-        # Step 1: Ask Gemini to analyze the parsed PDF text and build a matching curriculum template.
-        logger.info(f"Generating dynamically customized PDF roadmap for Goal ID: {goal.id}")
         from app.services.ai_service import AIService
-        
+        template = {}
         try:
-            template = AIService.generate_roadmap_from_pdf(
-                goal_title=goal.title,
-                target=goal.target or "None",
-                daily_hours=goal.daily_hours,
-                timeline_days=goal.timeline_days,
-                pdf_extracted_text=pdf_text
-            )
-        except Exception as e:
-            logger.error(f"Gemini PDF analysis failed: {e}")
-
-        if not template or not template.get("tracks"):
-            logger.warning("AI PDF roadmap generation failed or offline. Generating structured offline PDF roadmap from extracted text.")
-            clean_lines = [line.strip() for line in pdf_text.splitlines() if len(line.strip()) > 5]
-            title = goal.title or "PDF Study Guide"
-            
-            track1_steps = clean_lines[:min(5, len(clean_lines))] or [f"Core Foundations of {title}"]
-            track2_steps = clean_lines[min(5, len(clean_lines)):min(10, len(clean_lines))] or [f"Practical Applications & Problem Solving"]
-            track3_steps = clean_lines[min(10, len(clean_lines)):min(15, len(clean_lines))] or [f"Advanced Review & Master Quiz"]
-
-            template = {
-                "tracks": [
-                    {
-                        "title": f"📄 Core Syllabus: {title}",
-                        "description": "Essential topics extracted from uploaded PDF document",
-                        "order": 1,
-                        "modules": [
-                            {
-                                "title": "Foundational Reading & Key Terms",
-                                "description": "Primary concepts and definitions from study guide",
-                                "order": 1,
-                                "steps": [
-                                    {
-                                        "title": f"Study Section: {step_line[:60]}",
-                                        "resources": [
-                                            {
-                                                "title": f"Read & Annotate: {step_line[:40]}",
-                                                "category": "Theory",
-                                                "platform": "Course Material",
-                                                "difficulty": "Easy",
-                                                "estimated_time_mins": 30,
-                                                "notes": f"Focus on understanding the core principles outlined in this section of your uploaded PDF: '{step_line[:120]}'"
-                                            }
-                                        ]
-                                    }
-                                    for step_line in track1_steps
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "title": "⚡ Deep Dive & Practice Drills",
-                        "description": "Hands-on exercises and problem-solving based on PDF materials",
-                        "order": 2,
-                        "modules": [
-                            {
-                                "title": "Practical Exercises & Implementation",
-                                "description": "Applying key formulas, algorithms, or theories",
-                                "order": 1,
-                                "steps": [
-                                    {
-                                        "title": f"Practice Drill: {step_line[:60]}",
-                                        "resources": [
-                                            {
-                                                "title": f"Implement/Solve: {step_line[:40]}",
-                                                "category": "Exercise",
-                                                "platform": "Course Material",
-                                                "difficulty": "Medium",
-                                                "estimated_time_mins": 45,
-                                                "notes": f"Create active recall flashcards or implement code examples covering: '{step_line[:120]}'"
-                                            }
-                                        ]
-                                    }
-                                    for step_line in track2_steps
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "title": "🏆 Master Review & Self-Assessment",
-                        "description": "Comprehensive summary, active recall, and exam prep",
-                        "order": 3,
-                        "modules": [
-                            {
-                                "title": "Exam Readiness & Revision",
-                                "description": "Final consolidation of all PDF learning objectives",
-                                "order": 1,
-                                "steps": [
-                                    {
-                                        "title": f"Master Review: {step_line[:60]}",
-                                        "resources": [
-                                            {
-                                                "title": f"Quiz & Consolidate: {step_line[:40]}",
-                                                "category": "Project",
-                                                "platform": "Course Material",
-                                                "difficulty": "Hard",
-                                                "estimated_time_mins": 60,
-                                                "notes": f"Synthesize your notes and test yourself on: '{step_line[:120]}'"
-                                            }
-                                        ]
-                                    }
-                                    for step_line in track3_steps
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-
-        # Step 2: Delete any previous roadmap details for this goal before building the new one.
-        # This keeps the database clean and avoids conflicts.
+            template = AIService.generate_roadmap_from_pdf(goal.title, goal.target or "None", goal.daily_hours, goal.timeline_days, pdf_text)
+        except Exception as exc:
+            logger.error(f"PDF roadmap AI generation failed: {exc}")
+        if not RoadmapService._ai_template_is_valid(template, goal.timeline_days):
+            clean = [line.strip() for line in (pdf_text or "").splitlines() if len(line.strip()) > 5][:20] or [f"Core Foundations of {goal.title}"]
+            steps = [{"day_number": i + 1, "title": f"Study: {line[:70]}", "phase": "Learn", "resources": [{"title": f"Read & annotate: {line[:60]}", "category": "Theory", "platform": "Course Material", "difficulty": "Medium", "estimated_time_mins": 45, "external_url": "/app/pdfs", "notes": "Use the uploaded PDF as the primary source."}]} for i, line in enumerate((clean * ((goal.timeline_days // len(clean)) + 1))[:goal.timeline_days])]
+            template = {"title": f"PDF Roadmap: {goal.title}", "tracks": [{"title": "PDF Curriculum", "description": "Topics derived from your uploaded material", "order": 1, "modules": [{"title": "Study & Practice", "description": "Active learning from the document", "order": 1, "steps": steps}]}]}
         try:
-            existing_tracks = db.query(Track).filter(Track.goal_id == goal.id).all()
-            for t in existing_tracks:
-                db.delete(t)
+            for track in db.query(Track).filter(Track.goal_id == goal.id).all(): db.delete(track)
             db.flush()
-        except Exception as de:
-            logger.error(f"Error clearing old roadmap details: {de}")
+            return RoadmapService._save_template_to_db(db, goal, template, default_platform="Course Material")
+        except Exception as exc:
+            logger.error(f"Failed rebuilding PDF roadmap: {exc}")
             db.rollback()
-
-        # Step 3: Save to the database using the same core distribution engine.
-        return RoadmapService._save_template_to_db(db, goal, template, default_platform="Course Material")
+            return False
 
     @staticmethod
     def _save_template_to_db(db: Session, goal: Goal, template: Dict[str, Any], default_platform: str = "Internal") -> bool:
-        # 1. Flatten all nested structures in the JSON template (tracks -> modules -> steps)
-        # into a flat list of study steps we need to schedule.
-        flat_steps = []
-        for track_idx, track_temp in enumerate(template.get("tracks", [])):
-            for module_idx, module_temp in enumerate(track_temp.get("modules", track_temp.get("milestones", []))):
-                for step_idx, step_temp in enumerate(module_temp.get("steps", [])):
-                    if default_platform == "Internal" and not RoadmapService._should_include_step(
-                        step_title=step_temp.get("title"),
-                        module_title=module_temp.get("title"),
-                        timeline_days=goal.timeline_days,
-                    ):
-                        continue
-
-                    flat_steps.append({
-                        "track_title": track_temp.get("title"),
-                        "track_desc": track_temp.get("description"),
-                        "track_order": track_temp.get("order", track_idx + 1),
-                        "module_title": module_temp.get("title"),
-                        "module_desc": module_temp.get("description"),
-                        "module_order": module_temp.get("order", module_idx + 1),
-                        "step_title": step_temp.get("title"),
-                        "resources": step_temp.get("resources", step_temp.get("tasks", []))
-                    })
-
-        total_steps = len(flat_steps)
-        if total_steps == 0:
-            logger.error("No steps found to save. Generation canceled.")
+        flat_steps = RoadmapService._flatten(template)
+        if not flat_steps: return False
+        explicit_days = {int(s["day_number"]) for s in flat_steps if str(s.get("day_number", "")).isdigit()}
+        if explicit_days != set(range(1, goal.timeline_days + 1)):
+            template = RoadmapService._expand_static_template(template, goal.timeline_days)
+            flat_steps = RoadmapService._flatten(template)
+        tracks, modules, used_days = {}, {}, set()
+        try:
+            for idx, item in enumerate(sorted(flat_steps, key=lambda x: int(x.get("day_number") or 999999))):
+                day_number = int(item.get("day_number") or idx + 1)
+                if day_number in used_days or day_number < 1 or day_number > goal.timeline_days: continue
+                used_days.add(day_number)
+                track_key = item["track_title"]
+                if track_key not in tracks:
+                    tracks[track_key] = Track(goal_id=goal.id, title=track_key, description=item["track_desc"], order=item["track_order"])
+                    db.add(tracks[track_key]); db.flush()
+                module_key = f"{track_key}::{item['module_title']}"
+                if module_key not in modules:
+                    modules[module_key] = Module(track_id=tracks[track_key].id, title=item["module_title"], description=item["module_desc"], order=item["module_order"])
+                    db.add(modules[module_key]); db.flush()
+                day = Day(module_id=modules[module_key].id, day_number=day_number, title=item["step_title"], unlocked=(day_number == 1), is_completed=False, xp_rewarded=False)
+                db.add(day); db.flush()
+                resources = item["resources"] or [{"title": item["step_title"], "category": "Practice", "platform": default_platform, "difficulty": "Medium", "estimated_time_mins": min(60, max(30, int(goal.daily_hours * 30))), "external_url": "", "notes": "Complete an active-learning session and record what you learned."}]
+                for raw in resources[:4]:
+                    r = RoadmapService._resource_from_item(raw, default_platform, item.get("phase", "Learn"))
+                    db.add(Resource(day_id=day.id, title=r["title"], category=r["category"], platform=r["platform"], difficulty=r["difficulty"], is_completed=False, notes=r["notes"], revision_count=0, estimated_duration_mins=r["estimated_time_mins"], external_url=r["external_url"] or None, completed_at=None, xp_reward=10))
+            if used_days != set(range(1, goal.timeline_days + 1)):
+                raise ValueError(f"Roadmap contains {len(used_days)} of {goal.timeline_days} required days")
+            db.commit()
+            return True
+        except Exception as exc:
+            logger.error(f"Failed saving roadmap: {exc}")
+            db.rollback()
             return False
-
-        # 2. Scaling Engine: Distributes the flat steps proportionally across the target timeline days.
-        # This maps any template size to fit the user's specific timeframe (e.g. 10 days, 45 days).
-        db_tracks: Dict[str, Track] = {}
-        db_modules: Dict[str, Module] = {}
-        N = goal.timeline_days
-
-        for i, step_info in enumerate(flat_steps):
-            # Proportional distribution math: finds start and end days for this step in the timeline
-            day_start = int(round(i * N / total_steps)) + 1
-            day_end = int(round((i + 1) * N / total_steps))
-            if day_end < day_start:
-                day_end = day_start
-            allocated_days_count = day_end - day_start + 1
-
-            # Insert Track if it hasn't been created yet for this goal
-            track_title = step_info["track_title"]
-            if track_title not in db_tracks:
-                track = Track(
-                    goal_id=goal.id,
-                    title=track_title,
-                    description=step_info["track_desc"],
-                    order=step_info["track_order"]
-                )
-                db.add(track)
-                db.flush()
-                db_tracks[track_title] = track
-            track_id = db_tracks[track_title].id
-
-            # Insert Module if it hasn't been created yet for this track
-            module_key = f"{track_title}::{step_info['module_title']}"
-            if module_key not in db_modules:
-                module = Module(
-                    track_id=track_id,
-                    title=step_info["module_title"],
-                    description=step_info["module_desc"],
-                    order=step_info["module_order"]
-                )
-                db.add(module)
-                db.flush()
-                db_modules[module_key] = module
-            module_id = db_modules[module_key].id
-
-            res_list = step_info["resources"]
-            res_count = len(res_list)
-
-            # Insert days and allocate study resources to them
-            for day_idx in range(allocated_days_count):
-                day_num = day_start + day_idx
-                day_title = f"{step_info['step_title']} (Day {day_idx + 1}/{allocated_days_count})" if allocated_days_count > 1 else step_info["step_title"]
-                
-                db_day = Day(
-                    module_id=module_id,
-                    day_number=day_num,
-                    title=day_title,
-                    unlocked=(day_num == 1),
-                    is_completed=False,
-                    xp_rewarded=False
-                )
-                db.add(db_day)
-                db.flush()
-
-                # Slice resource list dynamically to distribute items evenly over multiple days
-                if res_count > 0:
-                    t_start = int(round(day_idx * res_count / allocated_days_count))
-                    t_end = int(round((day_idx + 1) * res_count / allocated_days_count))
-                    day_res = res_list[t_start:t_end]
-                else:
-                    day_res = []
-
-                # If the template specified reference materials, save them as study tasks.
-                if len(day_res) > 0:
-                    for r_item in day_res:
-                        resource = Resource(
-                            day_id=db_day.id,
-                            title=r_item.get("title", "Resource"),
-                            category=r_item.get("category", "General"),
-                            platform=r_item.get("platform", default_platform),
-                            difficulty=r_item.get("difficulty", "Medium"),
-                            is_completed=False,
-                            notes=r_item.get("notes", ""),
-                            revision_count=0,
-                            estimated_duration_mins=r_item.get("estimated_time_mins", r_item.get("estimated_duration_mins", 30)),
-                            completed_at=None
-                        )
-                        db.add(resource)
-                # If no resources are listed in the template, auto-generate standard active learning drills
-                # (practical coding exercises, recall quizzes, summaries) so the user always has actions to take!
-                else:
-                    review_variations = [
-                        {"title": f"Practical Drill: {step_info['step_title']}", "category": "Exercise", "notes": f"Implement a hands-on project or code example applying the concepts of {step_info['step_title']}."},
-                        {"title": f"Deep-Dive Study: {step_info['step_title']}", "category": "Theory", "notes": f"Read reference material, articles, or documentation regarding {step_info['step_title']}."},
-                        {"title": f"Active Recall Quiz: {step_info['step_title']}", "category": "Exercise", "notes": f"Create 3 flashcards or quiz questions covering key terminology of {step_info['step_title']}."},
-                        {"title": f"Study Notes Consolidation: {step_info['step_title']}", "category": "Theory", "notes": f"Summarize today's core takeaways and organize your notes for {step_info['step_title']}."},
-                        {"title": f"Review & Refine: {step_info['step_title']}", "category": "Projects", "notes": f"Re-read your notes, correct earlier mistakes, and cement your understanding of {step_info['step_title']}."}
-                    ]
-                    var = review_variations[(day_idx - 1) % len(review_variations)]
-                    resource = Resource(
-                        day_id=db_day.id,
-                        title=var["title"],
-                        category=var["category"],
-                        platform=default_platform,
-                        difficulty="Medium",
-                        is_completed=False,
-                        notes=var["notes"],
-                        revision_count=0,
-                        estimated_duration_mins=30,
-                        completed_at=None
-                    )
-                    db.add(resource)
-        db.commit()
-        return True
