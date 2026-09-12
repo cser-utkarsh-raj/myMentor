@@ -25,34 +25,31 @@ export const useAuthStore = create<AuthState>()(
       isDemoMode: false,
       activeGoalId: null,
       userName: 'Mentee',
-      setSession: (session) => {
+      setSession: (session) => set((state) => {
+        const nextUserId = session?.user?.id || null
+        const previousUserId = state.user?.id || null
+        const switchedUser = nextUserId !== previousUserId
         let metadataName = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || session?.user?.email?.split('@')[0] || 'Mentee'
         if (metadataName === 'Mentor Client') metadataName = 'Mentee'
-        set({ 
-          session, 
-          user: session?.user || null, 
+        return {
+          session,
+          user: session?.user || null,
           isInitialized: true,
           isDemoMode: false,
-          userName: metadataName
-        })
-      },
-      setDemoMode: (isDemo) => set({ 
-        isDemoMode: isDemo, 
-        session: null, 
-        user: null, 
-        isInitialized: true 
+          userName: metadataName,
+          activeGoalId: switchedUser ? null : state.activeGoalId
+        }
       }),
+      setDemoMode: (isDemo) => set({ isDemoMode: isDemo, session: null, user: null, isInitialized: true, activeGoalId: null }),
       setActiveGoalId: (goalId) => set({ activeGoalId: goalId }),
       setUserName: (name: string) => set({ userName: name.trim() === 'Mentor Client' ? 'Mentee' : name }),
-      clearSession: () => set({ session: null, user: null, isDemoMode: false, activeGoalId: null, userName: 'Mentee' })
+      clearSession: () => set({ session: null, user: null, isDemoMode: false, activeGoalId: null, userName: 'Mentee', isInitialized: true })
     }),
     {
       name: 'mymentor-auth-storage',
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
-        if (state && (state.userName === 'Mentor Client' || !state.userName)) {
-          state.userName = 'Mentee'
-        }
+        if (state && (state.userName === 'Mentor Client' || !state.userName)) state.userName = 'Mentee'
       }
     }
   )
