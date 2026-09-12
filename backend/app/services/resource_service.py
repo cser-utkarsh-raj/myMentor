@@ -1,10 +1,8 @@
 import os
 import json
-import re
 from typing import Dict, List, Any, Optional
 from sqlalchemy.orm import Session
 from app.core.logger import logger
-
 
 class ResourceService:
     CANONICAL = {
@@ -31,8 +29,12 @@ class ResourceService:
         text = f"{title} {platform} {category}".lower()
         for key, url in cls.CANONICAL.items():
             if key in text: return url
-        if "github actions" in text: return cls.CANONICAL["github actions"]
         return ""
+
+    @classmethod
+    def build_external_url(cls, title: str, category: str = "", platform: str = "", goal_title: str = "") -> str:
+        # Backward-compatible API used by custom-resource creation.
+        return cls.canonical_url(title, platform, category)
 
     @classmethod
     def normalize_item(cls, item: Dict[str, Any], goal_title: str = "") -> Dict[str, Any]:
@@ -90,13 +92,11 @@ class ResourceService:
     def _relevant_library(cls, goal_title: str) -> Dict[str, List[Dict[str, Any]]]:
         t = goal_title.lower()
         library = cls.get_all_resources()
-        if any(k in t for k in ["dsa", "algorithm", "interview", "software engineer"]):
-            return {k: v for k, v in library.items() if k in {"dsa_must_75", "dsa_blind_75"}}
+        if any(k in t for k in ["dsa", "algorithm", "interview", "software engineer"]): return {k: v for k, v in library.items() if k in {"dsa_must_75", "dsa_blind_75"}}
         if "python" in t: return {"python_interview_40": library["python_interview_40"]}
         if "sql" in t or "database" in t: return {"sql_25": library["sql_25"]}
         if "java" in t: return {"java_core": library["java_core"]}
-        if any(k in t for k in ["full-stack", "full stack", "backend", "web", "developer"]):
-            return {"dsa_must_75": library["dsa_must_75"], "sql_25": library["sql_25"]}
+        if any(k in t for k in ["full-stack", "full stack", "backend", "web", "developer"]): return {"dsa_must_75": library["dsa_must_75"], "sql_25": library["sql_25"]}
         return {}
 
     @classmethod
@@ -105,10 +105,8 @@ class ResourceService:
         pdf_resources = cls._get_pdf_resources(db, user_id)
         result: Dict[str, List[Dict[str, Any]]] = {}
         if goal_resources: result["roadmap_resources"] = goal_resources
-        curated = cls._relevant_library(goal_title)
-        result.update(curated)
+        result.update(cls._relevant_library(goal_title))
         if pdf_resources: result["uploaded_pdfs"] = pdf_resources
-
         if not result:
             from app.services.ai_service import AIService
             if AIService.is_available():
@@ -117,6 +115,5 @@ class ResourceService:
                     generated = AIService._generate_json(prompt, max_tokens=5000, temp=0.25, grounded=True)
                     items = generated.get("resources", []) if isinstance(generated, dict) else []
                     result["recommended"] = [cls.normalize_item(x, goal_title) for x in items if isinstance(x, dict)]
-                except Exception as exc:
-                    logger.warning(f"AI resource curation failed: {exc}")
+                except Exception as exc: logger.warning(f"AI resource curation failed: {exc}")
         return result
